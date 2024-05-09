@@ -1,6 +1,6 @@
 # :coffee: Kaffekompis - din bryggarvän
 
-** :warning: OBS! Projektet är under uppbyggnad!**
+**:warning: OBS! Projektet är under uppbyggnad!**
 
 Kaffekompis är en samling verktyg som kan hjälpa dig i speicalkaffebryggningen. Här kommer du att hitta bryggrecept för de populäraste bryggningsmetoderna, kalkylatorer för de rätta kaffe/vatten-förhållandena och mycket mer!
 
