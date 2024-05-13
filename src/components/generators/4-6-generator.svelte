@@ -9,43 +9,40 @@
   // Calculate total water weight
   $: waterWeight = coffeeWeight * waterRatio;
 
+  function calculateFirstAndSecondPours(taste, firstPourWater) {
+    switch(taste) {
+      case 'Acidic':
+        return [firstPourWater * (2/3), firstPourWater * (1/3)];
+      case 'Balanced':
+        return [firstPourWater / 2, firstPourWater / 2];
+      case 'Sweet':
+        return [firstPourWater * (1/3), firstPourWater * (2/3)];
+    }
+  }
+
+  function calculateSubsequentPours(strength, secondPourWater) {
+    switch(strength) {
+      case 'Strong':
+        return Array(4).fill(secondPourWater / 4);
+      case 'Balanced':
+        return Array(3).fill(secondPourWater / 3);
+      case 'Weak':
+        return Array(2).fill(secondPourWater / 2);
+    }
+  }
+
   // Calculate pouring pours
   $: {
-    error = '';  // Reset error at the beginning of the block
+    error = '';
+    // Reset error at the beginning of the block
+    // TODO: Validate input, make sure the number a number, and positive.
     if (isNaN(coffeeWeight) || coffeeWeight === '') {
       error = 'Please enter a valid number for coffee weight.';
     } else {
       let firstPourWater = waterWeight * 0.4;
       let secondPourWater = waterWeight * 0.6;
-      let firstPour, secondPour, subsequentPours;
-
-      // Determine pours for the 40% pour
-      switch(taste) {
-        case 'Acidic':
-          firstPour = firstPourWater * (2/3);
-          secondPour = firstPourWater * (1/3);
-          break;
-        case 'Balanced':
-          firstPour = secondPour = firstPourWater / 2;
-          break;
-        case 'Sweet':
-          firstPour = firstPourWater * (1/3);
-          secondPour = firstPourWater * (2/3);
-          break;
-      }
-
-      // Determine pours for the 60% pour
-      switch(strength) {
-        case 'Strong':
-          subsequentPours = Array(4).fill(secondPourWater / 4);
-          break;
-        case 'Balanced':
-          subsequentPours = Array(3).fill(secondPourWater / 3);
-          break;
-        case 'Weak':
-          subsequentPours = Array(2).fill(secondPourWater / 2);
-          break;
-      }
+      let [firstPour, secondPour] = calculateFirstAndSecondPours(taste, firstPourWater);
+      let subsequentPours = calculateSubsequentPours(strength, secondPourWater);
 
       // Create schedule and calculate cumulative totals
       let total = 0;
