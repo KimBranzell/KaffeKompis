@@ -11,48 +11,49 @@
 
   // Calculate pouring pours
   $: {
+    error = '';  // Reset error at the beginning of the block
     if (isNaN(coffeeWeight) || coffeeWeight === '') {
       error = 'Please enter a valid number for coffee weight.';
-    }
-    error = '';
-    let firstPourWater = waterWeight * 0.4;
-    let secondPourWater = waterWeight * 0.6;
-    let firstPour, secondPour, subsequentPours;
+    } else {
+      let firstPourWater = waterWeight * 0.4;
+      let secondPourWater = waterWeight * 0.6;
+      let firstPour, secondPour, subsequentPours;
 
-    // Determine pours for the 40% pour
-    switch(taste) {
-      case 'Acidic':
-        firstPour = firstPourWater * (2/3);
-        secondPour = firstPourWater * (1/3);
-        break;
-      case 'Balanced':
-        firstPour = secondPour = firstPourWater / 2;
-        break;
-      case 'Sweet':
-        firstPour = firstPourWater * (1/3);
-        secondPour = firstPourWater * (2/3);
-        break;
-    }
+      // Determine pours for the 40% pour
+      switch(taste) {
+        case 'Acidic':
+          firstPour = firstPourWater * (2/3);
+          secondPour = firstPourWater * (1/3);
+          break;
+        case 'Balanced':
+          firstPour = secondPour = firstPourWater / 2;
+          break;
+        case 'Sweet':
+          firstPour = firstPourWater * (1/3);
+          secondPour = firstPourWater * (2/3);
+          break;
+      }
 
-    // Determine pours for the 60% pour
-    switch(strength) {
-      case 'Strong':
-        subsequentPours = Array(4).fill(secondPourWater / 4);
-        break;
-      case 'Balanced':
-        subsequentPours = Array(3).fill(secondPourWater / 3);
-        break;
-      case 'Weak':
-        subsequentPours = Array(2).fill(secondPourWater / 2);
-        break;
-    }
+      // Determine pours for the 60% pour
+      switch(strength) {
+        case 'Strong':
+          subsequentPours = Array(4).fill(secondPourWater / 4);
+          break;
+        case 'Balanced':
+          subsequentPours = Array(3).fill(secondPourWater / 3);
+          break;
+        case 'Weak':
+          subsequentPours = Array(2).fill(secondPourWater / 2);
+          break;
+      }
 
-    // Create schedule and calculate cumulative totals
-    let total = 0;
-    schedule = [firstPour, secondPour, ...subsequentPours].map(pour => {
-      total += pour;
-      return { pour, total };
-    });
+      // Create schedule and calculate cumulative totals
+      let total = 0;
+      schedule = [firstPour, secondPour, ...subsequentPours].map(pour => {
+        total += pour;
+        return { pour, total };
+      });
+    }
   }
 
   function handlePrint() {
@@ -77,21 +78,23 @@
 </style>
 
 <div>
-  <input type="number" bind:value={coffeeWeight} min="1" />
+  <label for="coffeeWeight">Coffee Weight (grams):
+    <input type="number" bind:value={coffeeWeight} min="1" />
+  </label>
   <select bind:value={waterRatio}>
     {#each Array(7).fill().map((_, i) => i + 12) as ratio}
       <option value={ratio}>{ratio}</option>
     {/each}
   </select>
   <select bind:value={strength}>
-    <option value="Strong">Strong</option>
-    <option value="Balanced">Balanced</option>
-    <option value="Weak">Weak</option>
+    <option value="Strong">Starkt</option>
+    <option value="Balanced">Balanserat</option>
+    <option value="Weak">Svagt</option>
   </select>
   <select bind:value={taste}>
-    <option value="Acidic">Acidic</option>
-    <option value="Balanced">Balanced</option>
-    <option value="Sweet">Sweet</option>
+    <option value="Acidic">Syrligt</option>
+    <option value="Balanced">Balanserat</option>
+    <option value="Sweet">Sött</option>
   </select>
   {#if error}
     <p>{error}</p>
