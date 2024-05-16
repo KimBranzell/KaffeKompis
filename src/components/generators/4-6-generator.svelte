@@ -42,8 +42,10 @@
   // Calculate pouring pours and handle inputValidationErrors
   $: {
     inputValidationError = '';  // Reset inputValidationError at the beginning of the block
-    if (isNaN(coffeeWeightGrams) || coffeeWeightGrams === '') {
-      inputValidationError = 'Please enter a valid number for coffee weight.';
+    if (isNaN(parseFloat(coffeeWeightGrams)) || parseFloat(coffeeWeightGrams) <= 0) {
+      inputValidationError = 'Please enter a valid number greater than zero for coffee weight.';
+    } else if (isNaN(waterToCoffeeRatio) || waterToCoffeeRatio <= 0) {
+      inputValidationError = 'Please enter a valid number for the water to coffee ratio.';
     } else {
       let firstPourWater = waterWeight * FIRST_POUR_RATIO;
       let secondPourWater = waterWeight * SECOND_POUR_RATIO;
@@ -81,32 +83,40 @@
 </style>
 
 <div>
-  <label for="coffeeWeightGrams">Coffee Weight (grams):
-    <input type="number" bind:value={coffeeWeightGrams} min="1" />
-  </label>
-  <select bind:value={waterToCoffeeRatio}>
-    {#each Array(7).fill().map((_, i) => i + 12) as ratio}
-      <option value={ratio}>{ratio}</option>
-    {/each}
-  </select>
-  <select bind:value={coffeeStrength}>
-    <option value="Strong">Starkt</option>
-    <option value="Balanced">Balanserat</option>
-    <option value="Weak">Svagt</option>
-  </select>
-  <select bind:value={coffeeTaste}>
-    <option value="Acidic">Syrligt</option>
-    <option value="Balanced">Balanserat</option>
-    <option value="Sweet">Sött</option>
-  </select>
-  {#if inputValidationError}
-    <p>{inputValidationError}</p>
-  {/if}
-  <button on:click={handlePrint}>Print Recipe</button>
-  <table>
-    <tr><th>Pour</th><th>Water (g)</th><th>Total (g)</th></tr>
-    {#each brewingSchedule as {pour, total}, index}
-      <tr><td>{index + 1}</td><td>{pour.toFixed(2)}</td><td>{total.toFixed(2)}</td></tr>
-    {/each}
-  </table>
+  <div class="generator-header">
+    <label for="coffeeWeightGrams">Coffee Weight (grams):
+      <input type="number" bind:value={coffeeWeightGrams} min="1" />
+    </label>
+    <select bind:value={waterToCoffeeRatio}>
+      {#each Array(7).fill().map((_, i) => i + 12) as ratio}
+        <option value={ratio}>1:{ratio}</option>
+      {/each}
+    </select>
+    <select bind:value={coffeeStrength}>
+      <option value="Strong">Starkt</option>
+      <option value="Balanced">Balanserat</option>
+      <option value="Weak">Svagt</option>
+    </select>
+    <select bind:value={coffeeTaste}>
+      <option value="Acidic">Syrligt</option>
+      <option value="Balanced">Balanserat</option>
+      <option value="Sweet">Sött</option>
+    </select>
+    {#if inputValidationError}
+      <p>{inputValidationError}</p>
+    {/if}
+    <button on:click={handlePrint}>Print Recipe</button>
+  </div>
+  <div class="generator-body">
+    <div class="instructions">
+      <h2>Ingredienser</h2>
+      <div>{waterWeight.toFixed(2)} gram vatten</div>
+    </div>
+    <table>
+      <tr><th>Pour</th><th>Water (g)</th><th>Total (g)</th></tr>
+      {#each brewingSchedule as {pour, total}, index}
+        <tr><td>{index + 1}</td><td>{pour.toFixed(2)}</td><td>{total.toFixed(2)}</td></tr>
+      {/each}
+    </table>
+  </div>
 </div>
