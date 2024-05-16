@@ -1,16 +1,9 @@
 ---
-
+import PageLayout from '../layouts/PageLayout.astro';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<PageLayout title="Home Page">
+  <p>Welcome to your new Astro site! This is a basic starter template for building a new site with Astro.</p>
+  <p>To learn more about Astro, check out the <a href="https://astro.build">official docs</a> or join the <a href="https://astro.build/chat">Astro Discord channel</a>.</p>
+  <p>Now go build something great.</p>
+</PageLayout>

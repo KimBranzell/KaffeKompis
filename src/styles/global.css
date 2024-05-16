@@ -1,0 +1,103 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+html {
+  background-color: rgb(233,202,176);
+  font-family: sans-serif;
+}
+
+body {
+  margin: 0 auto;
+  width: 100%;
+  padding: 1rem;
+  line-height: 1.5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h1 {
+  margin: 1rem 0;
+  font-size: 2.5rem;
+}
+
+.whatever {
+  background: yellow;
+  color: green;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.container.header-container {
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/**
+ * Navigation
+ */
+.navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+.navigation li,
+.navigation a {
+  list-style: none;
+  margin: 0 1rem;
+  color: rgb(112,35,23);
+}
+
+.navigation a:hover {
+  color: rgb(112,35,23);
+  text-decoration: none;
+}
+
+/**
+ * Site Branding
+ */
+.site-logo {
+  width: 40px;
+  height: 50px;
+}
+
+.site-branding {}
+.site-branding__wrapper {
+  display: flex;
+  flex-flow: column;
+  margin-left: 1rem;
+}
+
+.site-branding__title,
+.site-branding__subtitle {
+  margin: 0;
+  line-height: normal;
+}
+
+.site-branding__title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: rgb(112,35,23);
+}
+.site-branding__subtitle {
+  font-size: .8rem;
+  font-weight: 400;
+  color: rgb(112,35,23);
+}
+
+.copyleft {
+  display:inline-block;
+  transform: rotate(180deg);
+}
