@@ -8,6 +8,7 @@ export interface Props {
 const { title } = Astro.props;
 
 import Header from '../components/Header.astro';
+import Hero from '../components/Hero/Hero.astro';
 import Footer from '../components/Footer.astro';
 import '../styles/styles.scss';
 ---
@@ -25,10 +26,12 @@ import '../styles/styles.scss';
   </head>
   <body>
     <Header />
-    <div class="container page-layout">
-      <h1>{ title }</h1>
-      <slot />
-    </div>
+    <main class="page-layout">
+      <div class="u-grid">
+        <!-- <Hero /> -->
+        <slot />
+      </div>
+    </main>
     <Footer />
   </body>
 </html>
