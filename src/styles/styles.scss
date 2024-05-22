@@ -1,20 +1,31 @@
+@use "global.scss";
+@use "grid";
+@use "colors";
+@import "mixins";
+@import "generators";
+@import "print";
+
+@import "header";
+
 html,
 body {
   margin: 0;
   padding: 0;
   height: 100%;
   width: 100%;
+  font-family: 'Inter', sans-serif;
 }
 
 html {
-  background-color: rgb(233,202,176);
+  background: var(--background);
+  color: var(--text-color);
   font-family: sans-serif;
 }
 
 body {
   margin: 0 auto;
   width: 100%;
-  padding: 1rem;
+  padding: 0;
   line-height: 1.5;
 }
 
@@ -24,7 +35,12 @@ body {
 
 h1 {
   margin: 1rem 0;
-  font-size: 2.5rem;
+  font-size: 3.5rem;
+  font-weight: 400;
+}
+
+a {
+  color: var(--link);
 }
 
 .whatever {
@@ -37,7 +53,7 @@ h1 {
   margin: 0 auto;
 }
 
-.container.header-container {
+.header-container {
   display: flex;
   flex-flow: row;
   align-items: center;
@@ -56,13 +72,27 @@ h1 {
 .navigation li,
 .navigation a {
   list-style: none;
-  margin: 0 1rem;
-  color: rgb(112,35,23);
+  margin: 0 .4rem;
 }
 
-.navigation a:hover {
-  color: rgb(112,35,23);
+.navigation a {
+  padding: 8px;
+}
+
+.navigation a:hover,
+.navigation a:focus {
+  color: var(--link-hover);
   text-decoration: none;
+  background: var(--link-hover-bg);
+  svg {
+    path,
+    circle {
+      fill: var(--link-hover)
+    }
+  }
+}
+.navigation a:focus {
+  outline-offset: 8px;
 }
 
 /**
@@ -73,7 +103,12 @@ h1 {
   height: 50px;
 }
 
-.site-branding {}
+.site-branding {
+  a {
+    text-decoration: none;
+
+  }
+}
 .site-branding__wrapper {
   display: flex;
   flex-flow: column;
@@ -89,15 +124,17 @@ h1 {
 .site-branding__title {
   font-size: 1.5rem;
   font-weight: 600;
-  color: rgb(112,35,23);
 }
 .site-branding__subtitle {
   font-size: .8rem;
   font-weight: 400;
-  color: rgb(112,35,23);
 }
 
 .copyleft {
   display:inline-block;
   transform: rotate(180deg);
+}
+
+.four-six-generator {
+  @include grid-column(12);
 }

@@ -1,0 +1,43 @@
+.header {
+  background: #282119;
+  padding: 1rem 0;
+}
+.site-branding {
+  height: 100%;
+}
+.site-branding a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.site-title {
+  font-size: 2rem;
+  margin-left: 1rem;
+}
+
+.navigation {
+  ul {
+    display: flex;
+    li {
+      svg {
+        width: 20px;
+        height: 20px;
+        margin-bottom: 10px;
+        path,
+        circle {
+          fill: var(--link);
+        }
+      }
+      a {
+        display: flex;
+        flex-flow: column;
+        align-items: center;
+        color: var(--link);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+      }
+    }
+  }
+}

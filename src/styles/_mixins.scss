@@ -1,0 +1,28 @@
+@mixin utopia-column-size($columns) {
+  // Define the breakpoints
+  $breakpoints: (
+    '3xs': 317px,
+    'xl': 1914px
+  );
+
+  // Define the ratios
+  $ratios: (
+    '3xs': 1.2,
+    'xl': 1.25
+  );
+
+  // Loop through each breakpoint
+  @each $breakpoint, $width in $breakpoints {
+    $ratio: map-get($ratios, $breakpoint);
+
+    // Calculate the column width for this breakpoint
+    // Here we assume that the container width is divided by the number of columns
+    @media (min-width: $width) {
+      width: calc((100% / 12) * #{$columns} * #{$ratio});
+    }
+  }
+}
+
+@mixin grid-column($columns) {
+  grid-column: span $columns;
+}

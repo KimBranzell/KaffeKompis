@@ -1,0 +1,18 @@
+@media print {
+  .generator-header {
+      display: none;
+  }
+  .generator-body {
+    button {
+      display: none;
+    }
+  }
+  .instructions {
+    grid-column: span 12 !important;
+    width: 100%;
+    padding: 0 !important;
+  }
+  .header {
+    display: none;
+  }
+}

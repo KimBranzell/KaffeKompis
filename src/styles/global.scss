@@ -1,0 +1,5 @@
+:root {
+  --grid-max-width: 119.63rem;
+  --grid-gutter: var(--space-3xs-xl, clamp(0.3125rem, -0.4443rem + 3.8197vw, 4.125rem));
+  --grid-columns: 12;
+}

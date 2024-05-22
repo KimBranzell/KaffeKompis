@@ -1,0 +1,22 @@
+/**
+ * 4:6 Generator
+ */
+
+.four-six-generator {
+  padding: 4rem 0;
+  .generator-header {
+    @include grid-column(8);
+    background: #fff;
+    padding: 3rem;
+  }
+  .instructions {
+    @include grid-column(4);
+    background: #fff;
+    padding: 3rem;
+  }
+  .generator-body {
+    @include grid-column(12);
+    background: #fff;
+    padding: 3rem;
+  }
+}
