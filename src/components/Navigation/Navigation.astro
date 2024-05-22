@@ -1,0 +1,41 @@
+---
+import infoIcon from './svgs/info.svg?raw'
+import toolsIcon from './svgs/coffee-pot.svg?raw'
+import recipeIcon from './svgs/recipe.svg?raw'
+import contactIcon from './svgs/attribution-pencil.svg?raw'
+import blogIcon from './svgs/newspaper.svg?raw'
+---
+<ul>
+  <li>
+    <a href="/om-sidan/" data-astro-prefetch>
+      <Fragment set:html={infoIcon} />
+      <span>Om sidan</span>
+    </a>
+  </li>
+  <li>
+    <a href="/verktyg/" data-astro-prefetch>
+      <Fragment set:html={toolsIcon} />
+      <span>Verktyg</span>
+    </a>
+  </li>
+  <li>
+    <a href="/recept/" data-astro-prefetch>
+      <Fragment set:html={recipeIcon} />
+      <span>Recept</span>
+    </a>
+  </li>
+  <li>
+    <a href="/kontakt/" data-astro-prefetch>
+      <Fragment set:html={contactIcon} />
+      <span>Kontakt</span>
+    </a>
+  </li>
+  <li>
+    <a href="/blogg/" data-astro-prefetch>
+      <Fragment set:html={blogIcon} />
+      <span>Blogg</span>
+    </a>
+  </li>
+</ul>
+
+
