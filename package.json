@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@astrojs/svelte": "^5.4.0",
-    "astro": "^4.8.5",
+    "astro": "^4.9.1",
     "astro-critical-css": "^0.0.4",
     "astro-purgecss": "^4.1.1",
     "purgecss": "^6.0.0",

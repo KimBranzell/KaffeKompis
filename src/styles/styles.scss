@@ -1,9 +1,13 @@
-@use "global.scss";
+@use "reset";
+@use "global";
 @use "grid";
 @use "colors";
+@use "typography";
 @import "mixins";
 @import "generators";
 @import "print";
+
+@import "bento-layouts/front-hero";
 
 @import "header";
 

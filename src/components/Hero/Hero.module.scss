@@ -1,11 +1,8 @@
 @use "../../styles/mixins" as *;
 
 .hero {
-  background: #D4C7B4;
   @include grid-column(12);
-  padding: 6rem 0;
-  display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   text-align: center;
   h1 {

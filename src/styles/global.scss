@@ -2,4 +2,86 @@
   --grid-max-width: 119.63rem;
   --grid-gutter: var(--space-3xs-xl, clamp(0.3125rem, -0.4443rem + 3.8197vw, 4.125rem));
   --grid-columns: 12;
+  font-size: 100%;
+}
+
+html {
+  font-size: 100%;
+  line-height: 1.5;
+  letter-spacing: 0.12em;
+  word-spacing: 0.16em;
+}
+
+
+select, textarea, input, button {
+  font: inherit;
+  letter-spacing: inherit;
+  word-spacing: inherit;
+}
+
+textarea:focus,
+input:not([type="checkbox"]):not([type="file"]):not([type="image"]):not([type="radio"]):not([type="range"]):focus {
+  outline: 0.15em solid #00f;
+  box-shadow: 0 0 0.2em #00f;
+}
+
+textarea[required],
+input:not([type="checkbox"]):not([type="file"]):not([type="image"]):not([type="radio"]):not([type="range"])[required] {
+  border-left-width: 0.3em;
+}
+
+textarea[aria-invalid="true"],
+textarea[aria-invalid="spelling"],
+textarea[aria-invalid="grammar"],
+input:not([type="checkbox"]):not([type="file"]):not([type="image"]):not([type="radio"]):not([type="range"])[aria-invalid] {
+  background: linear-gradient(135deg, rgba(255,0,0,1) 0, rgba(255,0,0,1) .4em, rgba(255,255,255,1) .4em);
+}
+
+*[dir="rtl"] textarea[aria-invalid="true"],
+*[dir="rtl"] textarea[aria-invalid="spelling"],
+*[dir="rtl"] textarea[aria-invalid="grammar"],
+*[dir="rtl"] input:not([type="checkbox"]):not([type="file"]):not([type="image"]):not([type="radio"]):not([type="range"])[aria-invalid] {
+  background: linear-gradient(225deg, rgba(255,0,0,1) 0, rgba(255,0,0,1) .4em, rgba(255,255,255,1) .4em);
+}
+
+*[dir="rtl"] textarea[required],
+*[dir="rtl"] input:not([type="checkbox"]):not([type="file"]):not([type="image"]):not([type="radio"]):not([type="range"])[required] {
+  border-left-width: 0.1em;
+  border-right-width: 0.3em;
+}
+
+/**
+ * Dark Mode Accessibility Styles
+ * */
+
+ @media screen and (prefers-color-scheme: dark) {
+  textarea,
+  input:not([type="checkbox"]):not([type="file"]):not([type="image"]):not([type="radio"]):not([type="range"]) {
+    background-color: transparent;
+    color: inherit;
+    border-color: #ccc;
+  }
+  textarea:focus,
+  input:not([type="checkbox"]):not([type="file"]):not([type="image"]):not([type="radio"]):not([type="range"]):focus {
+    outline-color: #0ff;
+    box-shadow: 0 0 0.2em #0ff;
+  }
+  textarea:disabled,
+  input:not([type="checkbox"]):not([type="file"]):not([type="image"]):not([type="radio"]):not([type="range"]):disabled {
+    border-color: rgba(255,255,255,.3);
+    color: rgba(255,255,255,.3);
+    background-color: rgba(255,255,255,.1);
+  }
+  textarea[readonly],
+  input:not([type="checkbox"]):not([type="file"]):not([type="image"]):not([type="radio"]):not([type="range"])[readonly] {
+    border-color: #777;
+  }
+  textarea[aria-invalid],
+  input:not([type="checkbox"]):not([type="file"]):not([type="image"]):not([type="radio"]):not([type="range"])[aria-invalid] {
+    background: linear-gradient(135deg, rgba(238,0,0,1) 0, rgba(238,0,0,1) .3em, rgba(0,0,0,0) .3em);
+  }
+  *[dir="rtl"] textarea[aria-invalid],
+  *[dir="rtl"] input:not([type="checkbox"]):not([type="file"]):not([type="image"]):not([type="radio"]):not([type="range"])[aria-invalid] {
+    background: linear-gradient(225deg, rgba(238,0,0,1) 0, rgba(238,0,0,1) .3em, rgba(0,0,0,0) .3em);
+  }
 }
