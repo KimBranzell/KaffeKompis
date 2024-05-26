@@ -48,7 +48,7 @@
   function startPrepTimer() {
     isPrepping = true;
     intervalId = setInterval(() => {
-      if (prepTime > 0) {
+      if (prepTime > 1) {
         prepTime--;
       } else {
         clearInterval(intervalId);
@@ -64,16 +64,17 @@
    */
   function startTimer() {
     isBrewing = true;
+    isPouring = true; // Ensure pouring starts immediately with the brewing
     if (intervalId !== null) {
       clearInterval(intervalId);
     }
     totalTime = 0;
+    currentStep = 0; // Ensure we start from the first step
     intervalId = setInterval(() => {
       totalTime++;
       updateCurrentStep();
       updateProgressBar();
     }, 1000);
-    currentStep = 0;
   }
 
   /**
@@ -336,7 +337,7 @@
     transition: width 1s linear;
     position: absolute;
     background-color: blue; /* Different color for pouring progress */
-    bottom: 44px;
+    bottom: 66px;
   }
 </style>
 
