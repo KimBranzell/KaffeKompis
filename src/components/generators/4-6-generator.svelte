@@ -62,20 +62,20 @@
    * Starts a timer that updates the current step and progress bar every second.
    * The timer is cleared if it was previously running.
    */
-  function startTimer() {
+   function startTimer() {
     isBrewing = true;
-    isPouring = true; // Ensure pouring starts immediately with the brewing
+    isPouring = true;
     if (intervalId !== null) {
-      clearInterval(intervalId);
+        clearInterval(intervalId);
     }
     totalTime = 0;
-    currentStep = 0; // Ensure we start from the first step
+    currentStep = 0;
     intervalId = setInterval(() => {
-      totalTime++;
-      updateCurrentStep();
-      updateProgressBar();
-    }, 1000);
-  }
+        totalTime += 0.1; // Increase by 0.1 seconds (100 milliseconds)
+        updateCurrentStep();
+        updateProgressBar();
+    }, 100); // Update every 100 milliseconds
+}
 
   /**
    * Updates the current step in the brewing process based on the total time elapsed.
@@ -112,28 +112,27 @@
    * Updates the progress bar based on the current step in the brewing schedule.
    * The progress bar width is calculated as a percentage of the time elapsed in the current step.
    */
-   function updateProgressBar() {
+  function updateProgressBar() {
     if (currentStep < brewingSchedule.length) {
-      const step = brewingSchedule[currentStep];
-      const stepStartTime = step.startTime;
-      const stepDuration = step.time;
-      const timeInCurrentStep = totalTime - stepStartTime;
-      const progressPercentage = (timeInCurrentStep / stepDuration) * 100;
-      progressWidth = Math.min(progressPercentage, 100);
+        const step = brewingSchedule[currentStep];
+        const stepStartTime = step.startTime;
+        const stepDuration = step.time;
+        const timeInCurrentStep = totalTime - stepStartTime;
+        const progressPercentage = (timeInCurrentStep / stepDuration) * 100;
+        progressWidth = Math.min(progressPercentage, 100);
 
-      // Handle pouring progress and amount
-      if (timeInCurrentStep <= 10) {
-        pouringProgress = (timeInCurrentStep / 10) * 100;
-        currentPourAmount = (pouringProgress / 100) * step.pour;
-      } else {
-        pouringProgress = 100;
-        currentPourAmount = step.pour;
-        if (timeInCurrentStep >= stepDuration) {
-          isPouring = false;
+        if (timeInCurrentStep <= 10) {
+            pouringProgress = (timeInCurrentStep / 10) * 100;
+            currentPourAmount = (pouringProgress / 100) * step.pour;
+        } else {
+            pouringProgress = 100;
+            currentPourAmount = step.pour;
+            if (timeInCurrentStep >= stepDuration) {
+                isPouring = false;
+            }
         }
-      }
     }
-  }
+}
 
   /**
    * Cleans up the interval timer when the component is destroyed.
@@ -152,7 +151,7 @@
    */
   $: formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
+    const remainingSeconds = Math.floor(seconds % 60);
     // Ensuring two-digit seconds with leading zero if necessary
     const formattedSeconds = remainingSeconds.toString().padStart(2, "0");
     return `${minutes}:${formattedSeconds}`;
@@ -253,7 +252,6 @@
         (pour, index) => {
           let step = { pour, total: (total += pour), time: 45, startTime };
           startTime += step.time; // Increment startTime for the next step
-          console.log(startTime);
           return step;
         }
       );
@@ -292,14 +290,15 @@
 <style lang="scss">
   input, select, button {
     margin: 10px;
-    padding: 8px;
+    padding: 11px;
+    width: 100%;
   }
   table {
     width: 100%;
     border-collapse: collapse;
   }
   th, td {
-    border: 1px solid black;
+    //border: 1px solid black;
     padding: 5px;
     text-align: left;
   }
@@ -326,7 +325,7 @@
     height: 100%;
     line-height: 30px; /* Align text vertically */
     text-align: center;
-    transition: width 1s linear;
+    transition: width 0.1s linear;
     position: absolute;
   }
 
@@ -334,7 +333,7 @@
     height: 100%;
     line-height: 30px; /* Align text vertically */
     text-align: center;
-    transition: width 1s linear;
+    transition: width 0.1s linear;
     position: absolute;
     background-color: blue; /* Different color for pouring progress */
     bottom: 66px;
@@ -344,37 +343,58 @@
 <div class="four-six-generator">
   <div class="u-container u-grid">
     <div class="generator-header">
-      <label for="coffeeWeightGrams">Kaffevikt (gram):
-        <input type="number" bind:value={coffeeWeightGrams} min="1" />
-      </label>
-      <label for="roastGrade">Rostgrad:
-        <select name="roastGrade" bind:value={roastGrade}>
-          <option value="Light">Lätt</option>
-          <option value="Medium">Medel</option>
-          <option value="Dark">Mörk</option>
-        </select>
-      </label>
-      <label for="waterToCoffeeRatio">Kaffe:Vatten-ratio
-        <select bind:value={waterToCoffeeRatio}>
-          {#each Array(7).fill().map((_, i) => i + 12) as ratio}
-            <option value={ratio}>1:{ratio}</option>
-          {/each}
-        </select>
-      </label>
-      <label for="coffeeStrength">Kaffestyrka:
-        <select bind:value={coffeeStrength}>
-          <option value="Strong">Starkt</option>
-          <option value="Balanced">Balanserat</option>
-          <option value="Weak">Svagt</option>
-        </select>
-      </label>
-      <label for="coffeeTaste">Kaffesmak:
-        <select bind:value={coffeeTaste}>
-          <option value="Acidic">Syrligt</option>
-          <option value="Balanced">Balanserat</option>
-          <option value="Sweet">Sött</option>
-        </select>
-      </label>
+      <table>
+        <tr>
+          <td>
+            <label for="coffeeWeightGrams">
+              Kaffevikt (gram)
+            </label>
+          </td>
+          <td>
+            <input id="coffeeWeightGrams" name="coffeWeightGrams" type="number" bind:value={coffeeWeightGrams} min="1" />
+          </td>
+        </tr>
+        <tr>
+          <td><label for="roastGrade">Rostgrad:</label></td>
+          <td>
+            <select id="roastGrade" name="roastGrade" bind:value={roastGrade}>
+              <option value="Light">Lätt</option>
+              <option value="Medium">Medel</option>
+              <option value="Dark">Mörk</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td><label for="waterToCoffeeRatio">Kaffe:Vatten-ratio</label></td>
+          <td>
+            <select id="waterToCoffeeRatio" name="waterToCoffeeRatio" bind:value={waterToCoffeeRatio}>
+              {#each Array(7).fill().map((_, i) => i + 12) as ratio}
+                <option value={ratio}>1:{ratio}</option>
+              {/each}
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td><label for="coffeeStrength">Kaffestyrka:</label></td>
+          <td>
+            <select id="coffeeStrength" name="coffeStrength" bind:value={coffeeStrength}>
+              <option value="Strong">Starkt</option>
+              <option value="Balanced">Balanserat</option>
+              <option value="Weak">Svagt</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td><label for="coffeeTaste">Kaffesmak:</label></td>
+          <td>
+            <select id="coffeeTaste" name="coffeeTaste" bind:value={coffeeTaste}>
+              <option value="Acidic">Syrligt</option>
+              <option value="Balanced">Balanserat</option>
+              <option value="Sweet">Sött</option>
+            </select>
+          </td>
+        </tr>
+      </table>
       {#if inputValidationError}
         <p>{inputValidationError}</p>
       {/if}
@@ -387,13 +407,15 @@
         <li>{waterWeight.toFixed(0)}g vatten</li>
         <li>Temperatur: {brewingTemperature}&deg;C</li>
       </ul>
-      <h2>Steg</h2>
+      <h2>Instruktioner</h2>
       <ol>
-        <li>Rinse the paper filter with hot water.</li>
-        <li>Divide the total amount of water to be poured into 40% and 60%</li>
+        <li>Sätt ett V60-filter (eller liknande) i din V60-bryggare.</li>
+        <li>Skölj filtret med hett vatten (detta för att eliminera eventuell papperssmak i kaffet).</li>
+        <li>Sätt bryggaren uppå en kanna och ställ på en våg.</li>
+        <li>Häll i det malda kaffet i filtret i din V60-bryggare. Nollställ vågen så att den står på 0 innan du börjar brygga.</li >
       </ol>
 
-      <h3>Tips</h3>
+      <h2>Tips</h2>
         <ul>
           <li>Choose your preferred grind size. (Adjust the coarseness so that water atmost completely drips within this total time.)</li>
           <li>The role of the first pour is to moisten the grounds.</li>
@@ -424,16 +446,16 @@
 
   {#if isBrewing || isPrepping}
   <div class="timer-panel">
-    <div class="progress-bar" style="width: {progressWidth}%;"></div>
-    {#if isPouring}
-      <div class="pouring-progress-bar" style="width: {pouringProgress}%;"></div>
-      <div>Pouring: {currentPourAmount.toFixed(2)}g of {brewingSchedule[currentStep].pour.toFixed(2)}g</div>
-    {/if}
-    {#if isPrepping}
-      <div>Gör dig redo! Startar instruktionerna om {prepTime} sekunder...</div>
-    {:else if isBrewing}
-      <span>Steg {currentStep + 1} av {brewingSchedule.length}: {formatTime(totalTime)}</span>
-    {/if}
+      <div class="progress-bar" style="width: {progressWidth}%;"></div>
+      {#if isPouring}
+          <div class="pouring-progress-bar" style="width: {pouringProgress}%;"></div>
+          <div>Pouring: {currentPourAmount.toFixed(2)}g of {brewingSchedule[currentStep].pour.toFixed(2)}g</div>
+      {/if}
+      {#if isPrepping}
+          <div>Gör dig redo! Startar instruktionerna om {prepTime} sekunder...</div>
+      {:else if isBrewing}
+          <span>Steg {currentStep + 1} av {brewingSchedule.length}: {formatTime(totalTime)}</span>
+      {/if}
   </div>
   {/if}
 </div>
