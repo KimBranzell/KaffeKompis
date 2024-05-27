@@ -1,6 +1,7 @@
 @font-face {
-  font-family: "Inter";
-  src: url("/fonts/InterVariable.woff2") format("woff2-variations"),
-       url("/fonts/InterVariable.woff") format("woff-variations"),
-       url("/fonts/InterVariable.ttf") format("truetype-variations");
+  font-family: "Noto Sans";
+  font-display: swap;
+  src: url("/fonts/NotoSans-VariableFont_wdth,wght.ttf") format("woff2-variations"),
+       url("/fonts/NotoSans-VariableFont_wdth,wght.ttf") format("woff-variations"),
+       url("/fonts/NotoSans-VariableFont_wdth,wght.ttf") format("truetype-variations");
 }

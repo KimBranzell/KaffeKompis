@@ -17,13 +17,14 @@ body {
   padding: 0;
   height: 100%;
   width: 100%;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Noto Sans', sans-serif;
 }
 
 html {
   background: var(--background);
   color: var(--text-color);
   font-family: sans-serif;
+  text-rendering: optimizeLegibility;
 }
 
 body {
@@ -137,8 +138,4 @@ a {
 .copyleft {
   display:inline-block;
   transform: rotate(180deg);
-}
-
-.four-six-generator {
-  @include grid-column(12);
 }

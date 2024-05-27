@@ -23,15 +23,15 @@
 <div>
   <div>
     <label for="ratio">Coffee to Water Ratio:</label>
-    <input type="number" id="ratio" bind:value={coffeeToWaterRatio} on:input={calculateCoffee}>
+    <input type="number" name="ratio" id="ratio" bind:value={coffeeToWaterRatio} on:input={calculateCoffee}>
   </div>
   <div>
     <label for="water">Water (in grams):</label>
-    <input type="number" id="water" bind:value={water} on:input={calculateCoffee}>
+    <input type="number" name="water" id="water" bind:value={water} on:input={calculateCoffee}>
   </div>
   <div>
     <label for="coffee">Coffee (in grams):</label>
-    <input type="number" id="coffee" bind:value={coffee} on:input={calculateWater}>
+    <input type="number" name="coffee" id="coffee" bind:value={coffee} on:input={calculateWater}>
   </div>
   <div>
     <label for="strength">Strength:</label>
