@@ -37,8 +37,28 @@
   let intervalId = null;
   let totalBrewingTime;
 
+  let debouncedUpdateCoffeeWeight;
+  let debouncedUpdateWaterToCoffeeRatio;
+
   let progressWidth = 0; // This will represent the width of the progress bar
 
+
+  /**
+   * Debounces a function, ensuring that it is only called after a specified delay since the last time it was called.
+   *
+   * @param {Function} fn - The function to be debounced.
+   * @param {number} delay - The delay in milliseconds to wait before calling the function.
+   * @returns {Function} - A new function that is debounced.
+   */
+  function debounce(fn, delay) {
+    let timeoutId;
+    return (...args) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        fn(...args);
+      }, delay);
+    };
+  }
 
   /**
    * Starts a preparation timer that counts down for a specified duration, then starts the main timer.
@@ -62,7 +82,7 @@
    * Starts a timer that updates the current step and progress bar every second.
    * The timer is cleared if it was previously running.
    */
-   function startTimer() {
+  function startTimer() {
     isBrewing = true;
     isPouring = true;
     if (intervalId !== null) {
@@ -75,7 +95,7 @@
         updateCurrentStep();
         updateProgressBar();
     }, 100); // Update every 100 milliseconds
-}
+  }
 
   /**
    * Updates the current step in the brewing process based on the total time elapsed.
@@ -264,6 +284,20 @@
     }
   }
 
+  /**
+   * Debounces the updates to the coffee weight and water-to-coffee ratio properties.
+   * The updates are debounced with a delay of 300 milliseconds to prevent excessive updates.
+   */
+  $: {
+    debouncedUpdateCoffeeWeight = debounce((value) => {
+      coffeeWeightGrams = value;
+    }, 300);
+
+    debouncedUpdateWaterToCoffeeRatio = debounce((value) => {
+      waterToCoffeeRatio = value;
+    }, 300);
+  }
+
   $: {
   switch (roastGrade) {
     case 'Light':
@@ -351,7 +385,7 @@
             </label>
           </td>
           <td>
-            <input id="coffeeWeightGrams" name="coffeWeightGrams" type="number" bind:value={coffeeWeightGrams} min="1" />
+            <input id="coffeeWeightGrams" name="coffeWeightGrams" type="number" min="1" on:input={(e) => debouncedUpdateCoffeeWeight(e.target.value)} />1
           </td>
         </tr>
         <tr>
@@ -367,7 +401,7 @@
         <tr>
           <td><label for="waterToCoffeeRatio">Kaffe:Vatten-ratio</label></td>
           <td>
-            <select id="waterToCoffeeRatio" name="waterToCoffeeRatio" bind:value={waterToCoffeeRatio}>
+            <select id="waterToCoffeeRatio" name="waterToCoffeeRatio" bind:value={waterToCoffeeRatio} >
               {#each Array(7).fill().map((_, i) => i + 12) as ratio}
                 <option value={ratio}>1:{ratio}</option>
               {/each}
