@@ -10,8 +10,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/svelte": "^5.4.0",
-    "astro": "^4.9.1",
+    "@astrojs/svelte": "^5.5.0",
+    "astro": "^4.10.0",
     "astro-critical-css": "^0.0.4",
     "astro-purgecss": "^4.1.1",
     "purgecss": "^6.0.0",

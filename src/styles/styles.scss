@@ -17,7 +17,7 @@ body {
   padding: 0;
   height: 100%;
   width: 100%;
-  font-family: 'Golos UI', sans-serif;
+  font-family: 'Overused Grotesk', sans-serif;
 
   -webkit-text-size-adjust: 100%;
   /* Font varient */
@@ -32,13 +32,14 @@ body {
 }
 
 html {
-  background: var(--background);
   color: var(--text-color);
   font-family: sans-serif;
   text-rendering: optimizeLegibility;
 }
 
 body {
+  background: var(--background);
+  color: var(--text-color);
   margin: 0 auto;
   width: 100%;
   padding: 0;
@@ -149,4 +150,94 @@ a {
 .copyleft {
   display:inline-block;
   transform: rotate(180deg);
+}
+
+
+
+
+
+.test {
+  --circle-r: 20px;
+  --big-circle-r: 22.5px;
+  --pillar-size: max(24px, var(--circle-r));
+  --card-color: #355c56;
+  --card-shadow: 0 10px 48px rgba(21, 44, 115, 0.15);
+
+  --circle-d: calc(var(--circle-r) * 2);
+  --circles-space: calc(var(--big-circle-r) + var(--pillar-size));
+  --circle-extend-inset: calc(var(--circle-r) + var(--circles-space));
+
+
+  background:
+  radial-gradient(
+    circle closest-side,
+    var(--card-color) 100%,
+    transparent calc(100% + 1px)
+  ) calc(100% - var(--circles-space)) 0 / var(--circle-d) var(--circle-d) no-repeat no-repeat,
+
+  linear-gradient(
+    0deg,
+    var(--card-color) 100%,
+    var(--card-color) 100%
+  ) 0px 0px / calc(100% - var(--circle-extend-inset)) var(--circle-d) no-repeat no-repeat,
+
+  linear-gradient(
+    0deg,
+    var(--card-color) 100%,
+    var(--card-color) 100%
+  ) 0px var(--circle-r) / calc(100% - var(--circles-space)) calc(100% - var(--circle-r)) no-repeat no-repeat,
+
+  radial-gradient(
+    circle closest-side,
+    var(--card-color) 100%,
+    transparent calc(100% + 1px)
+  ) 100% var(--circles-space) / var(--circle-d) var(--circle-d) no-repeat no-repeat,
+
+  linear-gradient(
+    0deg,
+    var(--card-color) 100%,
+    var(--card-color) 100%
+  ) 100% var(--circle-extend-inset) / var(--circle-d) 100% no-repeat no-repeat,
+
+  linear-gradient(
+    0deg,
+    var(--card-color) 100%,
+    var(--card-color) 100%
+  ) 0 var(--circles-space) / calc(100% - var(--circle-r)) 100% no-repeat no-repeat,
+
+  radial-gradient(
+    circle at 100% 0%,
+    transparent var(--big-circle-r),
+    var(--card-color) calc(var(--big-circle-r) + 1px)
+  ) 0px var(--pillar-size) / calc(100% - var(--pillar-size)) 100% no-repeat no-repeat;
+
+
+  display: inline-flex;
+  flex-flow: column;
+  padding: 1.4rem;
+  color: #fff;
+  border-radius: 1rem;
+  min-width: 33.333%;
+  position: relative;
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    background: red;
+    border-radius: 50%;
+    z-index: 1;
+  }
+  h4 {
+    display: block;
+    font-weight: 500;
+    letter-spacing: .5px;
+    font-size: 1.25rem;
+  }
+  div {
+    font-weight: 500;
+    font-size: 2.5rem;
+  }
 }

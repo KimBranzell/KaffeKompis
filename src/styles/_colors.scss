@@ -1,9 +1,21 @@
 :root {
-  --background: #FFF9EC;
-  --text-color: #10100e;
-  --secondary: #ff6d1f;
-  --link: #c97338;
-  --link-hover: #405956;
-  --link-hover-bg: #95724a;
-  --quaternary: #F5E7C6;
+  .light-theme {
+    --background: #FFF9EC;
+    --text-color: #10100e;
+    --secondary: #ff6d1f;
+    --link: #c97338;
+    --link-hover: #405956;
+    --link-hover-bg: #95724a;
+    --quaternary: #F5E7C6;
+  }
+  .dark-theme {
+    --background: #10100e;
+    --text-color: #f5f5f5;
+    --secondary: #ff6d1f;
+    --link: #c97338;
+    --link-hover: #405956;
+    --link-hover-bg: #95724a;
+    --quaternary: #F5E7C6;
+  }
 }
+

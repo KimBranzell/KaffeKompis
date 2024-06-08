@@ -1,5 +1,7 @@
 <script>
-  import { onDestroy, tick } from 'svelte';
+  import { onDestroy, tick, onMount, afterUpdate } from 'svelte';
+  import { slide, fade, scale } from 'svelte/transition';
+  import { linear } from 'svelte/easing';
 
   /**
    * Constants used in the 4-6 coffee brewing generator.
@@ -26,6 +28,9 @@
   let time = INITIAL_DELAY_SECONDS; // Set total brewing time to 0
   let pouringProgress = 0; // Set pouring progress to 0
   let currentPourAmount = 0; // Track the current pour amount
+  let carouselContainer;
+  let activeStep = 0; // Track the active step in the brewing process
+  let completedSteps = new Set();
 
   // Recipe timer
   let prepTime = 5; // 5 seconds for preparation
@@ -152,7 +157,46 @@
             }
         }
     }
-}
+  }
+
+  /**
+   * Scrolls the carousel container to the active step, ensuring it is visible.
+   * This function is used to keep the active step centered in the carousel view.
+   */
+  function scrollToActiveStep() {
+    if (carouselContainer) {
+      const activeStep = carouselContainer.querySelector('.timeline-step.active');
+      if (activeStep) {
+        if (currentStep === 0) {
+          // If it's the first step, scroll to the very beginning
+          carouselContainer.scrollTo({
+            left: 0,
+            behavior: 'auto' // Change to 'auto' for instant scrolling
+          });
+        } else {
+          // For other steps, center the active step
+          const offset = carouselContainer.offsetWidth / 2 - activeStep.offsetWidth / 2;
+          carouselContainer.scrollTo({
+            left: activeStep.offsetLeft - offset,
+            behavior: 'auto' // Change to 'auto' for instant scrolling
+          });
+        }
+      }
+    }
+  }
+
+    // Watch for changes in currentStep and scroll to the active step
+  $: {
+    scrollToActiveStep();
+  }
+
+  onMount(() => {
+    scrollToActiveStep();
+  });
+
+  afterUpdate(() => {
+    scrollToActiveStep();
+  });
 
   /**
    * Cleans up the interval timer when the component is destroyed.
@@ -372,6 +416,202 @@
     background-color: blue; /* Different color for pouring progress */
     bottom: 66px;
   }
+
+  .pouring-timeline {
+    position: fixed;
+    bottom: 60px;
+    left: 0;
+    width: 100%;
+    height: 100px; /* Adjust height as needed */
+    background-color: #f0f0f0;
+    display: flex;
+    flex-direction: row; /* Change to row for horizontal layout */
+    justify-content: space-between;
+    padding: 10px;
+    overflow-x: auto; /* Add horizontal scrolling if needed */
+  }
+
+  .timeline-step {
+    position: relative;
+    display: flex;
+    flex-direction: column; /* Keep column for vertical stacking of label and bar */
+    align-items: flex-start;
+    justify-content: start; /* Adjust alignment */
+    min-width: 100px; /* Adjust based on content */
+    width: 100%;
+    height: 100%;
+    transition: box-shadow 250ms linear, background-color 250ms linear;
+    &.active {
+      transition: box-shadow 250ms linear, background-color 250ms linear;
+      box-shadow: 0px -3px 0px green; /* Example style for the active step */
+      background-color: #e0f7fa; /* Example background color for the active step */
+    }
+  }
+
+  .step-label {
+    margin-bottom: 5px;
+    width: 100%;
+    display: inline-flex;
+    .pour-section-label,
+    .wait-section-label {
+      padding: 0 5px;
+    }
+  }
+
+  .step-bar {
+  width: 100%; /* Keep width or adjust as needed */
+  height: 80%; /* Adjust height to fit within the timeline */
+  display: flex;
+  flex-flow: row;
+}
+
+  .pour-amount {
+    font-size: 12px;
+    margin-bottom: 5px;
+  }
+
+  .pour-section,
+  .wait-section {
+    position: relative;
+    width: 100%;
+  }
+
+  .progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #4caf50;
+    transition: height 0.1s linear;
+
+    &.completed {
+      height: 100%;
+    }
+  }
+
+  .pour-section {
+    background: #ddd;
+    border-right: 1px solid #bbb;
+    &:after {
+      content: 'Häll';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: .5;
+    }
+  }
+
+  .wait-section {
+    background: #dcdcdc;
+    &:after {
+      content: 'Vänta';
+      opacity: .5;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: .5;
+    }
+  }
+
+  .pour-section .progress-bar {
+    background-color: #2196f3;
+  }
+
+  .timer-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px;
+  }
+
+
+  .step-timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px;
+}
+
+.step-label, .pour-amount {
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+
+
+
+
+
+.pouring-timeline-carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  width: 100%;
+}
+
+.timeline-step {
+  flex: 0 0 100%;
+  box-sizing: border-box;
+  padding: 1rem;
+  transition: transform 0.3s ease-in-out;
+}
+
+// .timeline-step.active {
+//   transform: scale(1.05);
+// }
+
+.step-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.step-bar {
+  display: flex;
+  position: relative;
+  height: 30px;
+  background-color: #f0f0f0;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.pour-section,
+.wait-section {
+  display: inline-block;
+  height: 100%;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #4CAF50; /* Green */
+  transition: width 0.1s linear;
+}
+
+.progress-bar.completed {
+  background-color: #4CAF50; /* Green */
+}
+
+
+.active-row {
+  background-color: yellow; /* Highlight color */
+  transition: background-color 0.5s ease;
+}
+
+.done-row {
+  animation: doneEffect 1s forwards;
+}
+
+@keyframes doneEffect {
+  0% { background-color: yellow; }
+  100% { background-color: green; }
+}
+
 </style>
 
 <div class="four-six-generator">
@@ -385,7 +625,7 @@
             </label>
           </td>
           <td>
-            <input id="coffeeWeightGrams" name="coffeWeightGrams" type="number" min="1" on:input={(e) => debouncedUpdateCoffeeWeight(e.target.value)} />1
+            <input id="coffeeWeightGrams" name="coffeWeightGrams" type="number" min="1" max="100" on:input={(e) => debouncedUpdateCoffeeWeight(e.target.value)} />
           </td>
         </tr>
         <tr>
@@ -429,6 +669,10 @@
           </td>
         </tr>
       </table>
+      <div class="test">
+        <h4>Kaffevikt</h4>
+        <div>{coffeeWeightGrams}<span>g</span></div>
+      </div>
       {#if inputValidationError}
         <p>{inputValidationError}</p>
       {/if}
@@ -464,7 +708,7 @@
           <th>Total vätska (g)</th>
         </tr>
         {#each brewingSchedule as {startTime, pour, total}, index}
-          <tr>
+          <tr class="{index === currentStep ? 'active-row' : ''} {index < currentStep ? 'done-row' : ''}">
             <td>{formatTime(startTime)}</td>
             <td>{pour.toFixed(2)}</td>
             <td>{total.toFixed(2)}</td>
@@ -478,18 +722,46 @@
     </div>
   </div>
 
-  {#if isBrewing || isPrepping}
-  <div class="timer-panel">
-      <div class="progress-bar" style="width: {progressWidth}%;"></div>
-      {#if isPouring}
-          <div class="pouring-progress-bar" style="width: {pouringProgress}%;"></div>
-          <div>Pouring: {currentPourAmount.toFixed(2)}g of {brewingSchedule[currentStep].pour.toFixed(2)}g</div>
-      {/if}
-      {#if isPrepping}
-          <div>Gör dig redo! Startar instruktionerna om {prepTime} sekunder...</div>
-      {:else if isBrewing}
-          <span>Steg {currentStep + 1} av {brewingSchedule.length}: {formatTime(totalTime)}</span>
-      {/if}
-  </div>
+<!-- Update the pouring-timeline code -->
+<div class="pouring-timeline-carousel" bind:this={carouselContainer}>
+  {#each brewingSchedule as step, index}
+    <div class="timeline-step {index === currentStep ? 'active' : ''}">
+      <div class="step-label">
+        <div class="pour-section-label" style="width: {(10 / step.time) * 100}%; display: inline-block;">
+          {formatTime(step.startTime)} - {formatTime(step.startTime + 10)}
+        </div>
+        <div class="wait-section-label" style="width: {((step.time - 10) / step.time) * 100}%; display: inline-block;">
+          {formatTime(step.startTime + 10)} - {formatTime(step.startTime + step.time)} - {step.pour.toFixed(2)}g ({step.total.toFixed(2)}g)
+        </div>
+      </div>
+      <div class="step-bar">
+        <div class="pour-amount"></div>
+        <div class="pour-section" style="width: {(10 / step.time) * 100}%; display: inline-block;">
+          {#if index < currentStep || (index === currentStep && totalTime >= step.startTime + 10)}
+            <div class="progress-bar completed"></div>
+          {:else if index === currentStep}
+            <div class="progress-bar" style="width: {((totalTime - step.startTime) / 10) * 100}%;"></div>
+          {/if}
+        </div>
+        <div class="wait-section" style="width: {((step.time - 10) / step.time) * 100}%; display: inline-block;">
+          {#if index < currentStep}
+            <div class="progress-bar completed"></div>
+          {:else if index === currentStep && totalTime >= step.startTime + 10}
+            <div class="progress-bar" style="width: {((totalTime - step.startTime - 10) / (step.time - 10)) * 100}%;"></div>
+          {/if}
+        </div>
+      </div>
+    </div>
+  {/each}
+</div>
+
+<div class="timer-panel">
+  {#if isPrepping}
+    <div>Get ready! Starting instructions in {prepTime} seconds...</div>
+  {:else if isBrewing}
+    <span>Step {currentStep + 1} of {brewingSchedule.length}: {formatTime(totalTime)}</span>
   {/if}
+</div>
+
+
 </div>

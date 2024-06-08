@@ -1,4 +1,16 @@
 @media print {
+:root {
+  .dark-theme,
+  .light-theme {
+  --background: transparent;
+  --text-color: #10100e;
+  --secondary: #ff6d1f;
+  --link: #c97338;
+  --link-hover: #405956;
+  --link-hover-bg: #95724a;
+  --quaternary: #F5E7C6;
+  }
+}
   .generator-header {
       display: none;
   }

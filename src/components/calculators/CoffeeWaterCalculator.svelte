@@ -22,6 +22,7 @@
 
 <div>
   <div>
+    coffeeToWaterRatio är: {{coffeeToWaterRatio}}
     <label for="ratio">Coffee to Water Ratio:</label>
     <input type="number" name="ratio" id="ratio" bind:value={coffeeToWaterRatio} on:input={calculateCoffee}>
   </div>

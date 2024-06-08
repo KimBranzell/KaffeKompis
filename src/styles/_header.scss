@@ -1,5 +1,4 @@
 .header {
-  background: #211B00;
   padding: 1rem 0;
 }
 .site-branding {
@@ -18,6 +17,7 @@
 .navigation {
   ul {
     display: flex;
+    position: relative;
     li {
       svg {
         width: 20px;
@@ -37,6 +37,32 @@
         font-weight: 600;
         font-size: 12px;
         text-transform: uppercase;
+      }
+      &.dropdown {
+        position: relative;
+
+        &:hover .dropdown-menu {
+          display: block;
+        }
+      }
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background-color: var(--background);
+      padding: 0.5rem;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+      li {
+        margin-bottom: 0.5rem;
+
+        a {
+          font-size: 14px;
+          text-transform: none;
+        }
       }
     }
   }

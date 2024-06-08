@@ -1,7 +1,11 @@
 ---
 import PageLayout from '../../layouts/PageLayout.astro';
+const title = "this is title";
+export const frontmatter = {
+  title: "Om Sidan"
+};
 ---
 
-<PageLayout title="Om sidan">
+<PageLayout title={title}>
   <p>Detta är sidan som ska beskriva hemsidan lite grann.</p>
 </PageLayout>

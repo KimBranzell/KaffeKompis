@@ -25,18 +25,21 @@
     font-weight: 500;
   }
   .generator-header {
-    @include grid-column(5);
-    background: #fff;
-    padding: 3rem;
+    @include grid-column(12);
+    background: var(--background);
+    color: var(--text-color);
+    padding: 1rem;
   }
   .instructions {
     @include grid-column(4);
-    background: #fff;
+    background: var(--background);
+    color: var(--text-color);
     padding: 3rem;
   }
   .generator-body {
     @include grid-column(12);
-    background: #fff;
+    background: var(--background);
+    color: var(--text-color);
     padding: 3rem;
   }
 }
