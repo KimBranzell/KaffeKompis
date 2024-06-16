@@ -289,10 +289,12 @@
     inputValidationError = ""; // Reset inputValidationError at the beginning of the block
     if (
       isNaN(parseFloat(coffeeWeightGrams)) ||
-      parseFloat(coffeeWeightGrams) <= 0
+      parseFloat(coffeeWeightGrams) <= 6
     ) {
       inputValidationError =
-        "Please enter a valid number greater than zero for coffee weight.";
+        "Vi rekommenderar att du använder minst 6 gram kaffe för det här receptet.";
+    } else if (coffeeWeightGrams > 76) {
+      inputValidationError = "Vi rekommenderar att du använder max 76 gram kaffe för det här receptet.";
     } else if (isNaN(waterToCoffeeRatio) || waterToCoffeeRatio <= 0) {
       inputValidationError =
         "Please enter a valid number for the water to coffee ratio.";
@@ -343,18 +345,125 @@
   }
 
   $: {
-  switch (roastGrade) {
-    case 'Light':
-      brewingTemperature = 93;
-      break;
-    case 'Medium':
-      brewingTemperature = 88;
-      break;
-    case 'Dark':
-      brewingTemperature = 83;
-      break;
+    switch (roastGrade) {
+      case 'Light':
+        brewingTemperature = 93;
+        break;
+      case 'Medium':
+        brewingTemperature = 88;
+        break;
+      case 'Dark':
+        brewingTemperature = 83;
+        break;
+    }
   }
-}
+
+  $: recommendedRatio = calculateRecommendedRatio(coffeeWeightGrams);
+  $: showRecommendation = !recommendationRemoved && getNumericRatio(recommendedRatio) !== waterToCoffeeRatio;
+
+  /**
+   * Calculates the recommended water to coffee ratio based on the coffee weight.
+   *
+   * @param {number} coffeeWeight - The weight of the coffee in grams.
+   * @returns {string} - The recommended ratio as a string.
+  */
+  function calculateRecommendedRatio(coffeeWeight) {
+    if (coffeeWeight < 20) return "1:16";
+    if (coffeeWeight < 50) return "1:15";
+    if (coffeeWeight < 69) return "1:14";
+    if (coffeeWeight <= 76) return "1:13";
+    return ""; // Default case, should not be reached due to current constraints
+  }
+
+  /**
+   * Updates the water to coffee ratio based on the recommendation.
+  */
+  function changeToRecommendedRatio() {
+    switch (recommendedRatio) {
+      case "1:16":
+        waterToCoffeeRatio = 16;
+        break;
+      case "1:15":
+        waterToCoffeeRatio = 15;
+        break;
+      case "1:14":
+        waterToCoffeeRatio = 14;
+        break;
+      case "1:13":
+        waterToCoffeeRatio = 13;
+        break;
+      default:
+        // No action needed for default case
+        break;
+    }
+  }
+
+  // Helper function to extract the numeric ratio value from the recommendedRatio string
+    function getNumericRatio(ratioString) {
+    const parts = ratioString.split(':');
+    return parts.length > 1 ? parseInt(parts[1], 10) : null;
+  }
+
+  /**
+   * Removes the recommendation for the current session.
+  */
+  let recommendationRemoved = false;
+  function removeRecommendation() {
+    recommendationRemoved = true;
+  }
+
+
+  // Known coffee weights and corresponding grind sizes
+  const knownGrindSizes = [
+    { coffeeWeight: 6, grindSize: 700 },
+    { coffeeWeight: 40, grindSize: 1000 },
+    { coffeeWeight: 76, grindSize: 1200 }
+  ];
+
+  let recommendedGrindSize = 0; // Initialize recommended grind size
+
+  // Function to interpolate grind size
+  function calculateGrindSize(coffeeWeight) {
+  // Use the first two points to extrapolate for weights less than 6g
+  if (coffeeWeight < 6) {
+    const slope = (knownGrindSizes[1].grindSize - knownGrindSizes[0].grindSize) /
+                  (knownGrindSizes[1].coffeeWeight - knownGrindSizes[0].coffeeWeight);
+    const extrapolatedGrindSize = knownGrindSizes[0].grindSize +
+                                  (coffeeWeight - knownGrindSizes[0].coffeeWeight) * slope;
+    return Math.round(extrapolatedGrindSize / 10) * 10;
+  }
+
+  // Use the last two points to extrapolate for weights greater than 76g
+  if (coffeeWeight > 76) {
+    const lastTwoPoints = knownGrindSizes.slice(-2);
+    const slope = (lastTwoPoints[1].grindSize - lastTwoPoints[0].grindSize) /
+                  (lastTwoPoints[1].coffeeWeight - lastTwoPoints[0].coffeeWeight);
+    const extrapolatedGrindSize = lastTwoPoints[0].grindSize +
+                                  (coffeeWeight - lastTwoPoints[0].coffeeWeight) * slope;
+    return Math.round(extrapolatedGrindSize / 10) * 10;
+  }
+
+  // Existing interpolation logic for weights between 6g and 76g remains unchanged
+  let lowerPoint = knownGrindSizes[0];
+  let upperPoint = knownGrindSizes[knownGrindSizes.length - 1];
+  for (let i = 0; i < knownGrindSizes.length - 1; i++) {
+    if (coffeeWeight >= knownGrindSizes[i].coffeeWeight && coffeeWeight <= knownGrindSizes[i + 1].coffeeWeight) {
+      lowerPoint = knownGrindSizes[i];
+      upperPoint = knownGrindSizes[i + 1];
+      break;
+    }
+  }
+
+  const weightRange = upperPoint.coffeeWeight - lowerPoint.coffeeWeight;
+  const grindSizeRange = upperPoint.grindSize - lowerPoint.grindSize;
+  const weightDifference = coffeeWeight - lowerPoint.coffeeWeight;
+  const interpolatedGrindSize = lowerPoint.grindSize + (weightDifference / weightRange) * grindSizeRange;
+
+  return Math.round(interpolatedGrindSize / 10) * 10;
+  }
+
+  // Reactive statement to update grind size when coffee weight changes
+  $: recommendedGrindSize = calculateGrindSize(coffeeWeightGrams);
 
   /**
    * Prints the current page.
@@ -617,61 +726,59 @@
 <div class="four-six-generator">
   <div class="u-container u-grid">
     <div class="generator-header">
-      <table>
-        <tr>
-          <td>
+      <div class="u-container u-grid">
+        <div class="calculator-item">
             <label for="coffeeWeightGrams">
               Kaffevikt (gram)
             </label>
-          </td>
-          <td>
             <input id="coffeeWeightGrams" name="coffeWeightGrams" type="number" min="1" max="100" on:input={(e) => debouncedUpdateCoffeeWeight(e.target.value)} />
-          </td>
-        </tr>
-        <tr>
-          <td><label for="roastGrade">Rostgrad:</label></td>
-          <td>
-            <select id="roastGrade" name="roastGrade" bind:value={roastGrade}>
-              <option value="Light">Lätt</option>
-              <option value="Medium">Medel</option>
-              <option value="Dark">Mörk</option>
-            </select>
-          </td>
-        </tr>
-        <tr>
-          <td><label for="waterToCoffeeRatio">Kaffe:Vatten-ratio</label></td>
-          <td>
-            <select id="waterToCoffeeRatio" name="waterToCoffeeRatio" bind:value={waterToCoffeeRatio} >
-              {#each Array(7).fill().map((_, i) => i + 12) as ratio}
-                <option value={ratio}>1:{ratio}</option>
-              {/each}
-            </select>
-          </td>
-        </tr>
-        <tr>
-          <td><label for="coffeeStrength">Kaffestyrka:</label></td>
-          <td>
-            <select id="coffeeStrength" name="coffeStrength" bind:value={coffeeStrength}>
-              <option value="Strong">Starkt</option>
-              <option value="Balanced">Balanserat</option>
-              <option value="Weak">Svagt</option>
-            </select>
-          </td>
-        </tr>
-        <tr>
-          <td><label for="coffeeTaste">Kaffesmak:</label></td>
-          <td>
-            <select id="coffeeTaste" name="coffeeTaste" bind:value={coffeeTaste}>
-              <option value="Acidic">Syrligt</option>
-              <option value="Balanced">Balanserat</option>
-              <option value="Sweet">Sött</option>
-            </select>
-          </td>
-        </tr>
-      </table>
+        </div>
+        <div class="calculator-item">
+          <label for="roastGrade">Rostgrad:
+          <select id="roastGrade" name="roastGrade" bind:value={roastGrade}>
+            <option value="Light">Lätt</option>
+            <option value="Medium">Medel</option>
+            <option value="Dark">Mörk</option>
+          </select>
+          </label>
+        </div>
+        <div class="calculator-item">
+          <label for="waterToCoffeeRatio">Kaffe:Vatten-ratio</label>
+          <select id="waterToCoffeeRatio" name="waterToCoffeeRatio" bind:value={waterToCoffeeRatio} >
+            {#each Array(7).fill().map((_, i) => i + 12) as ratio}
+              <option value={ratio}>1:{ratio}</option>
+            {/each}
+          </select>
+          {#if showRecommendation}
+            <div>
+              <p>Rekommenderad ratio: {recommendedRatio}</p>
+              <a href="javascript:void(0)" on:click={changeToRecommendedRatio}>Change to recommendation</a>
+              <button on:click={removeRecommendation}>Remove</button>
+            </div>
+          {/if}
+        </div>
+        <div class="calculator-item">
+          <label for="coffeeStrength">Kaffestyrka:</label>
+          <select id="coffeeStrength" name="coffeStrength" bind:value={coffeeStrength}>
+            <option value="Strong">Starkt</option>
+            <option value="Balanced">Balanserat</option>
+            <option value="Weak">Svagt</option>
+          </select>
+        </div>
+        <div class="calculator-item">
+          <label for="coffeeTaste">Kaffesmak:</label>
+          <select id="coffeeTaste" name="coffeeTaste" bind:value={coffeeTaste}>
+            <option value="Acidic">Syrligt</option>
+            <option value="Balanced">Balanserat</option>
+            <option value="Sweet">Sött</option>
+          </select>
+        </div>
+      </div>
       <div class="test">
         <h4>Kaffevikt</h4>
         <div>{coffeeWeightGrams}<span>g</span></div>
+        <input id="coffeeWeightGrams" name="coffeWeightGrams" type="number" min="6" max="76" on:input={(e) => debouncedUpdateCoffeeWeight(e.target.value)} />
+
       </div>
       {#if inputValidationError}
         <p>{inputValidationError}</p>
@@ -684,6 +791,7 @@
         <li>{coffeeWeightGrams}g kaffe</li>
         <li>{waterWeight.toFixed(0)}g vatten</li>
         <li>Temperatur: {brewingTemperature}&deg;C</li>
+        <li>Malgrad: ~{recommendedGrindSize}&micro;m</li>
       </ul>
       <h2>Instruktioner</h2>
       <ol>
@@ -692,34 +800,38 @@
         <li>Sätt bryggaren uppå en kanna och ställ på en våg.</li>
         <li>Häll i det malda kaffet i filtret i din V60-bryggare. Nollställ vågen så att den står på 0 innan du börjar brygga.</li >
       </ol>
-
       <h2>Tips</h2>
         <ul>
           <li>Choose your preferred grind size. (Adjust the coarseness so that water atmost completely drips within this total time.)</li>
           <li>The role of the first pour is to moisten the grounds.</li>
           <li>Do not make the next pour until the water completely drips through.</li>
         </ul>
+      <h2>Källor</h2>
+        <ul>
+          <li>Tetsu Kasuya</li>
+          <li>Paul från YouTube-kanalen Brewing Habits</li>
+        </ul>
     </div>
-    <div class="generator-body">
-      <table>
-        <tr>
-          <th>Tid</th>
-          <th>Vatten (g)</th>
-          <th>Total vätska (g)</th>
+  </div>
+  <div class="generator-body">
+    <table>
+      <tr>
+        <th>Tid</th>
+        <th>Vatten (g)</th>
+        <th>Total vätska (g)</th>
+      </tr>
+      {#each brewingSchedule as {startTime, pour, total}, index}
+        <tr class="{index === currentStep ? 'active-row' : ''} {index < currentStep ? 'done-row' : ''}">
+          <td>{formatTime(startTime)}</td>
+          <td>{pour.toFixed(2)}</td>
+          <td>{total.toFixed(2)}</td>
         </tr>
-        {#each brewingSchedule as {startTime, pour, total}, index}
-          <tr class="{index === currentStep ? 'active-row' : ''} {index < currentStep ? 'done-row' : ''}">
-            <td>{formatTime(startTime)}</td>
-            <td>{pour.toFixed(2)}</td>
-            <td>{total.toFixed(2)}</td>
-          </tr>
-        {/each}
-      </table>
-      {#if !isBrewing}
-        <button on:click={startPrepTimer}>Börja brygga</button>
-      {/if}
+      {/each}
+    </table>
+    {#if !isBrewing}
+      <button on:click={startPrepTimer}>Börja brygga</button>
+    {/if}
 
-    </div>
   </div>
 
 <!-- Update the pouring-timeline code -->

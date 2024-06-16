@@ -25,16 +25,22 @@
     font-weight: 500;
   }
   .generator-header {
-    @include grid-column(12);
+    @include grid-column(6);
     background: var(--background);
     color: var(--text-color);
-    padding: 1rem;
+    // padding: 1rem;
+    .calculator-item {
+      @include grid-column(6);
+      border: 1px solid #ccc;
+      padding: 1rem;
+      display: flex;
+    }
   }
   .instructions {
-    @include grid-column(4);
+    @include grid-column(6);
     background: var(--background);
     color: var(--text-color);
-    padding: 3rem;
+    // padding: 3rem;
   }
   .generator-body {
     @include grid-column(12);
