@@ -31,6 +31,7 @@
   let carouselContainer;
   let activeStep = 0; // Track the active step in the brewing process
   let completedSteps = new Set();
+  let incrementValue = 1; // Default increment/decrement value
 
   // Recipe timer
   let prepTime = 5; // 5 seconds for preparation
@@ -185,6 +186,24 @@
     }
   }
 
+  function incrementCoffeeWeight(increment) {
+    const newValue = parseFloat(coffeeWeightGrams) + increment;
+    if (newValue <= 100) {
+      debouncedUpdateCoffeeWeight(newValue);
+    }
+  }
+
+  function decrementCoffeeWeight(decrement) {
+    const newValue = parseFloat(coffeeWeightGrams) - decrement;
+    if (newValue >= 1) {
+      debouncedUpdateCoffeeWeight(newValue);
+    }
+  }
+
+  function selectRoast(grade) {
+    roastGrade = grade;
+  }
+
     // Watch for changes in currentStep and scroll to the active step
   $: {
     scrollToActiveStep();
@@ -337,11 +356,11 @@
   $: {
     debouncedUpdateCoffeeWeight = debounce((value) => {
       coffeeWeightGrams = value;
-    }, 300);
+    }, 100);
 
     debouncedUpdateWaterToCoffeeRatio = debounce((value) => {
       waterToCoffeeRatio = value;
-    }, 300);
+    }, 100);
   }
 
   $: {
@@ -476,7 +495,6 @@
 
 <style lang="scss">
   input, select, button {
-    margin: 10px;
     padding: 11px;
     width: 100%;
   }
@@ -731,15 +749,41 @@
             <label for="coffeeWeightGrams">
               Kaffevikt (gram)
             </label>
-            <input id="coffeeWeightGrams" name="coffeWeightGrams" type="number" min="1" max="100" on:input={(e) => debouncedUpdateCoffeeWeight(e.target.value)} />
+            <!-- <input id="coffeeWeightGrams" name="coffeWeightGrams" type="number" min="1" max="100" on:input={(e) => debouncedUpdateCoffeeWeight(e.target.value)} /> -->
+            <input id="coffeeWeightGrams" name="coffeWeightGrams" type="number" bind:value={coffeeWeightGrams} min="1" max="100" />
+
+            <div class="input-group">
+              <button on:click={() => decrementCoffeeWeight(10)}>−10g</button>
+              <button on:click={() => decrementCoffeeWeight(1)}>−</button>
+              <button on:click={() => incrementCoffeeWeight(1)}>+</button>
+              <button on:click={() => incrementCoffeeWeight(10)}>+10g</button>
+            </div>
         </div>
         <div class="calculator-item">
           <label for="roastGrade">Rostgrad:
-          <select id="roastGrade" name="roastGrade" bind:value={roastGrade}>
+          <!-- <select id="roastGrade" name="roastGrade" bind:value={roastGrade}>
             <option value="Light">Lätt</option>
             <option value="Medium">Medel</option>
             <option value="Dark">Mörk</option>
-          </select>
+          </select> -->
+          <div id="roastGrade">
+            <svg class="coffee-bean {roastGrade === 'Light' ? 'selected' : ''}" on:click={() => selectRoast('Light')} viewBox="0 0 50 50" width="50" height="50">
+              <path fill="#573A29" d="m19.628,19.628c-2.874,2.874-6.532,4.362-9.931,4.362-2.397,0-4.664-.744-6.438-2.26.119-.861,1.174-6.318,9.039-8.776,6.907-2.157,9.26-6.463,10.053-8.881,2.925,4.339,1.881,10.951-2.723,15.554Zm-7.926-8.582c7.864-2.457,8.919-7.914,9.039-8.776C16.451-1.397,9.272-.53,4.372,4.372-.232,8.976-1.276,15.588,1.649,19.926c.793-2.417,3.146-6.723,10.053-8.881Z"/>
+            </svg>
+            <svg class="coffee-bean {roastGrade === 'Medium' ? 'selected' : ''}" on:click={() => selectRoast('Medium')} viewBox="0 0 50 50" width="50" height="50">
+              <path fill="#382518" d="m19.628,19.628c-2.874,2.874-6.532,4.362-9.931,4.362-2.397,0-4.664-.744-6.438-2.26.119-.861,1.174-6.318,9.039-8.776,6.907-2.157,9.26-6.463,10.053-8.881,2.925,4.339,1.881,10.951-2.723,15.554Zm-7.926-8.582c7.864-2.457,8.919-7.914,9.039-8.776C16.451-1.397,9.272-.53,4.372,4.372-.232,8.976-1.276,15.588,1.649,19.926c.793-2.417,3.146-6.723,10.053-8.881Z"/>
+            </svg>
+            <svg class="coffee-bean {roastGrade === 'Dark' ? 'selected' : ''}" on:click={() => selectRoast('Dark')} viewBox="0 0 50 50" width="50" height="50">
+              <path fill="#1F140D" d="m19.628,19.628c-2.874,2.874-6.532,4.362-9.931,4.362-2.397,0-4.664-.744-6.438-2.26.119-.861,1.174-6.318,9.039-8.776,6.907-2.157,9.26-6.463,10.053-8.881,2.925,4.339,1.881,10.951-2.723,15.554Zm-7.926-8.582c7.864-2.457,8.919-7.914,9.039-8.776C16.451-1.397,9.272-.53,4.372,4.372-.232,8.976-1.276,15.588,1.649,19.926c.793-2.417,3.146-6.723,10.053-8.881Z"/>
+            </svg>
+          </div>
+          <div>
+            {
+              roastGrade === 'Light' ? 'Lätt' :
+              roastGrade === 'Medium' ? 'Medel' :
+              roastGrade === 'Dark' ? 'Mörk' : ''
+            }
+          </div>
           </label>
         </div>
         <div class="calculator-item">
