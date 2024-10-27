@@ -1,0 +1,40 @@
+
+---
+const { title, method, difficulty, time, slug } = Astro.props;
+
+const methodColors = {
+  'pour-over': 'bg-[#FFA45B]',
+  'aeropress': 'bg-[#7CB9E8]',
+  'french-press': 'bg-[#C1FF9B]'
+};
+---
+
+<article class="bg-white p-6 border-3 border-black neo-card-shadow">
+  <div class="flex gap-2 mb-4">
+    <span class={`${methodColors[method]} px-3 py-1 border-2 border-black font-bold`}>
+      {method}
+    </span>
+    <span class="bg-[#E8E8E8] px-3 py-1 border-2 border-black font-bold">
+      {time}
+    </span>
+  </div>
+
+  <h3 class="text-2xl font-bold mb-4">{title}</h3>
+
+  <div class="flex justify-between items-center">
+    <span class="text-lg">{difficulty}</span>
+    <a href={`/recipes/${slug}`} class="inline-block bg-black text-white px-4 py-2 font-bold hover:-translate-y-1 transition-transform">
+      Se recept →
+    </a>
+  </div>
+</article>
+
+<style>
+  .neo-card-shadow {
+    box-shadow: 4px 4px 0px 0px #000000;
+  }
+
+  .border-3 {
+    border-width: 3px;
+  }
+</style>

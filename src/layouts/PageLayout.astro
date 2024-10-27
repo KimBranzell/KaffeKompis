@@ -10,7 +10,8 @@ const { title } = Astro.props;
 import Header from '../components/Header.astro';
 import Hero from '../components/Hero/Hero.astro';
 import Footer from '../components/Footer.astro';
-import '../styles/styles.scss';
+import '@fontsource-variable/archivo';
+import '@/styles/styles.scss';
 ---
 <html lang="en">
   <head>
@@ -26,10 +27,11 @@ import '../styles/styles.scss';
   </head>
   <body>
     <Header />
-    <main class="page-layout">
+    <main class="page-layout grid">
         <!-- <Hero /> -->
         <slot />
     </main>
     <Footer />
   </body>
 </html>
+<script>import "preline/dist/preline.js";</script>

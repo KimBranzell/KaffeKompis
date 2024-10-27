@@ -308,7 +308,7 @@
     inputValidationError = ""; // Reset inputValidationError at the beginning of the block
     if (
       isNaN(parseFloat(coffeeWeightGrams)) ||
-      parseFloat(coffeeWeightGrams) <= 6
+      parseFloat(coffeeWeightGrams) < 6
     ) {
       inputValidationError =
         "Vi rekommenderar att du använder minst 6 gram kaffe för det här receptet.";
@@ -493,7 +493,7 @@
 </script>
 
 
-<style lang="scss">
+<!-- <style lang="scss">
   input, select, button {
     padding: 11px;
     width: 100%;
@@ -739,10 +739,133 @@
   100% { background-color: green; }
 }
 
+</style> -->
+
+<style lang="scss">
+  .four-six-generator {
+    @apply max-w-7xl mx-auto p-8;
+  }
+
+  .generator-header {
+    @apply bg-[#FFE566] border-3 border-black p-8 mb-12 neo-card-shadow;
+  }
+
+  .calculator-item {
+    @apply mb-6;
+
+    label {
+      @apply block text-xl font-bold mb-2;
+    }
+
+    input, select {
+      @apply w-full p-4 border-3 border-black bg-white neo-input-shadow;
+      &:focus {
+        @apply outline-none -translate-x-1 -translate-y-1;
+      }
+    }
+  }
+
+  .input-group {
+    @apply grid grid-cols-4 gap-2 mt-2;
+
+    button {
+      @apply bg-black text-white p-3 border-3 border-black font-bold hover:-translate-y-1 transition-transform;
+    }
+  }
+
+  .coffee-bean {
+    @apply w-16 h-16 cursor-pointer border-3 border-black p-2 transition-transform;
+    &:hover, &.selected {
+      @apply -translate-y-1 bg-[#FFA45B];
+    }
+  }
+
+  table {
+    @apply w-full border-3 border-black bg-white neo-card-shadow mb-8;
+
+    th {
+      @apply bg-black text-white p-4 text-left;
+    }
+
+    td {
+      @apply p-4 border-b-2 border-black;
+    }
+  }
+
+  .active-row {
+    @apply bg-[#FFE566];
+  }
+
+  .done-row {
+    @apply bg-[#C1FF9B];
+  }
+
+  .timer-panel {
+    @apply fixed bottom-0 left-0 w-full bg-black text-white p-4 text-center text-xl font-bold;
+  }
+
+  .progress-bar {
+    @apply bg-[#7CB9E8] h-full transition-all;
+  }
+
+  .pouring-timeline-carousel {
+    @apply fixed bottom-16 left-0 w-full bg-white  border-black p-4 overflow-x-auto;
+  }
+
+  .timeline-step {
+    @apply p-4 border-3 border-black m-2 bg-white neo-card-shadow;
+    &.active {
+      @apply bg-[#FFE566];
+    }
+  }
+
+  // Utility classes
+  .neo-card-shadow {
+    box-shadow: 4px 4px 0px 0px #000000;
+  }
+
+  .neo-input-shadow {
+    box-shadow: 2px 2px 0px 0px #000000;
+  }
+
+  .border-3 {
+    border-width: 3px;
+  }
+
+  .roast-selector {
+    @apply mb-8;
+  }
+
+  .roast-btn {
+    @apply bg-white border-3 border-black p-4 flex flex-col items-center gap-2 neo-card-shadow transition-transform;
+
+    &:hover {
+      @apply -translate-y-1;
+    }
+
+    &.active {
+      @apply bg-[#FFE566] -translate-y-1;
+    }
+  }
+
+  .roast-label {
+    @apply font-bold text-lg;
+  }
+
+  .temp-label {
+    @apply bg-black text-white px-2 py-1 text-sm font-bold;
+  }
+
+  // Print styles
+  @media print {
+    .timer-panel, .pouring-timeline-carousel {
+      display: none;
+    }
+  }
 </style>
 
-<div class="four-six-generator">
-  <div class="u-container u-grid">
+<div class="four-six-generator ">
+  <div class="u-container pt-40 pb-10 u-grid mx-auto grid grid-cols-1 md:grid-cols-2 gap-5 w-[1300px]">
     <div class="generator-header">
       <div class="u-container u-grid">
         <div class="calculator-item">
@@ -760,13 +883,47 @@
             </div>
         </div>
         <div class="calculator-item">
-          <label for="roastGrade">Rostgrad:
+          <label for="roastGrade" class="block text-xl font-bold mb-4">Rostgrad:
           <!-- <select id="roastGrade" name="roastGrade" bind:value={roastGrade}>
             <option value="Light">Lätt</option>
             <option value="Medium">Medel</option>
             <option value="Dark">Mörk</option>
           </select> -->
-          <div id="roastGrade">
+          <div class="roast-options grid grid-cols-3 gap-4">
+            <button
+              class="roast-btn {roastGrade === 'Light' ? 'active' : ''}"
+              on:click={() => selectRoast('Light')}
+            >
+              <svg class="coffee-bean" viewBox="0 0 50 50" width="50" height="50">
+                <path fill="#C4A484" d="m19.628,19.628c-2.874,2.874-6.532,4.362-9.931,4.362-2.397,0-4.664-.744-6.438-2.26.119-.861,1.174-6.318,9.039-8.776,6.907-2.157,9.26-6.463,10.053-8.881,2.925,4.339,1.881,10.951-2.723,15.554Zm-7.926-8.582c7.864-2.457,8.919-7.914,9.039-8.776C16.451-1.397,9.272-.53,4.372,4.372-.232,8.976-1.276,15.588,1.649,19.926c.793-2.417,3.146-6.723,10.053-8.881Z"/>
+              </svg>
+              <span class="roast-label">Ljusrost</span>
+              <span class="temp-label">{93}°C</span>
+            </button>
+
+            <button
+              class="roast-btn {roastGrade === 'Medium' ? 'active' : ''}"
+              on:click={() => selectRoast('Medium')}
+            >
+              <svg class="coffee-bean" viewBox="0 0 50 50" width="50" height="50">
+                <path fill="#8B4513" d="m19.628,19.628c-2.874,2.874-6.532,4.362-9.931,4.362-2.397,0-4.664-.744-6.438-2.26.119-.861,1.174-6.318,9.039-8.776,6.907-2.157,9.26-6.463,10.053-8.881,2.925,4.339,1.881,10.951-2.723,15.554Zm-7.926-8.582c7.864-2.457,8.919-7.914,9.039-8.776C16.451-1.397,9.272-.53,4.372,4.372-.232,8.976-1.276,15.588,1.649,19.926c.793-2.417,3.146-6.723,10.053-8.881Z"/>
+              </svg>
+              <span class="roast-label">Mellanrost</span>
+              <span class="temp-label">{88}°C</span>
+            </button>
+
+            <button
+              class="roast-btn {roastGrade === 'Dark' ? 'active' : ''}"
+              on:click={() => selectRoast('Dark')}
+            >
+              <svg class="coffee-bean" viewBox="0 0 50 50" width="50" height="50">
+                <path fill="#3E2723" d="m19.628,19.628c-2.874,2.874-6.532,4.362-9.931,4.362-2.397,0-4.664-.744-6.438-2.26.119-.861,1.174-6.318,9.039-8.776,6.907-2.157,9.26-6.463,10.053-8.881,2.925,4.339,1.881,10.951-2.723,15.554Zm-7.926-8.582c7.864-2.457,8.919-7.914,9.039-8.776C16.451-1.397,9.272-.53,4.372,4.372-.232,8.976-1.276,15.588,1.649,19.926c.793-2.417,3.146-6.723,10.053-8.881Z"/>
+              </svg>
+              <span class="roast-label">Mörkrost</span>
+              <span class="temp-label">{83}°C</span>
+            </button>
+          </div>
+          <!-- <div id="roastGrade" class="roast-selector grid grid-cols-3 gap-2">
             <svg class="coffee-bean {roastGrade === 'Light' ? 'selected' : ''}" on:click={() => selectRoast('Light')} viewBox="0 0 50 50" width="50" height="50">
               <path fill="#573A29" d="m19.628,19.628c-2.874,2.874-6.532,4.362-9.931,4.362-2.397,0-4.664-.744-6.438-2.26.119-.861,1.174-6.318,9.039-8.776,6.907-2.157,9.26-6.463,10.053-8.881,2.925,4.339,1.881,10.951-2.723,15.554Zm-7.926-8.582c7.864-2.457,8.919-7.914,9.039-8.776C16.451-1.397,9.272-.53,4.372,4.372-.232,8.976-1.276,15.588,1.649,19.926c.793-2.417,3.146-6.723,10.053-8.881Z"/>
             </svg>
@@ -776,12 +933,12 @@
             <svg class="coffee-bean {roastGrade === 'Dark' ? 'selected' : ''}" on:click={() => selectRoast('Dark')} viewBox="0 0 50 50" width="50" height="50">
               <path fill="#1F140D" d="m19.628,19.628c-2.874,2.874-6.532,4.362-9.931,4.362-2.397,0-4.664-.744-6.438-2.26.119-.861,1.174-6.318,9.039-8.776,6.907-2.157,9.26-6.463,10.053-8.881,2.925,4.339,1.881,10.951-2.723,15.554Zm-7.926-8.582c7.864-2.457,8.919-7.914,9.039-8.776C16.451-1.397,9.272-.53,4.372,4.372-.232,8.976-1.276,15.588,1.649,19.926c.793-2.417,3.146-6.723,10.053-8.881Z"/>
             </svg>
-          </div>
+          </div> -->
           <div>
             {
-              roastGrade === 'Light' ? 'Lätt' :
-              roastGrade === 'Medium' ? 'Medel' :
-              roastGrade === 'Dark' ? 'Mörk' : ''
+              roastGrade === 'Light' ? 'Ljusrost' :
+              roastGrade === 'Medium' ? 'Mellanrost' :
+              roastGrade === 'Dark' ? 'Mörkrost' : ''
             }
           </div>
           </label>
@@ -794,10 +951,12 @@
             {/each}
           </select>
           {#if showRecommendation}
-            <div>
-              <p>Rekommenderad ratio: {recommendedRatio}</p>
-              <a href="javascript:void(0)" on:click={changeToRecommendedRatio}>Change to recommendation</a>
-              <button on:click={removeRecommendation}>Remove</button>
+            <div class="recommendation-panel bg-[#FFE566] border-3 border-black p-4 neo-card-shadow">
+              <p class="text-xl mb-4">Rekommenderad ratio: {recommendedRatio}</p>
+              <div class="flex gap-4">
+                <button class="bg-black text-white px-4 py-2 border-3 border-black font-bold hover:-translate-y-1 transition-transform" href="javascript:void(0)" on:click={changeToRecommendedRatio}>Använd rekommenderad ratio</button>
+                <button class="bg-white px-4 py-2 border-3 border-black font-bold hover:-translate-y-1 transition-transform" on:click={removeRecommendation}>Stäng</button>
+              </div>
             </div>
           {/if}
         </div>
@@ -829,33 +988,57 @@
       {/if}
       <button on:click={handlePrint}>Skriv ut recept</button>
     </div>
-    <div class="instructions">
-      <h2>Ingredienser</h2>
-      <ul>
-        <li>{coffeeWeightGrams}g kaffe</li>
-        <li>{waterWeight.toFixed(0)}g vatten</li>
-        <li>Temperatur: {brewingTemperature}&deg;C</li>
-        <li>Malgrad: ~{recommendedGrindSize}&micro;m</li>
+    <div class="instructions bg-[#FFF7ED] border-3 border-black p-8 neo-card-shadow">
+      <h2 class="text-3xl font-bold mb-6 neo-title">Ingredienser</h2>
+      <ul class="ingredient-list mb-8">
+        <li class="text-xl mb-2 flex items-center">
+          <span class="inline-block bg-[#FFE566] p-2 border-2 border-black mr-3">{coffeeWeightGrams}g kaffe</span>
+        </li>
+        <li class="text-xl mb-2 flex items-center">
+          <span class="inline-block bg-[#FFE566] p-2 border-2 border-black mr-3">{waterWeight.toFixed(0)}g vatten</span>
+        </li>
+        <li class="text-xl mb-2 flex items-center">
+          <span class="inline-block bg-[#FFE566] p-2 border-2 border-black mr-3">Temperatur: {brewingTemperature}°C</span>
+        </li>
+        <li class="text-xl mb-2 flex items-center">
+          <span class="inline-block bg-[#FFE566] p-2 border-2 border-black mr-3">Malgrad: ~{recommendedGrindSize}μm</span>
+        </li>
       </ul>
-      <h2>Instruktioner</h2>
-      <ol>
-        <li>Sätt ett V60-filter (eller liknande) i din V60-bryggare.</li>
-        <li>Skölj filtret med hett vatten (detta för att eliminera eventuell papperssmak i kaffet).</li>
-        <li>Sätt bryggaren uppå en kanna och ställ på en våg.</li>
-        <li>Häll i det malda kaffet i filtret i din V60-bryggare. Nollställ vågen så att den står på 0 innan du börjar brygga.</li >
+
+      <h2 class="text-3xl font-bold mb-6 neo-title">Instruktioner</h2>
+      <ol class="instruction-list mb-8">
+        {#each ['Sätt ett V60-filter (eller liknande) i din V60-bryggare.',
+                'Skölj filtret med hett vatten (detta för att eliminera eventuell papperssmak i kaffet).',
+                'Sätt bryggaren uppå en kanna och ställ på en våg.',
+                'Häll i det malda kaffet i filtret i din V60-bryggare. Nollställ vågen så att den står på 0 innan du börjar brygga.'] as step, i}
+          <li class="flex mb-4">
+            <span class="bg-black text-white w-8 h-8 flex items-center justify-center font-bold mr-4 border-2 border-black">
+              {i + 1}
+            </span>
+            <span class="text-xl">{step}</span>
+          </li>
+        {/each}
       </ol>
-      <h2>Tips</h2>
-        <ul>
-          <li>Choose your preferred grind size. (Adjust the coarseness so that water atmost completely drips within this total time.)</li>
-          <li>The role of the first pour is to moisten the grounds.</li>
-          <li>Do not make the next pour until the water completely drips through.</li>
-        </ul>
-      <h2>Källor</h2>
-        <ul>
-          <li>Tetsu Kasuya</li>
-          <li>Paul från YouTube-kanalen Brewing Habits</li>
-        </ul>
+
+      <h2 class="text-3xl font-bold mb-6 neo-title">Tips</h2>
+      <ul class="tips-list mb-8">
+        {#each ['Choose your preferred grind size. (Adjust the coarseness so that water atmost completely drips within this total time.)',
+                'The role of the first pour is to moisten the grounds.',
+                'Do not make the next pour until the water completely drips through.'] as tip}
+          <li class="flex items-center mb-3">
+            <span class="text-2xl mr-3">💡</span>
+            <span class="text-xl">{tip}</span>
+          </li>
+        {/each}
+      </ul>
+
+      <h2 class="text-3xl font-bold mb-6 neo-title">Källor</h2>
+      <ul class="sources-list">
+        <li class="text-xl mb-2">• Tetsu Kasuya</li>
+        <li class="text-xl mb-2">• Paul från YouTube-kanalen Brewing Habits</li>
+      </ul>
     </div>
+
   </div>
   <div class="generator-body">
     <table>
@@ -879,7 +1062,7 @@
   </div>
 
 <!-- Update the pouring-timeline code -->
-<div class="pouring-timeline-carousel" bind:this={carouselContainer}>
+<!-- <div class="pouring-timeline-carousel" bind:this={carouselContainer}>
   {#each brewingSchedule as step, index}
     <div class="timeline-step {index === currentStep ? 'active' : ''}">
       <div class="step-label">
@@ -909,7 +1092,7 @@
       </div>
     </div>
   {/each}
-</div>
+</div> -->
 
 <div class="timer-panel">
   {#if isPrepping}

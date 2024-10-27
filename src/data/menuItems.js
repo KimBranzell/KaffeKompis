@@ -9,7 +9,11 @@ export default [
   {
     href: '/verktyg/', icon: toolsIcon, label: 'Verktyg',
     subItems: [
+      { href: '/verktyg/4-6-metoden/', label: 'Tetsu Kasuyas 4:6-metod' },
+      { href: '/verktyg/4-6-metoden/', label: 'Tetsu Kasuyas 4:6-metod' },
+      { href: '/verktyg/4-6-metoden/', label: 'Tetsu Kasuyas 4:6-metod' },
       { href: '/verktyg/4-6-metoden/', label: 'Tetsu Kasuyas 4:6-metod' }
+
     ]
   },
   { href: '/recept/', icon: recipeIcon, label: 'Recept' },

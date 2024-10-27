@@ -1,13 +1,22 @@
 import { defineConfig } from 'astro/config';
+import path from 'path';
 import svelte from "@astrojs/svelte";
 import purgecss from "astro-purgecss";
 import AstroPWA from '@vite-pwa/astro';
-
 import criticalCss from "astro-critical-css";
+import tailwind from '@astrojs/tailwind';
+import react from '@astrojs/react';
 
 // https://astro.build/config
 export default defineConfig({
   prefetch: true,
+  vite: {
+    resolve: {
+      alias: {
+        '$lib': path.resolve('./src')
+      }
+    }
+  },
   integrations: [svelte(), AstroPWA({
     includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
     manifest: {
@@ -30,8 +39,11 @@ export default defineConfig({
     keyframes: true,
     safelist: ['random', 'yep', 'button', /^nav-/],
     blocklist: ['usedClass', /^nav-/],
-    content: [process.cwd() + '/src/**/*.{astro,svelte}' // Watching astro and vue sources (for SSR, read the note below)
+    content: [
+      process.cwd() + '/src/**/*.{astro,svelte}' // Watching astro and vue sources (for SSR, read the note below)
     ]
-  }), criticalCss()],
+  }), criticalCss(), tailwind({
+    applyBaseStyles: false,
+  }), react()],
   renderers: ['@astrojs/renderer-preact', '@astrojs/renderer-svelte']
 });

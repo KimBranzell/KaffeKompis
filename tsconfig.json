@@ -3,6 +3,14 @@
   "compilerOptions": {
     "types": [
       "vite-plugin-pwa/info"
-    ]
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
   }
 }

@@ -5,29 +5,9 @@ import recipeIcon from './svgs/recipe.svg?raw'
 import contactIcon from './svgs/attribution-pencil.svg?raw'
 import blogIcon from './svgs/newspaper.svg?raw'
 import navigationItems from '../../data/menuItems.js'
+import { NavigationMenu } from "@/components/navigationMenu/navigationMenu";
 
-import DarkMode from '../darkMode/darkMode.svelte'
+
 ---
-<ul>
-  {navigationItems.map((item)=> (
-    <li class={item.subItems ? 'dropdown' : ''}>
-      <a href={item.href} data-astro-prefetch>
-        <Fragment set:html={item.icon} />
-        <span>{item.label}</span>
-      </a>
-      {item.subItems && (
-        <ul class="dropdown-menu">
-          {item.subItems.map((subItem)=> (
-            <li>
-            <a href={subItem.href} data-astro-prefetch>{subItem.label}</a>
-            </li>
-          ))}
-        </ul>
-      )}
-    </li>
-  ))}
-</ul>
 
-<ul>
-  <DarkMode client:load />
-</ul>
+<NavigationMenu data={navigationItems} client:idle />

@@ -1,0 +1,14 @@
+
+---
+const { title, date, slug } = Astro.props;
+---
+
+<article class="bg-[#FF90E8] p-6 border-3 border-black neo-card-shadow">
+  <div class="inline-block bg-white px-4 py-1 border-2 border-black rotate-2 mb-4">
+    {date}
+  </div>
+  <h3 class="text-2xl font-bold mb-4">{title}</h3>
+  <a href={`/blog/${slug}`} class="inline-block bg-black text-white px-4 py-2 font-bold hover:-translate-y-1 transition-transform">
+    Läs mer →
+  </a>
+</article>

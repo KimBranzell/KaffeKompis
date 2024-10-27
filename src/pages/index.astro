@@ -1,15 +1,68 @@
 ---
 import PageLayout from '../layouts/PageLayout.astro';
 import Hero from '../components/Hero/Hero.astro';
+import ToolCard from '../components/Cards/ToolCard.astro';
+import BlogCard from '../components/Cards/BlogCard.astro';
+import RecipeCard from '../components/Cards/RecipeCard.astro';
+
 
 export const frontmatter = {
   title: "Hem"
 };
+const tools = [
+  { title: 'Bryggkalkylatorer', description: 'Räkna ut perfekt kaffe-vatten-ratio', icon: '⚖️', link: '/tools/calculator' },
+  { title: 'Bryggtimers', description: 'Håll koll på din bryggtid', icon: '⏲️', link: '/tools/timer' },
+  { title: 'Malningsguide', description: 'Hitta rätt malningsgrad', icon: '☕', link: '/tools/grind' }
+];
+
+const latestPosts = [
+  { title: 'Så väljer du rätt kaffekvarn', date: '2024-01-15', slug: 'valja-kaffekvarn' },
+  { title: 'Guide till olika rostningsgrader', date: '2024-01-10', slug: 'rostningsgrader' }
+];
+
+const recipes = [
+  {
+    title: 'Klassisk Pour Over',
+    method: 'pour-over',
+    difficulty: 'Medel',
+    time: '4 min',
+    slug: 'klassisk-pour-over'
+  },
+  {
+    title: 'Stark AeroPress',
+    method: 'aeropress',
+    difficulty: 'Enkel',
+    time: '2 min',
+    slug: 'stark-aeropress'
+  }
+];
 ---
 
 <PageLayout title="Home Page">
   <Hero />
-  <div>Welcome to your new Astro site! This is a basic starter template for building a new site with Astro.</div>
-  <div>To learn more about Astro, check out the <a href="https://astro.build">official docs</a> or join the <a href="https://astro.build/chat">Astro Discord channel</a>.</div>
-  <div>Now go build something great.</div>
+  <main class="max-w-7xl mx-auto px-4 py-12">
+    <!-- Tools Section -->
+    <section class="mb-20">
+      <h2 class="text-4xl font-bold mb-8 neo-brutal-title">Bryggverktyg</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {tools.map(tool => <ToolCard {...tool} />)}
+      </div>
+    </section>
+
+    <!-- Latest Posts Section -->
+    <section class="mb-20">
+      <h2 class="text-4xl font-bold mb-8 neo-brutal-title">Senaste Inläggen</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {latestPosts.map(post => <BlogCard {...post} />)}
+      </div>
+    </section>
+
+    <!-- Recipes Section -->
+    <section class="mb-20">
+      <h2 class="text-4xl font-bold mb-8 neo-brutal-title">Bryggrecept</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {recipes.map(recipe => <RecipeCard {...recipe} />)}
+      </div>
+    </section>
+  </main>
 </PageLayout>
