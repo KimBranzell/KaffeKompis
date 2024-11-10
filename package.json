@@ -43,5 +43,6 @@
     "@melt-ui/svelte": "^0.83.0",
     "@vite-pwa/astro": "^0.4.0",
     "sharp": "^0.33.4"
-  }
+  },
+  "packageManager": "pnpm@9.12.3"
 }
