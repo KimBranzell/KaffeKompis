@@ -18,49 +18,40 @@
   import PouringTimeline from './components/PouringTimeline.svelte';
 
   /**
-   * Constants used in the 4-6 coffee brewing generator.
-   * These values represent the initial delay, coffee weight, water to coffee ratio, and pour fractions used in the 4-6 brewing method.
+   * Constants used in the 4:6 coffee brewing generator.
+   * These values represent the initial delay and pour fractions used in the 4:6 brewing method.
    */
-  const INITIAL_DELAY_SECONDS = 0;
-  // const INITIAL_COFFEE_WEIGHT_GRAMS = 20; // grams
-  // const DEFAULT_WATER_TO_COFFE_RATIO = 15;
-  const FIRST_POUR_RATIO = 0.4;
-  const SECOND_POUR_RATIO = 0.6;
-  const ACIDIC_POUR_FRACTION = 2 / 3;
-  const SWEET_POUR_FRACTION = 1 / 3;
-  const EVEN_POUR_FRACTION = 1 / 2;
+
+  const INITIAL_DELAY_SECONDS = 0;          // Initial delay before starting the brewing process
+  const FIRST_POUR_RATIO = 0.4;             // Ratio of water used in the first pour
+  const SECOND_POUR_RATIO = 0.6;            // Ratio of water used in the second pour
+  const ACIDIC_POUR_FRACTION = 2 / 3;       // Pour fraction for acidic taste profile
+  const SWEET_POUR_FRACTION = 1 / 3;        // Pour fraction for sweet taste profile
+  const EVEN_POUR_FRACTION = 1 / 2;         // Pour fraction for balanced taste profile
 
   // Generator initial state
-  // let coffeeWeightGrams = INITIAL_COFFEE_WEIGHT_GRAMS;  // Set initial coffee weight to 20 grams
-  // let waterToCoffeeRatio = DEFAULT_WATER_TO_COFFE_RATIO; // Set initial water to coffee ratio to 1:15
-  let coffeeStrength = "Balanced"; // Set initial strength to "balanced"
-  let coffeeTaste = "Balanced"; // Set initial taste to "balanced"
-  // let roastGrade = "Light"; // Set initial roast grade to "light"
-  // let brewingTemperature = 88; // Set default brewing temperature to 88 degrees Celcius
-  let inputValidationError = ""; // Set input validation error to empty string
-  // let brewingSchedule = []; // Set brewing schedule to an empty array
-  let time = INITIAL_DELAY_SECONDS; // Set total brewing time to 0
-  let pouringProgress = 0; // Set pouring progress to 0
-  let currentPourAmount = 0; // Track the current pour amount
-  let carouselContainer;
-  let activeStep = 0; // Track the active step in the brewing process
-  let completedSteps = new Set();
-  let incrementValue = 1; // Default increment/decrement value
+  let coffeeStrength = "Balanced";          // Set initial strength to "balanced"
+  let coffeeTaste = "Balanced";             // Set initial taste to "balanced"
+  let inputValidationError = "";            // Set input validation error to empty string
+  let time = INITIAL_DELAY_SECONDS;         // Set total brewing time to 0
+  let pouringProgress = 0;                  // Set pouring progress to 0
+  let currentPourAmount = 0;                // Track the current pour amount
+  let carouselContainer;                    // Reference to the carousel container element
+  let activeStep = 0;                       // Track the active step in the brewing process
+  let completedSteps = new Set();           // Set to track completed steps
+  let incrementValue = 1;                   // Default increment/decrement value
 
   // Recipe timer
-  let prepTime = 5; // 5 seconds for preparation
-  // let totalTime = 0; // Total time for the brewing process
-  // let isBrewing = false; // State to track if brewing has started
-  let isPouring = false; // State to track if pouring has started
-  let isPrepping = false; // State to track if preparation has started
-  // let currentStep = 0;
-  let intervalId = null;
-  let totalBrewingTime;
+  let prepTime = 5;                         // 5 seconds for preparation
+  let isPouring = false;                    // State to track if pouring has started
+  let isPrepping = false;                   // State to track if preparation has started
+  let intervalId = null;                    // Interval ID for the timer
+  let totalBrewingTime;                     // Total brewing time for the recipe
 
-  let debouncedUpdateCoffeeWeight;
-  let debouncedUpdateWaterToCoffeeRatio;
+  let debouncedUpdateCoffeeWeight;          // Debounced function to update coffee weight
+  let debouncedUpdateWaterToCoffeeRatio;    // Debounced function to update water to coffee ratio
 
-  let progressWidth = 0; // This will represent the width of the progress bar
+  let progressWidth = 0;                    // This will represent the width of the progress bar
 
 
   /**
@@ -106,14 +97,14 @@
     isBrewing = true;
     isPouring = true;
     if (intervalId !== null) {
-        clearInterval(intervalId);
+      clearInterval(intervalId);
     }
     totalTime = 0;
     currentStep = 0;
     intervalId = setInterval(() => {
-        totalTime += 0.1; // Increase by 0.1 seconds (100 milliseconds)
-        updateCurrentStep();
-        updateProgressBar();
+      totalTime += 0.1; // Increase by 0.1 seconds (100 milliseconds)
+      updateCurrentStep();
+      updateProgressBar();
     }, 100); // Update every 100 milliseconds
   }
 
@@ -123,7 +114,9 @@
    * determining the current step in the process.
    */
   function updateCurrentStep() {
+
     let timeAccumulated = 0;
+
     for (let i = 0; i < brewingSchedule.length; i++) {
       // Add the duration of the current step to the accumulated time
       timeAccumulated += brewingSchedule[i].time;
@@ -154,23 +147,23 @@
    */
   function updateProgressBar() {
     if (currentStep < brewingSchedule.length) {
-        const step = brewingSchedule[currentStep];
-        const stepStartTime = step.startTime;
-        const stepDuration = step.time;
-        const timeInCurrentStep = totalTime - stepStartTime;
-        const progressPercentage = (timeInCurrentStep / stepDuration) * 100;
-        progressWidth = Math.min(progressPercentage, 100);
+      const step                = brewingSchedule[currentStep];
+      const stepStartTime       = step.startTime;
+      const stepDuration        = step.time;
+      const timeInCurrentStep   = totalTime - stepStartTime;
+      const progressPercentage  = (timeInCurrentStep / stepDuration) * 100;
+            progressWidth       = Math.min(progressPercentage, 100);
 
-        if (timeInCurrentStep <= 10) {
-            pouringProgress = (timeInCurrentStep / 10) * 100;
-            currentPourAmount = (pouringProgress / 100) * step.pour;
-        } else {
-            pouringProgress = 100;
-            currentPourAmount = step.pour;
-            if (timeInCurrentStep >= stepDuration) {
-                isPouring = false;
-            }
+      if (timeInCurrentStep <= 10) {
+        pouringProgress         = (timeInCurrentStep / 10) * 100;
+        currentPourAmount       = (pouringProgress / 100) * step.pour;
+      } else {
+        pouringProgress         = 100;
+        currentPourAmount       = step.pour;
+        if (timeInCurrentStep >= stepDuration) {
+          isPouring             = false;
         }
+      }
     }
   }
 
@@ -200,6 +193,11 @@
     }
   }
 
+  /**
+   * Increments the coffee weight by the specified amount, up to a maximum of 100.
+   *
+   * @param {number} increment - The amount to increase the coffee weight by.
+   */
   function incrementCoffeeWeight(increment) {
     const newValue = $coffeeWeight + increment;
     if (newValue <= 100) {
@@ -207,6 +205,11 @@
     }
   }
 
+  /**
+   * Decrements the coffee weight by the specified amount, down to a minimum of 1.
+   *
+   * @param {number} decrement - The amount to decrease the coffee weight by.
+   */
   function decrementCoffeeWeight(decrement) {
     const newValue = $coffeeWeight - decrement;
     if (newValue >= 1) {
@@ -214,6 +217,11 @@
     }
   }
 
+  /**
+   * Selects the specified roast grade for the coffee.
+   *
+   * @param {string} grade - The roast grade to select, e.g. 'Light', 'Medium', 'Dark'.
+   */
   function selectRoast(grade) {
     roastGrade = grade;
   }
@@ -372,20 +380,6 @@
     }, 100);
   }
 
-  // $: {
-  //   switch (roastGrade) {
-  //     case 'Light':
-  //       brewingTemperature = 93;
-  //       break;
-  //     case 'Medium':
-  //       brewingTemperature = 88;
-  //       break;
-  //     case 'Dark':
-  //       brewingTemperature = 83;
-  //       break;
-  //   }
-  // }
-
   $: recommendedRatio = calculateRecommendedRatio($coffeeWeight);
   $: showRecommendation = !recommendationRemoved && getNumericRatio(recommendedRatio) !== $waterRatio;
 
@@ -426,10 +420,15 @@
     }
   }
 
-  // Helper function to extract the numeric ratio value from the recommendedRatio string
-    function getNumericRatio(ratioString) {
-    const parts = ratioString.split(':');
-    return parts.length > 1 ? parseInt(parts[1], 10) : null;
+  /**
+   * Extracts the numeric part of a water to coffee ratio string.
+   *
+   * @param {string} ratioString - The water to coffee ratio string in the format "1:16".
+   * @returns {number|null} - The numeric part of the ratio, or null if the input is invalid.
+   */
+  function getNumericRatio(ratioString) {
+      const parts = ratioString.split(':');
+      return parts.length > 1 ? parseInt(parts[1], 10) : null;
   }
 
   /**
@@ -450,47 +449,67 @@
 
   let recommendedGrindSize = 0; // Initialize recommended grind size
 
-  // Function to interpolate grind size
+  /**
+   * Calculates the recommended grind size based on the provided coffee weight.
+   * The function uses a combination of extrapolation and interpolation to determine the grind size.
+   * For coffee weights less than 6g or greater than 76g, the function extrapolates the grind size
+   * based on the known data points. For coffee weights between 6g and 76g, the function
+   * interpolates the grind size based on the known data points.
+   *
+   * @param {number} coffeeWeight - The weight of the coffee in grams.
+   * @returns {number} The recommended grind size.
+   */
   function calculateGrindSize(coffeeWeight) {
-  // Use the first two points to extrapolate for weights less than 6g
-  if (coffeeWeight < 6) {
-    const slope = (knownGrindSizes[1].grindSize - knownGrindSizes[0].grindSize) /
-                  (knownGrindSizes[1].coffeeWeight - knownGrindSizes[0].coffeeWeight);
-    const extrapolatedGrindSize = knownGrindSizes[0].grindSize +
-                                  (coffeeWeight - knownGrindSizes[0].coffeeWeight) * slope;
-    return Math.round(extrapolatedGrindSize / 10) * 10;
-  }
 
-  // Use the last two points to extrapolate for weights greater than 76g
-  if (coffeeWeight > 76) {
-    const lastTwoPoints = knownGrindSizes.slice(-2);
-    const slope = (lastTwoPoints[1].grindSize - lastTwoPoints[0].grindSize) /
-                  (lastTwoPoints[1].coffeeWeight - lastTwoPoints[0].coffeeWeight);
-    const extrapolatedGrindSize = lastTwoPoints[0].grindSize +
-                                  (coffeeWeight - lastTwoPoints[0].coffeeWeight) * slope;
-    return Math.round(extrapolatedGrindSize / 10) * 10;
-  }
+    /**
+    * Use the first two points to extrapolate for weights less than 6g
+    */
 
-  // Existing interpolation logic for weights between 6g and 76g remains unchanged
-  let lowerPoint = knownGrindSizes[0];
-  let upperPoint = knownGrindSizes[knownGrindSizes.length - 1];
-  for (let i = 0; i < knownGrindSizes.length - 1; i++) {
-    if (coffeeWeight >= knownGrindSizes[i].coffeeWeight && coffeeWeight <= knownGrindSizes[i + 1].coffeeWeight) {
-      lowerPoint = knownGrindSizes[i];
-      upperPoint = knownGrindSizes[i + 1];
-      break;
+    if (coffeeWeight < 6) {
+      const slope = (knownGrindSizes[1].grindSize - knownGrindSizes[0].grindSize) /
+                    (knownGrindSizes[1].coffeeWeight - knownGrindSizes[0].coffeeWeight);
+      const extrapolatedGrindSize = knownGrindSizes[0].grindSize +
+                                    (coffeeWeight - knownGrindSizes[0].coffeeWeight) * slope;
+      return Math.round(extrapolatedGrindSize / 10) * 10;
     }
+
+    /**
+    * Use the last two points to extrapolate for weights greater than 76g
+    */
+
+    if (coffeeWeight > 76) {
+      const lastTwoPoints = knownGrindSizes.slice(-2);
+      const slope = (lastTwoPoints[1].grindSize - lastTwoPoints[0].grindSize) /
+                    (lastTwoPoints[1].coffeeWeight - lastTwoPoints[0].coffeeWeight);
+      const extrapolatedGrindSize = lastTwoPoints[0].grindSize +
+                                    (coffeeWeight - lastTwoPoints[0].coffeeWeight) * slope;
+      return Math.round(extrapolatedGrindSize / 10) * 10;
+    }
+
+    /**
+    * Existing interpolation logic for weights between 6g and 76g remains unchanged
+    */
+
+    let lowerPoint = knownGrindSizes[0];
+    let upperPoint = knownGrindSizes[knownGrindSizes.length - 1];
+
+    for (let i = 0; i < knownGrindSizes.length - 1; i++) {
+      if (coffeeWeight >= knownGrindSizes[i].coffeeWeight && coffeeWeight <= knownGrindSizes[i + 1].coffeeWeight) {
+        lowerPoint = knownGrindSizes[i];
+        upperPoint = knownGrindSizes[i + 1];
+        break;
+      }
+    }
+
+    const weightRange           = upperPoint.coffeeWeight - lowerPoint.coffeeWeight;
+    const grindSizeRange        = upperPoint.grindSize - lowerPoint.grindSize;
+    const weightDifference      = coffeeWeight - lowerPoint.coffeeWeight;
+    const interpolatedGrindSize = lowerPoint.grindSize + (weightDifference / weightRange) * grindSizeRange;
+
+    return Math.round(interpolatedGrindSize / 10) * 10;
   }
 
-  const weightRange = upperPoint.coffeeWeight - lowerPoint.coffeeWeight;
-  const grindSizeRange = upperPoint.grindSize - lowerPoint.grindSize;
-  const weightDifference = coffeeWeight - lowerPoint.coffeeWeight;
-  const interpolatedGrindSize = lowerPoint.grindSize + (weightDifference / weightRange) * grindSizeRange;
-
-  return Math.round(interpolatedGrindSize / 10) * 10;
-  }
-
-  // Reactive statement to update grind size when coffee weight changes
+  // Update grind size when coffee weight changes
   $: recommendedGrindSize = calculateGrindSize($coffeeWeight);
 
   /**
@@ -499,6 +518,111 @@
   function handlePrint() {
     window.print();
   }
+  /**
+   * Encodes a coffee recipe to a compact hash string.
+   *
+   * The recipe is encoded into a single integer value, which is then converted to a base-36 string. The encoded value includes the following information:
+   *
+   * - Coffee weight (in grams)
+   * - Water to coffee ratio (as a percentage)
+   * - Roast level (light, medium, or dark)
+   * - Coffee strength (strong, balanced, or weak)
+   * - Coffee taste (acidic, balanced, or sweet)
+   *
+   * This encoded hash can be used to share the recipe with others or to restore the recipe state in the application.
+   *
+   * @returns {string} The encoded recipe hash.
+   */
+  function encodeRecipeToHash() {
+    const roastMap = { Light: 0, Medium: 1, Dark: 2 };
+    const strengthMap = { Strong: 0, Balanced: 1, Weak: 2 };
+    const tasteMap = { Acidic: 0, Balanced: 1, Sweet: 2 };
+
+    const packed =
+      $coffeeWeight * 1000000 +
+      $waterRatio * 10000 +
+      roastMap[$roastGrade] * 1000 +
+      strengthMap[coffeeStrength] * 100 +
+      tasteMap[coffeeTaste] * 10;
+
+    return packed.toString(36);
+  }
+  /**
+   * Decodes a compact hash string back into a coffee recipe.
+   *
+   * The hash string is expected to be a base-36 encoded integer value that represents the following recipe information:
+   *
+   * - Coffee weight (in grams)
+   * - Water to coffee ratio (as a percentage)
+   * - Roast level (light, medium, or dark)
+   * - Coffee strength (strong, balanced, or weak)
+   * - Coffee taste (acidic, balanced, or sweet)
+   *
+   * This function decodes the hash string back into an object containing the original recipe details.
+   *
+   * @param {string} hash - The encoded recipe hash string.
+   * @returns {object|null} The decoded recipe object, or null if the hash is invalid.
+   */
+  function decodeHashToRecipe(hash) {
+    try {
+      const packed = parseInt(hash, 36);
+
+      const roastMap = { 0: 'Light', 1: 'Medium', 2: 'Dark' };
+      const strengthMap = { 0: 'Strong', 1: 'Balanced', 2: 'Weak' };
+      const tasteMap = { 0: 'Acidic', 1: 'Balanced', 2: 'Sweet' };
+
+      return {
+        weight: Math.floor(packed / 1000000),
+        ratio: Math.floor((packed % 1000000) / 10000),
+        roast: roastMap[Math.floor((packed % 10000) / 1000)],
+        strength: strengthMap[Math.floor((packed % 1000) / 100)],
+        taste: tasteMap[Math.floor((packed % 100) / 10)]
+      };
+    } catch (e) {
+      return null;
+    }
+  }
+  /**
+   * Shares the current coffee recipe by encoding it into a hash and generating a shareable URL.
+   *
+   * If the browser supports the Web Share API, it will open the native share dialog with the recipe details.
+   * Otherwise, it will copy the shareable URL to the clipboard and display an alert.
+   */
+  function shareRecipe() {
+    const hash = encodeRecipeToHash();
+    const shareableUrl = `${window.location.origin}${window.location.pathname}#${hash}`;
+
+    if (navigator.share) {
+      navigator.share({
+        title: 'Min 4:6-metod på Kaffekompis',
+        text: 'Kolla in mitt kafferecept!',
+        url: shareableUrl
+      });
+    } else {
+      navigator.clipboard.writeText(shareableUrl)
+        .then(() => alert('Länk kopierad! Nu kan du dela receptet med dina vänner.'))
+        .catch(err => console.error('Failed to copy URL:', err));
+    }
+  }
+  /**
+   * Initializes the 4:6 coffee generator by decoding the recipe hash from the URL, if present.
+   *
+   * When the component is mounted, it checks if there is a hash in the URL. If so, it decodes the hash
+   * into a recipe object and updates the corresponding state variables with the recipe details.
+   */
+  onMount(() => {
+    const hash = window.location.hash.slice(1);
+    if (hash) {
+      const recipe = decodeHashToRecipe(hash);
+      if (recipe) {
+        $coffeeWeight = recipe.weight;
+        $waterRatio = recipe.ratio;
+        $roastGrade = recipe.roast;
+        coffeeStrength = recipe.strength;
+        coffeeTaste = recipe.taste;
+      }
+    }
+  });
 </script>
 
 <style lang="scss">
@@ -882,6 +1006,12 @@
         <p>{inputValidationError}</p>
       {/if}
       <button on:click={handlePrint}>Skriv ut recept</button>
+      <button
+        class="px-8 py-4 text-xl font-bold inline-flex items-center text-text justify-center whitespace-nowrap rounded-base text-sm font-base ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-main border-2 border-border shadow-light hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none"
+        on:click={shareRecipe}
+      >
+        Dela recept
+      </button>
     </div>
 
     <BrewingInstructions
