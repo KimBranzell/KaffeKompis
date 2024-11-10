@@ -94,15 +94,15 @@
    * The timer is cleared if it was previously running.
    */
   function startTimer() {
-    isBrewing = true;
+    $isBrewing = true;
     isPouring = true;
     if (intervalId !== null) {
       clearInterval(intervalId);
     }
-    totalTime = 0;
-    currentStep = 0;
+    $totalTime = 0;
+    $currentStep = 0;
     intervalId = setInterval(() => {
-      totalTime += 0.1; // Increase by 0.1 seconds (100 milliseconds)
+      $totalTime += 0.1; // Increase by 0.1 seconds (100 milliseconds)
       updateCurrentStep();
       updateProgressBar();
     }, 100); // Update every 100 milliseconds
@@ -124,7 +124,7 @@
       // Check if the total time is less than or equal to the accumulated time
       if (totalTime <= timeAccumulated) {
         if (currentStep !== i) {
-          currentStep = i;
+          $currentStep = i;
           pouringProgress = 0; // Reset pouring progress on step change
           isPouring = true; // Start pouring on new step
         }
@@ -135,7 +135,7 @@
     // If the total time exceeds the total duration of all steps, stop the timer
     if (totalTime > timeAccumulated) {
       clearInterval(intervalId);
-      isBrewing = false; // Stop brewing
+      $isBrewing = false; // Stop brewing
       progressWidth = 0; // Reset progress bar
       isPouring = false; // Stop pouring when brewing is done
     }
@@ -223,7 +223,7 @@
    * @param {string} grade - The roast grade to select, e.g. 'Light', 'Medium', 'Dark'.
    */
   function selectRoast(grade) {
-    roastGrade = grade;
+    $roastGrade = grade;
   }
 
     // Watch for changes in currentStep and scroll to the active step
