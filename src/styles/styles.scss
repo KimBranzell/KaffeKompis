@@ -101,3 +101,11 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.neo-card-shadow {
+  box-shadow: 4px 4px 0px 0px #000000;
+}
+
+.neo-input-shadow {
+  box-shadow: 2px 2px 0px 0px #000000;
+}

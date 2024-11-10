@@ -2,14 +2,28 @@
   import { onDestroy, tick, onMount, afterUpdate } from 'svelte';
   import { slide, fade, scale } from 'svelte/transition';
   import { linear } from 'svelte/easing';
+  import {
+    coffeeWeight,
+    waterRatio,
+    roastGrade,
+    brewingTemperature,
+    brewingSchedule,
+    currentStep,
+    isBrewing,
+    totalTime,
+    waterWeight
+  } from './stores/brewingStore';
+  import RoastSelector from './components/RoastSelector.svelte';
+  import BrewingInstructions from './components/BrewingInstructions.svelte';
+  import PouringTimeline from './components/PouringTimeline.svelte';
 
   /**
    * Constants used in the 4-6 coffee brewing generator.
    * These values represent the initial delay, coffee weight, water to coffee ratio, and pour fractions used in the 4-6 brewing method.
    */
   const INITIAL_DELAY_SECONDS = 0;
-  const INITIAL_COFFEE_WEIGHT_GRAMS = 20; // grams
-  const DEFAULT_WATER_TO_COFFE_RATIO = 15;
+  // const INITIAL_COFFEE_WEIGHT_GRAMS = 20; // grams
+  // const DEFAULT_WATER_TO_COFFE_RATIO = 15;
   const FIRST_POUR_RATIO = 0.4;
   const SECOND_POUR_RATIO = 0.6;
   const ACIDIC_POUR_FRACTION = 2 / 3;
@@ -17,14 +31,14 @@
   const EVEN_POUR_FRACTION = 1 / 2;
 
   // Generator initial state
-  let coffeeWeightGrams = INITIAL_COFFEE_WEIGHT_GRAMS;  // Set initial coffee weight to 20 grams
-  let waterToCoffeeRatio = DEFAULT_WATER_TO_COFFE_RATIO; // Set initial water to coffee ratio to 1:15
+  // let coffeeWeightGrams = INITIAL_COFFEE_WEIGHT_GRAMS;  // Set initial coffee weight to 20 grams
+  // let waterToCoffeeRatio = DEFAULT_WATER_TO_COFFE_RATIO; // Set initial water to coffee ratio to 1:15
   let coffeeStrength = "Balanced"; // Set initial strength to "balanced"
   let coffeeTaste = "Balanced"; // Set initial taste to "balanced"
-  let roastGrade = "Light"; // Set initial roast grade to "light"
-  let brewingTemperature = 88; // Set default brewing temperature to 88 degrees Celcius
+  // let roastGrade = "Light"; // Set initial roast grade to "light"
+  // let brewingTemperature = 88; // Set default brewing temperature to 88 degrees Celcius
   let inputValidationError = ""; // Set input validation error to empty string
-  let brewingSchedule = []; // Set brewing schedule to an empty array
+  // let brewingSchedule = []; // Set brewing schedule to an empty array
   let time = INITIAL_DELAY_SECONDS; // Set total brewing time to 0
   let pouringProgress = 0; // Set pouring progress to 0
   let currentPourAmount = 0; // Track the current pour amount
@@ -35,11 +49,11 @@
 
   // Recipe timer
   let prepTime = 5; // 5 seconds for preparation
-  let totalTime = 0; // Total time for the brewing process
-  let isBrewing = false; // State to track if brewing has started
+  // let totalTime = 0; // Total time for the brewing process
+  // let isBrewing = false; // State to track if brewing has started
   let isPouring = false; // State to track if pouring has started
   let isPrepping = false; // State to track if preparation has started
-  let currentStep = 0;
+  // let currentStep = 0;
   let intervalId = null;
   let totalBrewingTime;
 
@@ -187,16 +201,16 @@
   }
 
   function incrementCoffeeWeight(increment) {
-    const newValue = parseFloat(coffeeWeightGrams) + increment;
+    const newValue = $coffeeWeight + increment;
     if (newValue <= 100) {
-      debouncedUpdateCoffeeWeight(newValue);
+      $coffeeWeight = newValue;
     }
   }
 
   function decrementCoffeeWeight(decrement) {
-    const newValue = parseFloat(coffeeWeightGrams) - decrement;
+    const newValue = $coffeeWeight - decrement;
     if (newValue >= 1) {
-      debouncedUpdateCoffeeWeight(newValue);
+      $coffeeWeight = newValue;
     }
   }
 
@@ -239,11 +253,6 @@
     const formattedSeconds = remainingSeconds.toString().padStart(2, "0");
     return `${minutes}:${formattedSeconds}`;
   };
-
-  /**
-   * Calculates the water weight based on the coffee weight and the water-to-coffee ratio.
-   */
-  $: waterWeight = coffeeWeightGrams * waterToCoffeeRatio;
 
   /**
    * Calculates the first and second pour amounts based on the coffee taste profile.
@@ -307,19 +316,19 @@
   $: {
     inputValidationError = ""; // Reset inputValidationError at the beginning of the block
     if (
-      isNaN(parseFloat(coffeeWeightGrams)) ||
-      parseFloat(coffeeWeightGrams) < 6
+      isNaN($coffeeWeight) ||
+      $coffeeWeight < 6
     ) {
       inputValidationError =
         "Vi rekommenderar att du använder minst 6 gram kaffe för det här receptet.";
-    } else if (coffeeWeightGrams > 76) {
+    } else if ($coffeeWeight > 76) {
       inputValidationError = "Vi rekommenderar att du använder max 76 gram kaffe för det här receptet.";
-    } else if (isNaN(waterToCoffeeRatio) || waterToCoffeeRatio <= 0) {
+    } else if ($waterRatio <= 0) {
       inputValidationError =
         "Please enter a valid number for the water to coffee ratio.";
     } else {
-      let firstPourWater = waterWeight * FIRST_POUR_RATIO;
-      let secondPourWater = waterWeight * SECOND_POUR_RATIO;
+      let firstPourWater = $waterWeight * FIRST_POUR_RATIO;
+      let secondPourWater = $waterWeight * SECOND_POUR_RATIO;
       let [firstPour, secondPour] = calculateFirstAndSecondPours(
         coffeeTaste,
         firstPourWater
@@ -333,7 +342,7 @@
       let total = 0;
       time = INITIAL_DELAY_SECONDS;
       let startTime = 0;
-      brewingSchedule = [firstPour, secondPour, ...subsequentPours].map(
+      $brewingSchedule = [firstPour, secondPour, ...subsequentPours].map(
         (pour, index) => {
           let step = { pour, total: (total += pour), time: 45, startTime };
           startTime += step.time; // Increment startTime for the next step
@@ -341,7 +350,7 @@
         }
       );
       tick().then(() => {
-        totalBrewingTime = brewingSchedule.reduce(
+        totalBrewingTime = $brewingSchedule.reduce(
           (acc, step) => acc + step.time,
           0
         );
@@ -355,30 +364,30 @@
    */
   $: {
     debouncedUpdateCoffeeWeight = debounce((value) => {
-      coffeeWeightGrams = value;
+      $coffeeWeight = value;
     }, 100);
 
     debouncedUpdateWaterToCoffeeRatio = debounce((value) => {
-      waterToCoffeeRatio = value;
+      $waterRatio = value;
     }, 100);
   }
 
-  $: {
-    switch (roastGrade) {
-      case 'Light':
-        brewingTemperature = 93;
-        break;
-      case 'Medium':
-        brewingTemperature = 88;
-        break;
-      case 'Dark':
-        brewingTemperature = 83;
-        break;
-    }
-  }
+  // $: {
+  //   switch (roastGrade) {
+  //     case 'Light':
+  //       brewingTemperature = 93;
+  //       break;
+  //     case 'Medium':
+  //       brewingTemperature = 88;
+  //       break;
+  //     case 'Dark':
+  //       brewingTemperature = 83;
+  //       break;
+  //   }
+  // }
 
-  $: recommendedRatio = calculateRecommendedRatio(coffeeWeightGrams);
-  $: showRecommendation = !recommendationRemoved && getNumericRatio(recommendedRatio) !== waterToCoffeeRatio;
+  $: recommendedRatio = calculateRecommendedRatio($coffeeWeight);
+  $: showRecommendation = !recommendationRemoved && getNumericRatio(recommendedRatio) !== $waterRatio;
 
   /**
    * Calculates the recommended water to coffee ratio based on the coffee weight.
@@ -400,16 +409,16 @@
   function changeToRecommendedRatio() {
     switch (recommendedRatio) {
       case "1:16":
-        waterToCoffeeRatio = 16;
+        $waterRatio = 16;
         break;
       case "1:15":
-        waterToCoffeeRatio = 15;
+        $waterRatio = 15;
         break;
       case "1:14":
-        waterToCoffeeRatio = 14;
+        $waterRatio = 14;
         break;
       case "1:13":
-        waterToCoffeeRatio = 13;
+        $waterRatio = 13;
         break;
       default:
         // No action needed for default case
@@ -482,7 +491,7 @@
   }
 
   // Reactive statement to update grind size when coffee weight changes
-  $: recommendedGrindSize = calculateGrindSize(coffeeWeightGrams);
+  $: recommendedGrindSize = calculateGrindSize($coffeeWeight);
 
   /**
    * Prints the current page.
@@ -492,20 +501,111 @@
   }
 </script>
 
+<style lang="scss">
+  .four-six-generator {
+    @apply mx-auto p-8;
+  }
 
-<!-- <style lang="scss">
-  input, select, button {
-    padding: 11px;
-    width: 100%;
+  .generator-header {
+    @apply bg-[#FFE566] border-3 border-black p-8 mb-12 neo-card-shadow;
   }
+
+  .calculator-item {
+    @apply mb-6;
+
+    label {
+      @apply block text-xl font-bold mb-2;
+    }
+
+    input, select {
+      @apply w-full p-4 border-3 border-black bg-white neo-input-shadow;
+      &:focus {
+        @apply outline-none -translate-x-1 -translate-y-1;
+      }
+    }
+  }
+
+
+
+  .coffee-bean {
+    @apply w-16 h-16 cursor-pointer p-2 transition-transform;
+    &:hover, &.selected {
+      @apply -translate-y-1 bg-[#FFA45B];
+    }
+  }
+
   table {
-    width: 100%;
-    border-collapse: collapse;
+    @apply w-full border-3 border-black bg-white neo-card-shadow mb-8;
+
+    th {
+      @apply bg-black text-white p-4 text-left;
+    }
+
+    td {
+      @apply p-4 border-b-2 border-black;
+    }
   }
-  th, td {
-    //border: 1px solid black;
-    padding: 5px;
-    text-align: left;
+
+  .active-row {
+    @apply bg-[#FFE566];
+  }
+
+  .done-row {
+    @apply bg-[#C1FF9B];
+  }
+
+  .timer-panel {
+    @apply fixed bottom-0 left-0 w-full bg-black text-white p-4 text-center text-xl font-bold;
+  }
+
+  .progress-bar {
+    @apply bg-[#7CB9E8] h-full transition-all;
+  }
+
+  .pouring-timeline-carousel {
+    @apply fixed bottom-0 left-0 w-full border-t-4 bg-white border-black overflow-x-auto;
+    height: 120px;
+  }
+
+  .timeline-step {
+    @apply inline-block min-w-[300px] border-r-4 h-full p-4 border-black;
+    &.active {
+      @apply bg-[#FFE566];
+    }
+  }
+
+  // Utility classes
+  .neo-card-shadow {
+    box-shadow: 4px 4px 0px 0px #000000;
+  }
+
+  .neo-input-shadow {
+    box-shadow: 2px 2px 0px 0px #000000;
+  }
+
+  .border-3 {
+    border-width: 3px;
+  }
+
+  .roast-selector {
+    @apply mb-8;
+  }
+
+
+
+  .roast-label {
+    @apply font-bold text-lg;
+  }
+
+  .temp-label {
+    @apply bg-black text-white px-2 py-1 text-sm font-bold;
+  }
+
+  // Print styles
+  @media print {
+    .timer-panel, .pouring-timeline-carousel {
+      display: none;
+    }
   }
 
   .timer-panel {
@@ -576,20 +676,16 @@
   }
 
   .step-label {
-    margin-bottom: 5px;
-    width: 100%;
-    display: inline-flex;
+    @apply mb-2 font-mono text-sm;
+
     .pour-section-label,
     .wait-section-label {
-      padding: 0 5px;
+      @apply inline-block px-2;
     }
   }
 
   .step-bar {
-  width: 100%; /* Keep width or adjust as needed */
-  height: 80%; /* Adjust height to fit within the timeline */
-  display: flex;
-  flex-flow: row;
+  @apply h-12 relative flex w-full h-4/5;
 }
 
   .pour-amount {
@@ -599,8 +695,7 @@
 
   .pour-section,
   .wait-section {
-    position: relative;
-    width: 100%;
+    @apply relative h-full;
   }
 
   .progress-bar {
@@ -617,28 +712,18 @@
   }
 
   .pour-section {
-    background: #ddd;
-    border-right: 1px solid #bbb;
+    @apply bg-[#E0E0E0] border-r-2 border-black;
     &:after {
       content: 'Häll';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      opacity: .5;
+      @apply absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-bold;
     }
   }
 
   .wait-section {
-    background: #dcdcdc;
+    @apply bg-[#F5F5F5];
     &:after {
       content: 'Vänta';
-      opacity: .5;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      opacity: .5;
+      @apply absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-bold;
     }
   }
 
@@ -668,18 +753,6 @@
 .step-label, .pour-amount {
   font-size: 12px;
   margin-top: 5px;
-}
-
-
-
-
-
-
-.pouring-timeline-carousel {
-  display: flex;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  width: 100%;
 }
 
 .timeline-step {
@@ -714,13 +787,8 @@
   height: 100%;
 }
 
-.progress-bar {
-  height: 100%;
-  background-color: #4CAF50; /* Green */
-  transition: width 0.1s linear;
-}
-
 .progress-bar.completed {
+  @apply w-full;
   background-color: #4CAF50; /* Green */
 }
 
@@ -738,134 +806,10 @@
   0% { background-color: yellow; }
   100% { background-color: green; }
 }
-
-</style> -->
-
-<style lang="scss">
-  .four-six-generator {
-    @apply max-w-7xl mx-auto p-8;
-  }
-
-  .generator-header {
-    @apply bg-[#FFE566] border-3 border-black p-8 mb-12 neo-card-shadow;
-  }
-
-  .calculator-item {
-    @apply mb-6;
-
-    label {
-      @apply block text-xl font-bold mb-2;
-    }
-
-    input, select {
-      @apply w-full p-4 border-3 border-black bg-white neo-input-shadow;
-      &:focus {
-        @apply outline-none -translate-x-1 -translate-y-1;
-      }
-    }
-  }
-
-  .input-group {
-    @apply grid grid-cols-4 gap-2 mt-2;
-
-    button {
-      @apply bg-black text-white p-3 border-3 border-black font-bold hover:-translate-y-1 transition-transform;
-    }
-  }
-
-  .coffee-bean {
-    @apply w-16 h-16 cursor-pointer border-3 border-black p-2 transition-transform;
-    &:hover, &.selected {
-      @apply -translate-y-1 bg-[#FFA45B];
-    }
-  }
-
-  table {
-    @apply w-full border-3 border-black bg-white neo-card-shadow mb-8;
-
-    th {
-      @apply bg-black text-white p-4 text-left;
-    }
-
-    td {
-      @apply p-4 border-b-2 border-black;
-    }
-  }
-
-  .active-row {
-    @apply bg-[#FFE566];
-  }
-
-  .done-row {
-    @apply bg-[#C1FF9B];
-  }
-
-  .timer-panel {
-    @apply fixed bottom-0 left-0 w-full bg-black text-white p-4 text-center text-xl font-bold;
-  }
-
-  .progress-bar {
-    @apply bg-[#7CB9E8] h-full transition-all;
-  }
-
-  .pouring-timeline-carousel {
-    @apply fixed bottom-16 left-0 w-full bg-white  border-black p-4 overflow-x-auto;
-  }
-
-  .timeline-step {
-    @apply p-4 border-3 border-black m-2 bg-white neo-card-shadow;
-    &.active {
-      @apply bg-[#FFE566];
-    }
-  }
-
-  // Utility classes
-  .neo-card-shadow {
-    box-shadow: 4px 4px 0px 0px #000000;
-  }
-
-  .neo-input-shadow {
-    box-shadow: 2px 2px 0px 0px #000000;
-  }
-
-  .border-3 {
-    border-width: 3px;
-  }
-
-  .roast-selector {
-    @apply mb-8;
-  }
-
-  .roast-btn {
-    @apply bg-white border-3 border-black p-4 flex flex-col items-center gap-2 neo-card-shadow transition-transform;
-
-    &:hover {
-      @apply -translate-y-1;
-    }
-
-    &.active {
-      @apply bg-[#FFE566] -translate-y-1;
-    }
-  }
-
-  .roast-label {
-    @apply font-bold text-lg;
-  }
-
-  .temp-label {
-    @apply bg-black text-white px-2 py-1 text-sm font-bold;
-  }
-
-  // Print styles
-  @media print {
-    .timer-panel, .pouring-timeline-carousel {
-      display: none;
-    }
-  }
 </style>
 
 <div class="four-six-generator ">
-  <div class="u-container pt-40 pb-10 u-grid mx-auto grid grid-cols-1 md:grid-cols-2 gap-5 w-[1300px]">
+  <div class="u-container pt-40 pb-10 px-4 u-grid mx-auto grid grid-cols-1 md:grid-cols-2 gap-5 w-[1300px]">
     <div class="generator-header">
       <div class="u-container u-grid">
         <div class="calculator-item">
@@ -873,67 +817,18 @@
               Kaffevikt (gram)
             </label>
             <!-- <input id="coffeeWeightGrams" name="coffeWeightGrams" type="number" min="1" max="100" on:input={(e) => debouncedUpdateCoffeeWeight(e.target.value)} /> -->
-            <input id="coffeeWeightGrams" name="coffeWeightGrams" type="number" bind:value={coffeeWeightGrams} min="1" max="100" />
+            <input id="coffeeWeightGrams" name="coffeWeightGrams" type="number" bind:value={$coffeeWeight} min="1" max="100" />
 
-            <div class="input-group">
-              <button on:click={() => decrementCoffeeWeight(10)}>−10g</button>
-              <button on:click={() => decrementCoffeeWeight(1)}>−</button>
-              <button on:click={() => incrementCoffeeWeight(1)}>+</button>
-              <button on:click={() => incrementCoffeeWeight(10)}>+10g</button>
+            <div class="grid gap-4 py-4 grid-flow-col grid-cols-[2fr_1fr_1fr_2fr]">
+              <button class="px-8 py-4 text-xl font-bold inline-flex items-center text-text justify-center whitespace-nowrap rounded-base text-sm font-base ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-main border-2 border-border dark:border-darkBorder shadow-light dark:shadow-dark hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none dark:hover:shadow-none" on:click={() => decrementCoffeeWeight(1)}>−</button>
+              <button class="px-8 py-4 text-xl font-bold inline-flex items-center text-text justify-center whitespace-nowrap rounded-base text-sm font-base ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-white dark:bg-secondaryBlack dark:text-darkText border-2 border-border dark:border-darkBorder shadow-light dark:shadow-dark hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none dark:hover:shadow-none" on:click={() => decrementCoffeeWeight(10)}>−10g</button>
+              <button class="px-8 py-4 text-xl font-bold inline-flex items-center text-text justify-center whitespace-nowrap rounded-base text-sm font-base ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-white dark:bg-secondaryBlack dark:text-darkText border-2 border-border dark:border-darkBorder shadow-light dark:shadow-dark hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none dark:hover:shadow-none" on:click={() => incrementCoffeeWeight(10)}>+10g</button>
+              <button class="px-8 py-4 text-xl font-bold inline-flex items-center text-text justify-center whitespace-nowrap rounded-base text-sm font-base ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-main border-2 border-border dark:border-darkBorder shadow-light dark:shadow-dark hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none dark:hover:shadow-none" on:click={() => incrementCoffeeWeight(1)}>+</button>
             </div>
         </div>
         <div class="calculator-item">
           <label for="roastGrade" class="block text-xl font-bold mb-4">Rostgrad:
-          <!-- <select id="roastGrade" name="roastGrade" bind:value={roastGrade}>
-            <option value="Light">Lätt</option>
-            <option value="Medium">Medel</option>
-            <option value="Dark">Mörk</option>
-          </select> -->
-          <div class="roast-options grid grid-cols-3 gap-4">
-            <button
-              class="roast-btn {roastGrade === 'Light' ? 'active' : ''}"
-              on:click={() => selectRoast('Light')}
-            >
-              <svg class="coffee-bean" viewBox="0 0 50 50" width="50" height="50">
-                <path fill="#C4A484" d="m19.628,19.628c-2.874,2.874-6.532,4.362-9.931,4.362-2.397,0-4.664-.744-6.438-2.26.119-.861,1.174-6.318,9.039-8.776,6.907-2.157,9.26-6.463,10.053-8.881,2.925,4.339,1.881,10.951-2.723,15.554Zm-7.926-8.582c7.864-2.457,8.919-7.914,9.039-8.776C16.451-1.397,9.272-.53,4.372,4.372-.232,8.976-1.276,15.588,1.649,19.926c.793-2.417,3.146-6.723,10.053-8.881Z"/>
-              </svg>
-              <span class="roast-label">Ljusrost</span>
-              <span class="temp-label">{93}°C</span>
-            </button>
-
-            <button
-              class="roast-btn {roastGrade === 'Medium' ? 'active' : ''}"
-              on:click={() => selectRoast('Medium')}
-            >
-              <svg class="coffee-bean" viewBox="0 0 50 50" width="50" height="50">
-                <path fill="#8B4513" d="m19.628,19.628c-2.874,2.874-6.532,4.362-9.931,4.362-2.397,0-4.664-.744-6.438-2.26.119-.861,1.174-6.318,9.039-8.776,6.907-2.157,9.26-6.463,10.053-8.881,2.925,4.339,1.881,10.951-2.723,15.554Zm-7.926-8.582c7.864-2.457,8.919-7.914,9.039-8.776C16.451-1.397,9.272-.53,4.372,4.372-.232,8.976-1.276,15.588,1.649,19.926c.793-2.417,3.146-6.723,10.053-8.881Z"/>
-              </svg>
-              <span class="roast-label">Mellanrost</span>
-              <span class="temp-label">{88}°C</span>
-            </button>
-
-            <button
-              class="roast-btn {roastGrade === 'Dark' ? 'active' : ''}"
-              on:click={() => selectRoast('Dark')}
-            >
-              <svg class="coffee-bean" viewBox="0 0 50 50" width="50" height="50">
-                <path fill="#3E2723" d="m19.628,19.628c-2.874,2.874-6.532,4.362-9.931,4.362-2.397,0-4.664-.744-6.438-2.26.119-.861,1.174-6.318,9.039-8.776,6.907-2.157,9.26-6.463,10.053-8.881,2.925,4.339,1.881,10.951-2.723,15.554Zm-7.926-8.582c7.864-2.457,8.919-7.914,9.039-8.776C16.451-1.397,9.272-.53,4.372,4.372-.232,8.976-1.276,15.588,1.649,19.926c.793-2.417,3.146-6.723,10.053-8.881Z"/>
-              </svg>
-              <span class="roast-label">Mörkrost</span>
-              <span class="temp-label">{83}°C</span>
-            </button>
-          </div>
-          <!-- <div id="roastGrade" class="roast-selector grid grid-cols-3 gap-2">
-            <svg class="coffee-bean {roastGrade === 'Light' ? 'selected' : ''}" on:click={() => selectRoast('Light')} viewBox="0 0 50 50" width="50" height="50">
-              <path fill="#573A29" d="m19.628,19.628c-2.874,2.874-6.532,4.362-9.931,4.362-2.397,0-4.664-.744-6.438-2.26.119-.861,1.174-6.318,9.039-8.776,6.907-2.157,9.26-6.463,10.053-8.881,2.925,4.339,1.881,10.951-2.723,15.554Zm-7.926-8.582c7.864-2.457,8.919-7.914,9.039-8.776C16.451-1.397,9.272-.53,4.372,4.372-.232,8.976-1.276,15.588,1.649,19.926c.793-2.417,3.146-6.723,10.053-8.881Z"/>
-            </svg>
-            <svg class="coffee-bean {roastGrade === 'Medium' ? 'selected' : ''}" on:click={() => selectRoast('Medium')} viewBox="0 0 50 50" width="50" height="50">
-              <path fill="#382518" d="m19.628,19.628c-2.874,2.874-6.532,4.362-9.931,4.362-2.397,0-4.664-.744-6.438-2.26.119-.861,1.174-6.318,9.039-8.776,6.907-2.157,9.26-6.463,10.053-8.881,2.925,4.339,1.881,10.951-2.723,15.554Zm-7.926-8.582c7.864-2.457,8.919-7.914,9.039-8.776C16.451-1.397,9.272-.53,4.372,4.372-.232,8.976-1.276,15.588,1.649,19.926c.793-2.417,3.146-6.723,10.053-8.881Z"/>
-            </svg>
-            <svg class="coffee-bean {roastGrade === 'Dark' ? 'selected' : ''}" on:click={() => selectRoast('Dark')} viewBox="0 0 50 50" width="50" height="50">
-              <path fill="#1F140D" d="m19.628,19.628c-2.874,2.874-6.532,4.362-9.931,4.362-2.397,0-4.664-.744-6.438-2.26.119-.861,1.174-6.318,9.039-8.776,6.907-2.157,9.26-6.463,10.053-8.881,2.925,4.339,1.881,10.951-2.723,15.554Zm-7.926-8.582c7.864-2.457,8.919-7.914,9.039-8.776C16.451-1.397,9.272-.53,4.372,4.372-.232,8.976-1.276,15.588,1.649,19.926c.793-2.417,3.146-6.723,10.053-8.881Z"/>
-            </svg>
-          </div> -->
+            <RoastSelector />
           <div>
             {
               roastGrade === 'Light' ? 'Ljusrost' :
@@ -945,7 +840,7 @@
         </div>
         <div class="calculator-item">
           <label for="waterToCoffeeRatio">Kaffe:Vatten-ratio</label>
-          <select id="waterToCoffeeRatio" name="waterToCoffeeRatio" bind:value={waterToCoffeeRatio} >
+          <select id="waterToCoffeeRatio" name="waterToCoffeeRatio" bind:value={$waterRatio} >
             {#each Array(7).fill().map((_, i) => i + 12) as ratio}
               <option value={ratio}>1:{ratio}</option>
             {/each}
@@ -979,7 +874,7 @@
       </div>
       <div class="test">
         <h4>Kaffevikt</h4>
-        <div>{coffeeWeightGrams}<span>g</span></div>
+        <div>{$coffeeWeight}<span>g</span></div>
         <input id="coffeeWeightGrams" name="coffeWeightGrams" type="number" min="6" max="76" on:input={(e) => debouncedUpdateCoffeeWeight(e.target.value)} />
 
       </div>
@@ -988,56 +883,13 @@
       {/if}
       <button on:click={handlePrint}>Skriv ut recept</button>
     </div>
-    <div class="instructions bg-[#FFF7ED] border-3 border-black p-8 neo-card-shadow">
-      <h2 class="text-3xl font-bold mb-6 neo-title">Ingredienser</h2>
-      <ul class="ingredient-list mb-8">
-        <li class="text-xl mb-2 flex items-center">
-          <span class="inline-block bg-[#FFE566] p-2 border-2 border-black mr-3">{coffeeWeightGrams}g kaffe</span>
-        </li>
-        <li class="text-xl mb-2 flex items-center">
-          <span class="inline-block bg-[#FFE566] p-2 border-2 border-black mr-3">{waterWeight.toFixed(0)}g vatten</span>
-        </li>
-        <li class="text-xl mb-2 flex items-center">
-          <span class="inline-block bg-[#FFE566] p-2 border-2 border-black mr-3">Temperatur: {brewingTemperature}°C</span>
-        </li>
-        <li class="text-xl mb-2 flex items-center">
-          <span class="inline-block bg-[#FFE566] p-2 border-2 border-black mr-3">Malgrad: ~{recommendedGrindSize}μm</span>
-        </li>
-      </ul>
 
-      <h2 class="text-3xl font-bold mb-6 neo-title">Instruktioner</h2>
-      <ol class="instruction-list mb-8">
-        {#each ['Sätt ett V60-filter (eller liknande) i din V60-bryggare.',
-                'Skölj filtret med hett vatten (detta för att eliminera eventuell papperssmak i kaffet).',
-                'Sätt bryggaren uppå en kanna och ställ på en våg.',
-                'Häll i det malda kaffet i filtret i din V60-bryggare. Nollställ vågen så att den står på 0 innan du börjar brygga.'] as step, i}
-          <li class="flex mb-4">
-            <span class="bg-black text-white w-8 h-8 flex items-center justify-center font-bold mr-4 border-2 border-black">
-              {i + 1}
-            </span>
-            <span class="text-xl">{step}</span>
-          </li>
-        {/each}
-      </ol>
-
-      <h2 class="text-3xl font-bold mb-6 neo-title">Tips</h2>
-      <ul class="tips-list mb-8">
-        {#each ['Choose your preferred grind size. (Adjust the coarseness so that water atmost completely drips within this total time.)',
-                'The role of the first pour is to moisten the grounds.',
-                'Do not make the next pour until the water completely drips through.'] as tip}
-          <li class="flex items-center mb-3">
-            <span class="text-2xl mr-3">💡</span>
-            <span class="text-xl">{tip}</span>
-          </li>
-        {/each}
-      </ul>
-
-      <h2 class="text-3xl font-bold mb-6 neo-title">Källor</h2>
-      <ul class="sources-list">
-        <li class="text-xl mb-2">• Tetsu Kasuya</li>
-        <li class="text-xl mb-2">• Paul från YouTube-kanalen Brewing Habits</li>
-      </ul>
-    </div>
+    <BrewingInstructions
+      coffeeWeight={$coffeeWeight}
+      waterWeight={$waterWeight}
+      temperature={$brewingTemperature}
+      {recommendedGrindSize}
+    />
 
   </div>
   <div class="generator-body">
@@ -1047,7 +899,7 @@
         <th>Vatten (g)</th>
         <th>Total vätska (g)</th>
       </tr>
-      {#each brewingSchedule as {startTime, pour, total}, index}
+      {#each $brewingSchedule as {startTime, pour, total}, index}
         <tr class="{index === currentStep ? 'active-row' : ''} {index < currentStep ? 'done-row' : ''}">
           <td>{formatTime(startTime)}</td>
           <td>{pour.toFixed(2)}</td>
@@ -1061,6 +913,14 @@
 
   </div>
 
+
+  <PouringTimeline
+    {carouselContainer}
+    {brewingSchedule}
+    {currentStep}
+    {totalTime}
+    {formatTime}
+  />
 <!-- Update the pouring-timeline code -->
 <!-- <div class="pouring-timeline-carousel" bind:this={carouselContainer}>
   {#each brewingSchedule as step, index}

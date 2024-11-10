@@ -1,0 +1,15 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1190" width="50" height="66">
+	<title>Vector Smart Object-ai</title>
+	<style>
+		.s0 { fill: #d63d00 } 
+		.s1 { opacity: .2;fill: #141414 } 
+		.s2 { fill: none;stroke: #000000;paint-order:stroke fill markers;stroke-linecap: round;stroke-linejoin: round;stroke-width: 6 } 
+	</style>
+	<g id="Layer 1">
+		<g id="&lt;Group&gt;">
+			<path id="&lt;Path&gt;" class="s0" d="m449.7 1152.9c-230.4 0-416.7-252.3-416.7-564.5 0-312.1 186.3-564.4 416.7-564.4 230.4 0 416.7 252.3 416.7 564.4 0 312.2-186.3 564.5-416.7 564.5z"/>
+			<path id="&lt;Path&gt;" class="s1" d="m158.9 340.4v-1.8c0-44.5-61.3-55.7-77.5-14.2-30.9 78.7-48.4 168.6-48.4 264 0 311.8 186.6 564.5 416.7 564.5q1.3 0 2.6-0.1c80-0.6 106.2-108.8 36.1-147.6-193.3-107.1-329.5-364.3-329.5-664.8z"/>
+			<path id="&lt;Path&gt;" class="s2" d="m519.5 31.9c0 0-183.5 134.6-183.5 370.9 0.1 310.7 288.2 299.4 20.4 735.7"/>
+		</g>
+	</g>
+</svg>
