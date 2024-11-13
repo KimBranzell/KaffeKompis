@@ -12,18 +12,11 @@ export default defineConfig({
   site: 'https://kimbranzell.github.io',
   base: process.env.NODE_ENV === 'production' ? '/Kaffekompis' : '',
   prefetch: true,
-  build: {
-    inlineStylesheets: 'never',  // Prevents critical CSS optimization issues
-    assets: 'assets'  // Explicitly set assets directory
-  },
   vite: {
     resolve: {
       alias: {
         '$lib': path.resolve('./src')
       }
-    },
-    build: {
-      cssCodeSplit: true  // Ensures CSS files are properly split
     }
   },
   integrations: [svelte(), AstroPWA({
