@@ -85,3 +85,12 @@ input:not([type="checkbox"]):not([type="file"]):not([type="image"]):not([type="r
     background: linear-gradient(225deg, rgba(238,0,0,1) 0, rgba(238,0,0,1) .3em, rgba(0,0,0,0) .3em);
   }
 }
+
+// Utility classes
+.neo-card-shadow {
+  box-shadow: 4px 4px 0px 0px #000000;
+}
+
+.neo-input-shadow {
+  box-shadow: 2px 2px 0px 0px #000000;
+}

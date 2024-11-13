@@ -2,6 +2,7 @@
   import { onDestroy, tick, onMount, afterUpdate } from 'svelte';
   import { slide, fade, scale } from 'svelte/transition';
   import { linear } from 'svelte/easing';
+  import CustomSelect from '../customSelect/customSelect.svelte';
   import {
     coffeeWeight,
     waterRatio,
@@ -52,6 +53,18 @@
   let debouncedUpdateWaterToCoffeeRatio;    // Debounced function to update water to coffee ratio
 
   let progressWidth = 0;                    // This will represent the width of the progress bar
+
+  const strengthOptions = [
+    { value: 'Strong', label: 'Starkt' },
+    { value: 'Balanced', label: 'Balanserat' },
+    { value: 'Weak', label: 'Svagt' }
+  ];
+
+  const tasteOptions = [
+    { value: 'Acidic', label: 'Syrligt' },
+    { value: 'Balanced', label: 'Balanserat' },
+    { value: 'Sweet', label: 'Sött' }
+  ];
 
 
   /**
@@ -623,6 +636,35 @@
       }
     }
   });
+
+  let initialLoadComplete = false;
+
+  if (typeof window !== 'undefined') {
+    const savedStrength = localStorage.getItem('coffeeStrength');
+    const savedTaste = localStorage.getItem('coffeeTaste');
+
+    if (savedStrength) {
+      coffeeStrength = savedStrength;
+    }
+    if (savedTaste) {
+      coffeeTaste = savedTaste;
+    }
+    initialLoadComplete = true;
+  }
+  // Add reactive statements to save changes
+  $: {
+    if (typeof window !== 'undefined' && coffeeStrength && initialLoadComplete) {
+      localStorage.setItem('coffeeStrength', coffeeStrength);
+    }
+  }
+
+  $: {
+    if (typeof window !== 'undefined' && coffeeTaste && initialLoadComplete) {
+      localStorage.setItem('coffeeTaste', coffeeTaste);
+    }
+  }
+
+
 </script>
 
 <style lang="scss">
@@ -930,6 +972,31 @@
   0% { background-color: yellow; }
   100% { background-color: green; }
 }
+
+.calculator-item {
+  select {
+    @apply w-full p-4 border-3 border-black bg-white neo-input-shadow;
+    transform-origin: top;
+    animation: selectAppear 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    &:focus {
+      @apply outline-none -translate-x-1 -translate-y-1;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+  }
+}
+
+@keyframes selectAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 </style>
 
 <div class="four-six-generator ">
@@ -980,32 +1047,31 @@
           {/if}
         </div>
         <div class="calculator-item">
-          <label for="coffeeStrength">Kaffestyrka:</label>
-          <select id="coffeeStrength" name="coffeStrength" bind:value={coffeeStrength}>
-            <option value="Strong">Starkt</option>
-            <option value="Balanced">Balanserat</option>
-            <option value="Weak">Svagt</option>
-          </select>
+          <label>Kaffestyrka:</label>
+          <CustomSelect
+            options={strengthOptions}
+            bind:value={coffeeStrength}
+          />
         </div>
-        <div class="calculator-item">
-          <label for="coffeeTaste">Kaffesmak:</label>
-          <select id="coffeeTaste" name="coffeeTaste" bind:value={coffeeTaste}>
-            <option value="Acidic">Syrligt</option>
-            <option value="Balanced">Balanserat</option>
-            <option value="Sweet">Sött</option>
-          </select>
-        </div>
-      </div>
-      <div class="test">
-        <h4>Kaffevikt</h4>
-        <div>{$coffeeWeight}<span>g</span></div>
-        <input id="coffeeWeightGrams" name="coffeWeightGrams" type="number" min="6" max="76" on:input={(e) => debouncedUpdateCoffeeWeight(e.target.value)} />
 
+        <div class="calculator-item">
+          <label>Kaffesmak:</label>
+          <CustomSelect
+            options={tasteOptions}
+            bind:value={coffeeTaste}
+          />
+        </div>
       </div>
+
       {#if inputValidationError}
         <p>{inputValidationError}</p>
       {/if}
-      <button on:click={handlePrint}>Skriv ut recept</button>
+      <button
+        class="px-8 py-4 text-xl font-bold inline-flex items-center text-text justify-center whitespace-nowrap rounded-base text-sm font-base ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-main border-2 border-border shadow-light hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none"
+        on:click={handlePrint}
+      >
+        Skriv ut recept
+      </button>
       <button
         class="px-8 py-4 text-xl font-bold inline-flex items-center text-text justify-center whitespace-nowrap rounded-base text-sm font-base ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-main border-2 border-border shadow-light hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none"
         on:click={shareRecipe}
@@ -1024,18 +1090,20 @@
   </div>
   <div class="generator-body">
     <table>
-      <tr>
-        <th>Tid</th>
-        <th>Vatten (g)</th>
-        <th>Total vätska (g)</th>
-      </tr>
-      {#each $brewingSchedule as {startTime, pour, total}, index}
-        <tr class="{index === currentStep ? 'active-row' : ''} {index < currentStep ? 'done-row' : ''}">
-          <td>{formatTime(startTime)}</td>
-          <td>{pour.toFixed(2)}</td>
-          <td>{total.toFixed(2)}</td>
+      <tbody>
+        <tr>
+          <th>Tid</th>
+          <th>Vatten (g)</th>
+          <th>Total vätska (g)</th>
         </tr>
-      {/each}
+        {#each $brewingSchedule as {startTime, pour, total}, index}
+          <tr class="{index === currentStep ? 'active-row' : ''} {index < currentStep ? 'done-row' : ''}">
+            <td>{formatTime(startTime)}</td>
+            <td>{pour.toFixed(2)}</td>
+            <td>{total.toFixed(2)}</td>
+          </tr>
+        {/each}
+      </tbody>
     </table>
     {#if !isBrewing}
       <button on:click={startPrepTimer}>Börja brygga</button>

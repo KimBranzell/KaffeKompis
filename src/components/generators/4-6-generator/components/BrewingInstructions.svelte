@@ -1,5 +1,5 @@
 <script>
-  import { coffeeWeight, brewingTemperature } from '../stores/brewingStore';
+  import { coffeeWeight, brewingTemperature } from '../utils/brewingStore';
 
   export let coffeeWeightGrams;
   export let waterWeight;
@@ -13,7 +13,7 @@
       <span class="inline-block bg-[#FFE566] p-2 border-2 border-black mr-3">{$coffeeWeight}g kaffe</span>
     </li>
     <li class="text-xl mb-2 flex items-center">
-      <span class="inline-block bg-[#FFE566] p-2 border-2 border-black mr-3">{waterWeight.toFixed(0)}g vatten</span>
+      <span class="inline-block bg-[#FFE566] p-2 border-2 border-black mr-3">{waterWeight ? waterWeight.toFixed(0) : 0}g vatten</span>
     </li>
     <li class="text-xl mb-2 flex items-center">
       <span class="inline-block bg-[#FFE566] p-2 border-2 border-black mr-3">Temperatur: {$brewingTemperature}°C</span>
