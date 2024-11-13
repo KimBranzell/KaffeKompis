@@ -11,6 +11,9 @@ import react from '@astrojs/react';
 export default defineConfig({
   site: 'https://kimbranzell.github.io',
   base: process.env.NODE_ENV === 'production' ? '/Kaffekompis' : '',
+  build: {
+    assets: 'assets'
+  },
   prefetch: true,
   vite: {
     resolve: {
