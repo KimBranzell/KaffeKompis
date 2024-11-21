@@ -44,7 +44,6 @@ export function decodeHashToRecipe(hash) {
 
   try {
     const packed = parseInt(hash, 36);
-    console.log('Packed value:', packed);
 
     // Extract values
     const weight = Math.floor(packed / 1000000);
@@ -62,10 +61,8 @@ export function decodeHashToRecipe(hash) {
       taste: tasteMap[tasteIndex] || 'Balanced'
     };
 
-    console.log('Decoded values:', decoded);
     return decoded;
   } catch (e) {
-    console.log('Decoding error:', e);
     return null;
   }
 }

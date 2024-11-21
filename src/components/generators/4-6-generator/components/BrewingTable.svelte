@@ -7,8 +7,6 @@
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   }
 
-  $: console.log('Brewing schedule:', $brewingSchedule);
-
 </script>
 
 <div class="generator-body px-4 mb-40">

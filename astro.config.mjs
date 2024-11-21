@@ -21,24 +21,26 @@ export default defineConfig({
       }
     }
   },
-  integrations: [svelte(), AstroPWA({
-    includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
-    manifest: {
-      name: 'KaffeKompis',
-      short_name: 'Kaffe',
-      description: 'Din guide till en bättre bryggning',
-      theme_color: '#ffffff',
-      icons: [{
-        src: 'pwa-192x192.png',
-        sizes: '192x192',
-        type: 'image/png'
-      }, {
-        src: 'pwa-512x512.png',
-        sizes: '512x512',
-        type: 'image/png'
-      }]
-    }
-  }), purgecss({
+  integrations: [svelte(),
+  // AstroPWA({
+  //   includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+  //   manifest: {
+  //     name: 'KaffeKompis',
+  //     short_name: 'Kaffe',
+  //     description: 'Din guide till en bättre bryggning',
+  //     theme_color: '#ffffff',
+  //     icons: [{
+  //       src: 'pwa-192x192.png',
+  //       sizes: '192x192',
+  //       type: 'image/png'
+  //     }, {
+  //       src: 'pwa-512x512.png',
+  //       sizes: '512x512',
+  //       type: 'image/png'
+  //     }]
+  //   }
+  // }),
+  purgecss({
     fontFace: true,
     keyframes: true,
     safelist: ['random', 'yep', 'button', /^nav-/],
@@ -46,8 +48,10 @@ export default defineConfig({
     content: [
       process.cwd() + '/src/**/*.{astro,svelte}' // Watching astro and vue sources (for SSR, read the note below)
     ]
-  }), criticalCss(), tailwind({
-    applyBaseStyles: false,
+  }),
+  criticalCss(),
+  tailwind({
+    applyBaseStyles: true,
   }), react()],
   renderers: ['@astrojs/renderer-preact', '@astrojs/renderer-svelte']
 });

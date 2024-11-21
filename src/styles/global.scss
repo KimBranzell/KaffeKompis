@@ -94,3 +94,8 @@ input:not([type="checkbox"]):not([type="file"]):not([type="image"]):not([type="r
 .neo-input-shadow {
   box-shadow: 2px 2px 0px 0px #000000;
 }
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid #FFA800;
+  outline-offset: 2px;
+}

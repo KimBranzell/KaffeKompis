@@ -51,7 +51,6 @@
   import BrewingControls from "./components/BrewingControls.svelte";
   import BrewingTable from "./components/BrewingTable.svelte";
   import PouringTimeline from "./components/PouringTimeline.svelte";
-  import CustomSelect from "./components/CustomSelect.svelte";
   import StrengthSelector from "./components/StrengthSelector.svelte";
   import TasteSelector from "./components/TasteSelector.svelte";
   import PrintButton from "./components/PrintButton.svelte";
@@ -75,15 +74,44 @@
   }
 
   $: recommendedGrindSize = calculateGrindSize($coffeeWeight);
+
+
+  $: {
+    inputValidationError = "";
+
+    if (isNaN($coffeeWeight) || $coffeeWeight < 6) {
+      inputValidationError = "Vi rekommenderar att du använder minst 6 gram kaffe för det här receptet.";
+    }
+    else if ($coffeeWeight > 76) {
+      inputValidationError = "Vi rekommenderar att du använder max 76 gram kaffe för det här receptet.";
+    }
+    else if ($waterRatio <= 0) {
+      inputValidationError = "Vänligen ange ett giltigt värde för vatten till kaffe-ratio.";
+    }
+  }
 </script>
 
-<div class="four-six-generator">
+<div
+  aria-live="assertive"
+  class="sr-only"
+>
+  {#if $isBrewing}
+    Step {$currentStep + 1} of {$brewingSchedule.length}: Pour {$brewingSchedule[$currentStep].amount}g water
+  {/if}
+</div>
+
+<div class="four-six-generator" role="main" aria-label="Kaffebryggningssimulator">
   <div
-    class="u-container pt-40 pb-10 px-4 u-grid mx-auto grid grid-cols-1 md:grid-cols-2 gap-5 w-[1300px]"
+    class="u-container pt-40 pb-10 px-4 u-grid mx-auto grid grid-cols-1 md:grid-cols-2 gap-5 w-[1300px]" role="region" aria-label="Bryggningsinställningar"
   >
     <div class="generator-header">
       <div class="u-container u-grid grid h-full">
-        <div class="tools-container">
+        <div class="tools-container" role="group" aria-label="Bryggningsparametrar">
+          {#if inputValidationError}
+            <div class="validation-error bg-red-100 border-l-4 border-red-500 text-red-700 p-4 my-4" role="alert">
+              <p>{inputValidationError}</p>
+            </div>
+          {/if}
           <CoffeeWeightInput />
           <RoastSelector />
           <RatioSelector />
@@ -113,8 +141,13 @@
     brewingSchedule={$brewingSchedule}
     currentStep={$currentStep}
     totalTime={$totalTime}
+    aria-live="polite"
+    role="timer"
+    aria-label="Bryggningstidslinje"
   />
 </div>
+
+
 
 <style lang="scss">
   .four-six-generator {
@@ -124,17 +157,5 @@
   .generator-header {
     @apply bg-[#FFE566] border-4 border-black p-8;
     box-shadow: 4px 4px 0px 0px #000000;
-  }
-
-  .action-button {
-    @apply px-8 py-4 text-xl font-bold inline-flex items-center text-text justify-center whitespace-nowrap rounded-base text-sm font-base ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-main border-2 border-border shadow-light hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none;
-  }
-
-  .select-container {
-    @apply mb-6;
-  }
-
-  .select-headline {
-    @apply text-lg font-bold mb-2;
   }
 </style>

@@ -61,12 +61,22 @@
     const remainingSeconds = Math.floor(seconds % 60);
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   }
+
+  function formatTimeAnnouncement(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes} minuter och ${remainingSeconds} sekunder`;
+  }
 </script>
 
 <div class="flex flex-1 mt-8">
+  <h2 class="sr-only">Kaffebryggarkontroller</h2>
+
   <button
   class="action-button"
   on:click={startPrepTimer}
+  aria-label={$isBrewing ? "Currently brewing coffee" : "Start brewing coffee"}
+  aria-pressed={$isBrewing}
   >
     {#if !$isBrewing}
       Brygg kaffe
@@ -77,9 +87,23 @@
 </div>
 
 {#if isPrepping}
-  <div class="prep-timer">Gör dig redo! Instruktionerna börja om {prepTime} sekunder...</div>
+<div class="prep-timer" role="status" aria-live="polite">
+  <span class="sr-only">
+    Gör dig redo! Instruktionerna börja om {formatTimeAnnouncement(prepTime)}
+  </span>
+  <span aria-hidden="true">
+    Gör dig redo! Instruktionerna börja om {prepTime} sekunder...
+  </span>
+</div>
 {:else if $isBrewing}
-  <div class="brew-timer">Step {$currentStep + 1} of {$brewingSchedule.length}: {formatTime($totalTime)}</div>
+<div class="brew-timer" role="status" aria-live="polite">
+  <span class="sr-only">
+    Steg {$currentStep + 1} av {$brewingSchedule.length}, tidsförbrukning: {formatTimeAnnouncement($totalTime)}
+  </span>
+  <span aria-hidden="true">
+    Steg {$currentStep + 1} av {$brewingSchedule.length}: {formatTime($totalTime)}
+  </span>
+</div>
 {/if}
 
 <style lang="scss">

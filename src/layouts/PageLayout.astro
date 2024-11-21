@@ -1,5 +1,5 @@
 ---
-import { pwaInfo } from 'virtual:pwa-info';
+// import { pwaInfo } from 'virtual:pwa-info';
 
 export interface Props {
 	title: string;
@@ -13,25 +13,26 @@ import Footer from '../components/Footer.astro';
 import '@fontsource-variable/archivo';
 import '@/styles/styles.scss';
 ---
-<html lang="en">
+<html lang="sv">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="description" content="Din perfekta kopp kaffe börjar här" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
     <link rel="mask-icon" href="/mask-icon.svg" color="#FFFFFF">
-    <meta name="generator" content={Astro.generator} />
     <meta name="theme-color" content="#ffffff">
     <title>{ title }</title>
-    { pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} /> }
+    <!-- { pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} /> } -->
   </head>
   <body>
+    <a href="#main-content" class="skip-link">Hoppa till innehållet</a>
     <Header />
-    <main class="page-layout grid">
+    <main id="main-content" role="main" class="page-layout grid">
         <!-- <Hero /> -->
         <slot />
     </main>
-    <Footer />
+    <Footer role="contentinfo" />
   </body>
 </html>
 <script>import "preline/dist/preline.js";</script>

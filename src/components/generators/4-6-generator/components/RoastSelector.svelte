@@ -36,7 +36,6 @@
     mounted = true;
   });
 
-  $: console.log('Current roast grade:', $roastGrade);
 </script>
 
 <div class="roast-options grid grid-cols-3 gap-4 min-h-48" class:opacity-0={!mounted} transition:scale={{duration: 200}}>
