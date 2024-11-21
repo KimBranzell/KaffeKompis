@@ -44,14 +44,27 @@ export default defineConfig({
   purgecss({
     fontFace: true,
     keyframes: true,
-    safelist: ['random', 'yep', 'button', /^nav-/],
-    blocklist: ['usedClass', /^nav-/],
+    safelist: [
+      'random',
+      'yep',
+      'button',
+      /^nav-/,
+      /^p-/, // Preserve padding utilities
+      /^m-/, // Preserve margin utilities
+      /^neo-/, // Preserve neo-brutalist classes
+      /^flex-/, // Preserve flex utilities
+      /^grid-/, // Preserve grid utilities
+      'container'
+    ],
+    blocklist: ['usedClass'],
     content: [
       process.cwd() + '/src/**/*.{astro,svelte}' // Watching astro and vue sources (for SSR, read the note below)
     ]
   }),
   tailwind({
     applyBaseStyles: true,
-  }), react()],
+  }),
+  react()
+],
   renderers: ['@astrojs/renderer-preact', '@astrojs/renderer-svelte']
 });
