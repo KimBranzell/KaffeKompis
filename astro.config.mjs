@@ -9,8 +9,8 @@ import react from '@astrojs/react';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://kimbranzell.github.io/KaffeKompis/',
-  output: 'static',
+  site: 'https://kimbranzell.github.io',
+  base: '/KaffeKompis/',
   build: {
     assets: 'assets'
   },
