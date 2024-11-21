@@ -10,7 +10,7 @@ import react from '@astrojs/react';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://kimbranzell.github.io',
-  base: '/KaffeKompis/',
+  base: '/KaffeKompis',
   build: {
     assets: 'assets'
   },
@@ -50,7 +50,6 @@ export default defineConfig({
       process.cwd() + '/src/**/*.{astro,svelte}' // Watching astro and vue sources (for SSR, read the note below)
     ]
   }),
-  criticalCss(),
   tailwind({
     applyBaseStyles: true,
   }), react()],
