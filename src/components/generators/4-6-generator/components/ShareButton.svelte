@@ -1,23 +1,53 @@
 <script>
+  import { fly } from 'svelte/transition';
+  import { elasticOut } from 'svelte/easing';
   import { shareRecipe } from '../utils/recipeSharing';
   import { coffeeWeight, waterRatio, roastGrade } from '../utils/brewingStore';
 
   export let strength;
   export let taste;
 
-  const handleShare = () => {
-    shareRecipe({
+  let showCopiedFeedback = false;
+
+  const handleShare = async () => {
+    const result = await shareRecipe({
       coffeeWeight: $coffeeWeight,
       waterRatio: $waterRatio,
       roastGrade: $roastGrade,
       strength,
       taste
     });
+
+    if (result?.method === 'clipboard') {
+      showCopiedFeedback = true;
+      setTimeout(() => showCopiedFeedback = false, 2000); // Hide after 2 seconds
+    }
   };
 </script>
 
-<button class="action-button" on:click={handleShare}>
-  Dela recept
+<button
+  class="action-button relative overflow-hidden min-w-[160px]"
+  on:click={handleShare}
+>
+  <div class="relative h-[1.5em] w-full">
+    {#if showCopiedFeedback}
+      <span
+        class="absolute inset-0"
+        in:fly={{ y: 20, duration: 600, easing: elasticOut }}
+        out:fly={{ y: -20, duration: 400 }}
+      >
+        Kopierad!
+      </span>
+    {:else}
+      <span
+        class="absolute inset-0"
+        in:fly={{ y: -20, duration: 600, easing: elasticOut }}
+        out:fly={{ y: 20, duration: 400 }}
+      >
+        Dela recept
+      </span>
+    {/if}
+  </div>
 </button>
 
 <style lang="scss">

@@ -1,6 +1,6 @@
 <script>
   import { OPTION_SETS } from '../utils/constants';
-  export let selectedTaste = 'Balanced'; // Add default value
+  import { taste } from '../utils/brewingStore';
 </script>
 
 <div class="select-container">
@@ -8,7 +8,7 @@
   <select
     id="taste-profile"
     class="action-button w-full"
-    bind:value={selectedTaste}
+    bind:value={$taste}
   >
     {#each OPTION_SETS.tasteOptions as option}
       <option value={option.value}>{option.label}</option>

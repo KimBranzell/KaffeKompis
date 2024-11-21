@@ -6,9 +6,12 @@
     const remainingSeconds = Math.floor(seconds % 60);
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   }
+
+  $: console.log('Brewing schedule:', $brewingSchedule);
+
 </script>
 
-<div class="generator-body">
+<div class="generator-body mb-40">
   <table>
     <tbody>
       <tr>

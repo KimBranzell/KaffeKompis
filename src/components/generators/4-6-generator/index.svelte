@@ -72,7 +72,7 @@
         <RatioSelector />
         <StrengthSelector selectedStrength={$strength} on:change={(e) => $strength = e.detail} />
         <TasteSelector selectedTaste={$taste} on:change={(e) => $taste = e.detail} />
-        <div class="button-group">
+        <div class="button-group grid grid-cols-2 gap-4 mt-6">
           <PrintButton />
           <ShareButton strength={$strength} taste={$taste} />
         </div>
@@ -105,10 +105,6 @@
   .generator-header {
     @apply bg-[#FFE566] border-4 border-black p-8 mb-12;
     box-shadow: 4px 4px 0px 0px #000000;
-  }
-
-  .button-group {
-    @apply flex gap-4 mt-6;
   }
 
   .action-button {

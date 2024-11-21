@@ -65,7 +65,7 @@
 
 {#if !$isBrewing}
   <button
-    class="start-button"
+    class="action-button"
     on:click={startPrepTimer}
   >
     Börja brygga
@@ -73,18 +73,16 @@
 {/if}
 
 {#if isPrepping}
-  <div class="prep-timer">Get ready! Starting instructions in {prepTime} seconds...</div>
+  <div class="prep-timer">Gör dig redo! Instruktionerna börja om {prepTime} sekunder...</div>
 {:else if $isBrewing}
   <div class="brew-timer">Step {$currentStep + 1} of {$brewingSchedule.length}: {formatTime($totalTime)}</div>
 {/if}
 
 <style lang="scss">
-  .start-button {
-    @apply px-8 py-4 text-xl font-bold bg-main border-4 border-black hover:-translate-y-1 transition-transform;
-    box-shadow: 4px 4px 0px 0px #000000;
+  .action-button {
+    @apply px-8 py-4 text-xl font-bold inline-flex items-center text-text justify-center whitespace-nowrap rounded-base text-sm font-base ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-main border-2 border-border shadow-light hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none;
   }
-
   .prep-timer, .brew-timer {
-    @apply text-xl font-bold text-center p-4;
+    @apply fixed bottom-32 left-0 bg-black text-white w-screen text-xl font-bold text-center p-4;
   }
 </style>

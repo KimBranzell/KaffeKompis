@@ -30,10 +30,10 @@
   />
 
   <div class="grid gap-4 py-4 grid-flow-col grid-cols-[2fr_1fr_1fr_2fr]">
-    <button on:click={() => decrementCoffeeWeight(1)}>−</button>
-    <button on:click={() => decrementCoffeeWeight(10)}>−10g</button>
-    <button on:click={() => incrementCoffeeWeight(10)}>+10g</button>
-    <button on:click={() => incrementCoffeeWeight(1)}>+</button>
+    <button class="text-2xl" on:click={() => decrementCoffeeWeight(1)}>−</button>
+    <button class="text-2xl" on:click={() => decrementCoffeeWeight(10)}>−10g</button>
+    <button class="text-2xl" on:click={() => incrementCoffeeWeight(10)}>+10g</button>
+    <button class="text-2xl" on:click={() => incrementCoffeeWeight(1)}>+</button>
   </div>
 </div>
 
@@ -55,6 +55,6 @@
   }
 
   button {
-    @apply px-8 py-4 text-xl font-bold inline-flex items-center text-text justify-center whitespace-nowrap rounded-base text-sm font-base ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-main border-2 border-border shadow-light hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none;
+    @apply px-8 py-4 text-xl font-bold inline-flex items-center text-text justify-center whitespace-nowrap rounded-base ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-main border-2 border-border shadow-light hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none;
   }
 </style>

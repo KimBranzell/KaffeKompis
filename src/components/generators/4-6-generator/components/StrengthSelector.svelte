@@ -1,6 +1,6 @@
 <script>
   import { OPTION_SETS } from '../utils/constants';
-  export let selectedStrength = 'Balanced';
+  import { strength } from '../utils/brewingStore';
 </script>
 
 <div class="select-container">
@@ -8,7 +8,7 @@
   <select
     id="coffee-strength"
     class="action-button w-full"
-    bind:value={selectedStrength}
+    bind:value={$strength}
   >
     {#each OPTION_SETS.strengthOptions as option}
       <option value={option.value}>{option.label}</option>

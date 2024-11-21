@@ -94,6 +94,17 @@ export function shareRecipe({ coffeeWeight, waterRatio, roastGrade, strength, ta
   }
 
   return navigator.clipboard.writeText(shareableUrl)
-    .then(() => true)
-    .catch(() => false);
+    .then(() => {
+      // Return an object with additional info that the component can use
+      return {
+        success: true,
+        method: 'clipboard',
+        message: 'Kopierad!'
+      };
+    })
+    .catch(() => ({
+      success: false,
+      method: 'clipboard',
+      message: 'Kunde inte kopiera'
+    }));
 }
