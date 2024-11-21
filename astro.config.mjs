@@ -9,7 +9,8 @@ import react from '@astrojs/react';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://kimbranzell.github.io',
+  site: 'https://kimbranzell.github.io/KaffeKompis/',
+  output: 'static',
   build: {
     assets: 'assets'
   },
@@ -22,24 +23,24 @@ export default defineConfig({
     }
   },
   integrations: [svelte(),
-  // AstroPWA({
-  //   includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
-  //   manifest: {
-  //     name: 'KaffeKompis',
-  //     short_name: 'Kaffe',
-  //     description: 'Din guide till en bättre bryggning',
-  //     theme_color: '#ffffff',
-  //     icons: [{
-  //       src: 'pwa-192x192.png',
-  //       sizes: '192x192',
-  //       type: 'image/png'
-  //     }, {
-  //       src: 'pwa-512x512.png',
-  //       sizes: '512x512',
-  //       type: 'image/png'
-  //     }]
-  //   }
-  // }),
+  AstroPWA({
+    includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+    manifest: {
+      name: 'KaffeKompis',
+      short_name: 'Kaffe',
+      description: 'Din guide till en bättre bryggning',
+      theme_color: '#ffffff',
+      icons: [{
+        src: 'pwa-192x192.png',
+        sizes: '192x192',
+        type: 'image/png'
+      }, {
+        src: 'pwa-512x512.png',
+        sizes: '512x512',
+        type: 'image/png'
+      }]
+    }
+  }),
   purgecss({
     fontFace: true,
     keyframes: true,
