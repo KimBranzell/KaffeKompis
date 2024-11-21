@@ -11,7 +11,7 @@
 
 </script>
 
-<div class="generator-body mb-40">
+<div class="generator-body px-4 mb-40">
   <table>
     <tbody>
       <tr>

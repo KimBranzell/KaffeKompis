@@ -30,7 +30,7 @@
 </script>
 
 
-<div class="calculator-item">
+<div class="calculator-item mt-8">
   <label class="select-headline" for="ratio-select">{headline}</label>
   <select id="waterToCoffeeRatio" name="waterToCoffeeRatio" bind:value={$waterRatio} defaultValue={15}>
     {#if $waterRatio}

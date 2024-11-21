@@ -3,7 +3,7 @@
   import { taste } from '../utils/brewingStore';
 </script>
 
-<div class="select-container">
+<div class="select-container mt-4">
   <label for="taste-profile" class="select-headline">Smakprofil</label>
   <select
     id="taste-profile"

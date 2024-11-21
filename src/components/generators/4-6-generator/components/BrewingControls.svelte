@@ -63,14 +63,18 @@
   }
 </script>
 
-{#if !$isBrewing}
+<div class="flex flex-1 mt-8">
   <button
-    class="action-button"
-    on:click={startPrepTimer}
+  class="action-button"
+  on:click={startPrepTimer}
   >
-    Börja brygga
+    {#if !$isBrewing}
+      Brygg kaffe
+    {:else}
+      Brygger...
+    {/if}
   </button>
-{/if}
+</div>
 
 {#if isPrepping}
   <div class="prep-timer">Gör dig redo! Instruktionerna börja om {prepTime} sekunder...</div>
@@ -80,7 +84,7 @@
 
 <style lang="scss">
   .action-button {
-    @apply px-8 py-4 text-xl font-bold inline-flex items-center text-text justify-center whitespace-nowrap rounded-base text-sm font-base ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-main border-2 border-border shadow-light hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none;
+    @apply px-8 py-4 w-full inline-flex items-center text-text justify-center whitespace-nowrap rounded-base text-xl font-bold ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-main border-2 border-border shadow-light hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none;
   }
   .prep-timer, .brew-timer {
     @apply fixed bottom-32 left-0 bg-black text-white w-screen text-xl font-bold text-center p-4;

@@ -3,7 +3,7 @@
   import { strength } from '../utils/brewingStore';
 </script>
 
-<div class="select-container">
+<div class="select-container  mt-4">
   <label for="coffee-strength" class="select-headline">Kaffestyrka</label>
   <select
     id="coffee-strength"

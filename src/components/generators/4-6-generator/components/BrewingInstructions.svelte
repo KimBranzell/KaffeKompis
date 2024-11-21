@@ -1,9 +1,12 @@
 <script>
   import { coffeeWeight, brewingTemperature } from '../utils/brewingStore';
+  import { getGrinderSetting } from '../utils/grinderSettings';
 
   export let coffeeWeightGrams;
   export let waterWeight;
   export let recommendedGrindSize;
+
+  $: grinderSetting = getGrinderSetting(recommendedGrindSize);
 </script>
 
 <div class="instructions bg-[#FFF7ED] border-3 border-black p-8 neo-card-shadow">
@@ -19,7 +22,12 @@
       <span class="inline-block bg-[#FFE566] p-2 border-2 border-black mr-3">Temperatur: {$brewingTemperature}°C</span>
     </li>
     <li class="text-xl mb-2 flex items-center">
-      <span class="inline-block bg-[#FFE566] p-2 border-2 border-black mr-3">Malgrad: ~{recommendedGrindSize}μm</span>
+      <span class="inline-block bg-[#FFE566] p-2 border-2 border-black mr-3">
+        Malgrad: ~{recommendedGrindSize}μm
+        {#if grinderSetting}
+          (Timemore C2 Max: {grinderSetting.clicks} klick)
+        {/if}
+      </span>
     </li>
   </ul>
 
