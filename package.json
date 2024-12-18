@@ -20,7 +20,7 @@
     "@radix-ui/react-navigation-menu": "^1.2.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
-    "astro": "^4.16.14",
+    "astro": "^4.16.17",
     "astro-critical-css": "^0.0.4",
     "astro-purgecss": "^4.8.0",
     "class-variance-authority": "^0.7.0",
