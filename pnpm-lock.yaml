@@ -13,10 +13,10 @@ importers:
         version: 3.6.3(@types/node@22.9.1)(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.81.0)(terser@5.36.0)
       '@astrojs/svelte':
         specifier: ^6.0.2
-        version: 6.0.2(@types/node@22.9.1)(astro@4.16.14(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3))(sass@1.81.0)(svelte@5.2.7)(terser@5.36.0)(typescript@5.6.3)
+        version: 6.0.2(@types/node@22.9.1)(astro@4.16.17(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3))(sass@1.81.0)(svelte@5.2.7)(terser@5.36.0)(typescript@5.6.3)
       '@astrojs/tailwind':
         specifier: ^5.1.2
-        version: 5.1.2(astro@4.16.14(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3))(tailwindcss@3.4.15)
+        version: 5.1.2(astro@4.16.17(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3))(tailwindcss@3.4.15)
       '@fontsource-variable/archivo':
         specifier: ^5.1.0
         version: 5.1.0
@@ -39,14 +39,14 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       astro:
-        specifier: ^4.16.14
-        version: 4.16.14(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3)
+        specifier: ^4.16.17
+        version: 4.16.17(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3)
       astro-critical-css:
         specifier: ^0.0.4
         version: 0.0.4(@types/node@22.9.1)(sass@1.81.0)(sharp@0.33.5)(terser@5.36.0)
       astro-purgecss:
         specifier: ^4.8.0
-        version: 4.8.0(astro@4.16.14(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3))(purgecss@7.0.2)
+        version: 4.8.0(astro@4.16.17(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3))(purgecss@7.0.2)
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
@@ -104,7 +104,7 @@ importers:
         version: 4.0.1(svelte@5.2.7)(vite@5.4.11(@types/node@22.9.1)(sass@1.81.0)(terser@5.36.0))
       '@vite-pwa/astro':
         specifier: ^0.4.3
-        version: 0.4.3(astro@4.16.14(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3))(vite-plugin-pwa@0.21.0(vite@5.4.11(@types/node@22.9.1)(sass@1.81.0)(terser@5.36.0))(workbox-build@7.3.0(@types/babel__core@7.20.5))(workbox-window@7.3.0))
+        version: 0.4.3(astro@4.16.17(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3))(vite-plugin-pwa@0.21.0(vite@5.4.11(@types/node@22.9.1)(sass@1.81.0)(terser@5.36.0))(workbox-build@7.3.0(@types/babel__core@7.20.5))(workbox-window@7.3.0))
       sharp:
         specifier: ^0.33.5
         version: 0.33.5
@@ -2072,8 +2072,8 @@ packages:
       sharp:
         optional: true
 
-  astro@4.16.14:
-    resolution: {integrity: sha512-2IuLkIp4idyspugq+F52rHZyNqHHi2AdQzuKp3SGytg/YAm50dNeWhP/7l+enjgWZLloLq5xsH5gVQpoDFoyFg==}
+  astro@4.16.17:
+    resolution: {integrity: sha512-OuD+BP7U6OqQLKtZ/FJkU2S+TOlifxS/OKUbZOb5p6y+LLBa1J3zHRJrIl7DUSq6eXY+9wSWwbJpD9JS+lqhxA==}
     engines: {node: ^18.17.1 || ^20.3.0 || >=21.0.0, npm: '>=9.6.5', pnpm: '>=7.1.0'}
     hasBin: true
 
@@ -3686,6 +3686,9 @@ packages:
 
   magic-string@0.30.13:
     resolution: {integrity: sha512-8rYBO+MsWkgjDSOvLomYnzhdwEG51olQ4zL5KXnNJWV5MNmrb4rTZdrtkhxjnD/QyZUqR/Z/XDsUs/4ej2nx0g==}
+
+  magic-string@0.30.17:
+    resolution: {integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==}
 
   magicast@0.3.5:
     resolution: {integrity: sha512-L0WhttDl+2BOsybvEOLK7fW3UA0OQ0IQ2d6Zl2x/a6vVRs3bAY0ECOSHHeL5jD+SbOpOCUEi0y1DgHEn9Qn1AQ==}
@@ -5557,6 +5560,14 @@ packages:
       vite:
         optional: true
 
+  vitefu@1.0.4:
+    resolution: {integrity: sha512-y6zEE3PQf6uu/Mt6DTJ9ih+kyJLr4XcSgHR2zUkM8SWDhuixEJxfJ6CZGMHh1Ec3vPLoEA0IHU5oWzVqw8ulow==}
+    peerDependencies:
+      vite: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0
+    peerDependenciesMeta:
+      vite:
+        optional: true
+
   vscode-css-languageservice@6.3.1:
     resolution: {integrity: sha512-1BzTBuJfwMc3A0uX4JBdJgoxp74cjj4q2mDJdp49yD/GuAq4X0k5WtK6fNcMYr+FfJ9nqgR6lpfCSZDkARJ5qQ==}
 
@@ -5955,10 +5966,10 @@ snapshots:
       - supports-color
       - typescript
 
-  '@astrojs/svelte@6.0.2(@types/node@22.9.1)(astro@4.16.14(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3))(sass@1.81.0)(svelte@5.2.7)(terser@5.36.0)(typescript@5.6.3)':
+  '@astrojs/svelte@6.0.2(@types/node@22.9.1)(astro@4.16.17(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3))(sass@1.81.0)(svelte@5.2.7)(terser@5.36.0)(typescript@5.6.3)':
     dependencies:
       '@sveltejs/vite-plugin-svelte': 4.0.1(svelte@5.2.7)(vite@5.4.11(@types/node@22.9.1)(sass@1.81.0)(terser@5.36.0))
-      astro: 4.16.14(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3)
+      astro: 4.16.17(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3)
       svelte: 5.2.7
       svelte2tsx: 0.7.26(svelte@5.2.7)(typescript@5.6.3)
       typescript: 5.6.3
@@ -5974,9 +5985,9 @@ snapshots:
       - supports-color
       - terser
 
-  '@astrojs/tailwind@5.1.2(astro@4.16.14(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3))(tailwindcss@3.4.15)':
+  '@astrojs/tailwind@5.1.2(astro@4.16.17(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3))(tailwindcss@3.4.15)':
     dependencies:
-      astro: 4.16.14(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3)
+      astro: 4.16.17(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3)
       autoprefixer: 10.4.20(postcss@8.4.49)
       postcss: 8.4.49
       postcss-load-config: 4.0.2(postcss@8.4.49)
@@ -7615,9 +7626,9 @@ snapshots:
 
   '@ungap/structured-clone@1.2.0': {}
 
-  '@vite-pwa/astro@0.4.3(astro@4.16.14(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3))(vite-plugin-pwa@0.21.0(vite@5.4.11(@types/node@22.9.1)(sass@1.81.0)(terser@5.36.0))(workbox-build@7.3.0(@types/babel__core@7.20.5))(workbox-window@7.3.0))':
+  '@vite-pwa/astro@0.4.3(astro@4.16.17(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3))(vite-plugin-pwa@0.21.0(vite@5.4.11(@types/node@22.9.1)(sass@1.81.0)(terser@5.36.0))(workbox-build@7.3.0(@types/babel__core@7.20.5))(workbox-window@7.3.0))':
     dependencies:
-      astro: 4.16.14(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3)
+      astro: 4.16.17(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3)
       vite-plugin-pwa: 0.21.0(vite@5.4.11(@types/node@22.9.1)(sass@1.81.0)(terser@5.36.0))(workbox-build@7.3.0(@types/babel__core@7.20.5))(workbox-window@7.3.0)
 
   '@vitejs/plugin-react@4.3.3(vite@5.4.11(@types/node@22.9.1)(sass@1.81.0)(terser@5.36.0))':
@@ -7768,9 +7779,9 @@ snapshots:
       - terser
       - utf-8-validate
 
-  astro-purgecss@4.8.0(astro@4.16.14(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3))(purgecss@7.0.2):
+  astro-purgecss@4.8.0(astro@4.16.17(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3))(purgecss@7.0.2):
     dependencies:
-      astro: 4.16.14(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3)
+      astro: 4.16.17(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3)
       purgecss: 7.0.2
 
   astro@2.10.15(@types/node@22.9.1)(sass@1.81.0)(sharp@0.33.5)(terser@5.36.0):
@@ -7845,7 +7856,7 @@ snapshots:
       - supports-color
       - terser
 
-  astro@4.16.14(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3):
+  astro@4.16.17(@types/node@22.9.1)(rollup@2.79.2)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3):
     dependencies:
       '@astrojs/compiler': 2.10.3
       '@astrojs/internal-helpers': 0.4.1
@@ -7884,7 +7895,7 @@ snapshots:
       http-cache-semantics: 4.1.1
       js-yaml: 4.1.0
       kleur: 4.1.5
-      magic-string: 0.30.13
+      magic-string: 0.30.17
       magicast: 0.3.5
       micromatch: 4.0.8
       mrmime: 2.0.0
@@ -7902,7 +7913,7 @@ snapshots:
       unist-util-visit: 5.0.0
       vfile: 6.0.3
       vite: 5.4.11(@types/node@22.9.1)(sass@1.81.0)(terser@5.36.0)
-      vitefu: 1.0.3(vite@5.4.11(@types/node@22.9.1)(sass@1.81.0)(terser@5.36.0))
+      vitefu: 1.0.4(vite@5.4.11(@types/node@22.9.1)(sass@1.81.0)(terser@5.36.0))
       which-pm: 3.0.0
       xxhash-wasm: 1.1.0
       yargs-parser: 21.1.1
@@ -9736,6 +9747,10 @@ snapshots:
       sourcemap-codec: 1.4.8
 
   magic-string@0.30.13:
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.5.0
+
+  magic-string@0.30.17:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.0
 
@@ -12179,6 +12194,10 @@ snapshots:
       vite: 4.5.5(@types/node@22.9.1)(sass@1.81.0)(terser@5.36.0)
 
   vitefu@1.0.3(vite@5.4.11(@types/node@22.9.1)(sass@1.81.0)(terser@5.36.0)):
+    optionalDependencies:
+      vite: 5.4.11(@types/node@22.9.1)(sass@1.81.0)(terser@5.36.0)
+
+  vitefu@1.0.4(vite@5.4.11(@types/node@22.9.1)(sass@1.81.0)(terser@5.36.0)):
     optionalDependencies:
       vite: 5.4.11(@types/node@22.9.1)(sass@1.81.0)(terser@5.36.0)
 
