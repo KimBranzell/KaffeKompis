@@ -41,16 +41,16 @@ export default defineConfig({
       }]
     }
   }),
-  purgecss({
-    fontFace: true,
-    keyframes: true,
-    safelist: ['random', 'yep', 'button', /^nav-/],
-    blocklist: ['usedClass', /^nav-/],
-    content: [
-      process.cwd() + '/src/**/*.{astro,svelte,jsx,tsx,js,ts}',
-      process.cwd() + '/src/**/*.{css,scss}',
-    ]
-  }),
+  // purgecss({
+  //   fontFace: true,
+  //   keyframes: true,
+  //   safelist: ['random', 'yep', 'button', /^nav-/],
+  //   blocklist: ['usedClass', /^nav-/],
+  //   content: [
+  //     process.cwd() + '/src/**/*.{astro,svelte,jsx,tsx,js,ts}',
+  //     process.cwd() + '/src/**/*.{css,scss}',
+  //   ]
+  // }),
   tailwind({
     applyBaseStyles: true,
   }),
