@@ -7,10 +7,13 @@ import criticalCss from "astro-critical-css";
 import tailwind from '@astrojs/tailwind';
 import react from '@astrojs/react';
 
+const isProd = process.env.NODE_ENV === 'production';
+const base = isProd ? '/KaffeKompis' : '/';
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://kimbranzell.github.io',
-  base: '/KaffeKompis',
+  base: base,
   build: {
     assets: 'assets'
   },

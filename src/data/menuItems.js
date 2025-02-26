@@ -12,10 +12,10 @@ export default [
   {
     href: `${base}verktyg/`, icon: toolsIcon, label: 'Verktyg',
     subItems: [
-      { href: `${base}/verktyg/4-6-metoden/`, label: 'Tetsu Kasuyas 4:6-metod' },
-      { href: `${base}/verktyg/4-6-metoden/`, label: 'Tetsu Kasuyas 4:6-metod' },
-      { href: `${base}/verktyg/4-6-metoden/`, label: 'Tetsu Kasuyas 4:6-metod' },
-      { href: `${base}/verktyg/4-6-metoden/`, label: 'Tetsu Kasuyas 4:6-metod' }
+      { href: `${base}verktyg/4-6-metoden/`, label: 'Tetsu Kasuyas 4:6-metod' },
+      { href: `${base}verktyg/4-6-metoden/`, label: 'Tetsu Kasuyas 4:6-metod' },
+      { href: `${base}verktyg/4-6-metoden/`, label: 'Tetsu Kasuyas 4:6-metod' },
+      { href: `${base}verktyg/4-6-metoden/`, label: 'Tetsu Kasuyas 4:6-metod' }
     ]
   },
   { href: `${base}/recept/`, icon: recipeIcon, label: 'Recept' },
