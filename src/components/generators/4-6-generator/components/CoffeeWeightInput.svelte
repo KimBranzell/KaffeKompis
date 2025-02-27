@@ -30,10 +30,10 @@
   />
 
   <div class="grid gap-4 py-4 grid-flow-col grid-cols-[2fr_1fr_1fr_2fr]">
-    <button class="text-2xl" on:click={() => decrementCoffeeWeight(1)}>−</button>
-    <button class="text-2xl" on:click={() => decrementCoffeeWeight(10)}>−10g</button>
-    <button class="text-2xl" on:click={() => incrementCoffeeWeight(10)}>+10g</button>
-    <button class="text-2xl" on:click={() => incrementCoffeeWeight(1)}>+</button>
+    <button class="text-2xl touch-manipulation" on:click={() => decrementCoffeeWeight(1)}>−</button>
+    <button class="text-2xl touch-manipulation" on:click={() => decrementCoffeeWeight(10)}>−10g</button>
+    <button class="text-2xl touch-manipulation" on:click={() => incrementCoffeeWeight(10)}>+10g</button>
+    <button class="text-2xl touch-manipulation" on:click={() => incrementCoffeeWeight(1)}>+</button>
   </div>
 </div>
 
