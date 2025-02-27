@@ -1,6 +1,11 @@
 <script>
-  import { onDestroy } from 'svelte';
-  import { isBrewing, currentStep, totalTime, brewingSchedule } from '../utils/brewingStore';
+  import { onDestroy } from "svelte";
+  import {
+    isBrewing,
+    currentStep,
+    totalTime,
+    brewingSchedule,
+  } from "../utils/brewingStore";
 
   let prepTime = 5;
   let isPrepping = false;
@@ -73,10 +78,12 @@
   <h2 class="sr-only">Kaffebryggarkontroller</h2>
 
   <button
-  class="action-button"
-  on:click={startPrepTimer}
-  aria-label={$isBrewing ? "Currently brewing coffee" : "Start brewing coffee"}
-  aria-pressed={$isBrewing}
+    class="action-button"
+    on:click={startPrepTimer}
+    aria-label={$isBrewing
+      ? "Currently brewing coffee"
+      : "Start brewing coffee"}
+    aria-pressed={$isBrewing}
   >
     {#if !$isBrewing}
       Brygg kaffe
@@ -87,30 +94,35 @@
 </div>
 
 {#if isPrepping}
-<div class="prep-timer" role="status" aria-live="polite">
-  <span class="sr-only">
-    Gör dig redo! Instruktionerna börja om {formatTimeAnnouncement(prepTime)}
-  </span>
-  <span aria-hidden="true">
-    Gör dig redo! Instruktionerna börja om {prepTime} sekunder...
-  </span>
-</div>
+  <div class="prep-timer" role="status" aria-live="polite">
+    <span class="sr-only">
+      Gör dig redo! Instruktionerna börja om {formatTimeAnnouncement(prepTime)}
+    </span>
+    <span aria-hidden="true">
+      Gör dig redo! Instruktionerna börja om {prepTime} sekunder...
+    </span>
+  </div>
 {:else if $isBrewing}
-<div class="brew-timer" role="status" aria-live="polite">
-  <span class="sr-only">
-    Steg {$currentStep + 1} av {$brewingSchedule.length}, tidsförbrukning: {formatTimeAnnouncement($totalTime)}
-  </span>
-  <span aria-hidden="true">
-    Steg {$currentStep + 1} av {$brewingSchedule.length}: {formatTime($totalTime)}
-  </span>
-</div>
+  <div class="brew-timer" role="status" aria-live="polite">
+    <span class="sr-only">
+      Steg {$currentStep + 1} av {$brewingSchedule.length}, tidsförbrukning: {formatTimeAnnouncement(
+        $totalTime
+      )}
+    </span>
+    <span aria-hidden="true">
+      Steg {$currentStep + 1} av {$brewingSchedule.length}: {formatTime(
+        $totalTime
+      )}
+    </span>
+  </div>
 {/if}
 
 <style lang="scss">
   .action-button {
     @apply px-8 py-4 w-full inline-flex items-center text-text justify-center whitespace-nowrap rounded-base text-xl font-bold ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-main border-2 border-border shadow-light hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none;
   }
-  .prep-timer, .brew-timer {
+  .prep-timer,
+  .brew-timer {
     @apply fixed bottom-32 left-0 bg-black text-white w-screen text-xl font-bold text-center p-4;
   }
 </style>

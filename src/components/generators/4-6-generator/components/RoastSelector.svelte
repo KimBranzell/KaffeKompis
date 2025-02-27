@@ -1,5 +1,5 @@
 <script>
-  import { roastGrade } from '../utils/brewingStore';
+  import { roastGrade, brewingTemperature } from '../utils/brewingStore';
   import { fade, scale } from 'svelte/transition';
   import { onMount } from 'svelte';
 
@@ -26,10 +26,14 @@
     }
   ];
 
-  export let brewingTemperature;
 
   function selectRoast(grade) {
     $roastGrade = grade;
+
+    const selectedRoast = roastOptions.find(option => option.grade === grade);
+    if (selectedRoast) {
+      $brewingTemperature = selectedRoast.temp;
+    }
   }
 
   onMount(() => {
