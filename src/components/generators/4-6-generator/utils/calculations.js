@@ -31,6 +31,11 @@ export function calculateFirstAndSecondPours(coffeeTaste, firstPourWater) {
         firstPourWater * SWEET_POUR_FRACTION,
         firstPourWater * ACIDIC_POUR_FRACTION,
       ];
+    default:
+      return [
+        firstPourWater * EVEN_POUR_FRACTION,
+        firstPourWater * EVEN_POUR_FRACTION,
+      ];
   }
 }
 
@@ -49,6 +54,8 @@ export function calculateSubsequentPours(coffeeStrength, secondPourWater) {
       return Array(3).fill(secondPourWater / 3);
     case "Weak":
       return Array(2).fill(secondPourWater / 2);
+    default:
+      return Array(3).fill(secondPourWater / 3);
   }
 }
 
@@ -116,5 +123,5 @@ export function calculateRecommendedRatio(coffeeWeight) {
   if (coffeeWeight < 50) return "1:15";
   if (coffeeWeight < 69) return "1:14";
   if (coffeeWeight <= 76) return "1:13";
-  return "";
+  return "1:13";
 }

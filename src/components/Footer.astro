@@ -1,10 +1,31 @@
 ---
-const platform = "github";
-const username = "withastro";
+const base = import.meta.env.BASE_URL;
+
+const links = [
+  { href: `${base}`, label: 'Hem' },
+  { href: `${base}verktyg/`, label: 'Verktyg' },
+  { href: `${base}recept/`, label: 'Recept' },
+  { href: `${base}blogg/`, label: 'Blogg' },
+  { href: `${base}kontakt/`, label: 'Kontakt' },
+];
 ---
 
-<footer>
-  <div class="u-container">
-    <span>&#127279;</span>
+<footer class="border-t-3 border-black bg-[#111111] text-[#fff8e8]">
+  <div class="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-10 md:flex-row md:items-end md:justify-between">
+    <div class="max-w-xl space-y-3">
+      <p class="text-sm font-black uppercase tracking-[0.2em] text-[#ffd166]">Kaffekompis</p>
+      <h2 class="text-3xl font-black leading-tight">Praktiska verktyg och recept for battre kaffe hemma.</h2>
+      <p class="text-base leading-7 text-[#f6ead3]">
+        Byggt for hemmabryggare som vill kunna justera, repetera och fa en god kopp snabbare.
+      </p>
+    </div>
+
+    <nav aria-label="Sidfot" class="grid gap-3 text-base font-semibold md:text-right">
+      {links.map((link) => (
+        <a href={link.href} class="transition-transform hover:-translate-y-0.5 hover:text-[#ffd166]">
+          {link.label}
+        </a>
+      ))}
+    </nav>
   </div>
 </footer>

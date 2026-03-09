@@ -17,6 +17,8 @@
 </div>
 
 <style lang="scss">
+  @reference "../../../../styles/styles.css";
+
   .select-container {
     select {
       @apply w-full p-4 border-4 border-black bg-white;

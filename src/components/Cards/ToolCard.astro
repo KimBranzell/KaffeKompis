@@ -1,12 +1,32 @@
 
 ---
-const { title, description, icon, link } = Astro.props;
+const { title, description, icon, link, status = 'live', badge } = Astro.props;
+const Wrapper = link ? 'a' : 'div';
 ---
 
-<a href={link} class="block">
-  <div class="bg-[#FFE566] p-6 border-3 border-black neo-card-shadow hover:-translate-x-1 hover:-translate-y-1 transition-transform">
-    <div class="text-4xl mb-4">{icon}</div>
-    <h3 class="text-2xl font-bold mb-2">{title}</h3>
-    <p class="text-lg">{description}</p>
-  </div>
-</a>
+<Wrapper href={link} class="group block h-full">
+  <article class="flex h-full flex-col justify-between border-3 border-black bg-[#ffe680] p-6 shadow-[6px_6px_0_#000] transition-transform group-hover:-translate-y-1">
+    <div class="space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="inline-flex h-14 w-14 items-center justify-center border-3 border-black bg-white text-2xl font-black">
+          {icon}
+        </div>
+        <div class="flex flex-wrap justify-end gap-2 text-xs font-black uppercase tracking-[0.14em]">
+          {badge && <span class="border-2 border-black bg-black px-2 py-1 text-white">{badge}</span>}
+          <span class:list={["border-2 px-2 py-1", status === 'live' ? 'border-black bg-[#111111] text-white' : 'border-black bg-white text-black']}>
+            {status === 'live' ? 'Tillgangligt' : 'Pa gang'}
+          </span>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <h3 class="text-2xl font-black leading-tight">{title}</h3>
+        <p class="text-base leading-7 text-black/80">{description}</p>
+      </div>
+    </div>
+
+    <p class="mt-6 text-sm font-black uppercase tracking-[0.16em] text-black/70">
+      {link ? 'Oppna verktyget' : 'Kommer snart'}
+    </p>
+  </article>
+</Wrapper>

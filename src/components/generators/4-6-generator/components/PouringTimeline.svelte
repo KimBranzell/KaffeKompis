@@ -1,9 +1,14 @@
 <script>
   import { brewingSchedule, currentStep, totalTime } from '../utils/brewingStore';
+  import { BREWING_CONSTANTS } from '../utils/constants';
 
   export let carouselContainer;
-  const POUR_TIME = 10; // 15 seconds of pouring
-  const CYCLE_TIME = 45; // 45 seconds total per cycle
+  const POUR_TIME = BREWING_CONSTANTS.POUR_DURATION_SECONDS;
+  const CYCLE_TIME = BREWING_CONSTANTS.CYCLE_DURATION_SECONDS;
+
+  function clampPercentage(value) {
+    return `${Math.min(100, Math.max(0, value))}%`;
+  }
 
   function formatTime(seconds) {
     const minutes = Math.floor(seconds / 60);
@@ -43,7 +48,7 @@
       class="timeline-step {index === $currentStep ? 'active' : ''} {index < $currentStep ? 'completed' : ''}"
       style="
       width: {stepWidth};
-      --progress-width: {index === $currentStep ? (($totalTime - step.startTime) / (CYCLE_TIME)) * 100 + '%' : '0%'}
+      --progress-width: {index === $currentStep ? clampPercentage((($totalTime - step.startTime) / CYCLE_TIME) * 100) : '0%'}
       "
       >
       <div class="step-label" style="margin-left: -1rem; margin-right: -1rem; width: calc(100% + 2rem)">
@@ -62,14 +67,14 @@
           {#if index < $currentStep || (index === $currentStep && $totalTime >= step.startTime + POUR_TIME)}
             <div class="progress-bar completed"></div>
           {:else if index === $currentStep}
-            <div class="progress-bar" style="width: {(($totalTime - step.startTime) / POUR_TIME) * 100}%;"></div>
+            <div class="progress-bar" style="width: {clampPercentage((($totalTime - step.startTime) / POUR_TIME) * 100)};"></div>
           {/if}
         </div>
         <div class="wait-section">
           {#if index < $currentStep}
             <div class="progress-bar completed"></div>
           {:else if index === $currentStep && $totalTime >= step.startTime + POUR_TIME}
-            <div class="progress-bar" style="width: {(($totalTime - step.startTime - POUR_TIME) / (CYCLE_TIME - POUR_TIME)) * 100}%;"></div>
+            <div class="progress-bar" style="width: {clampPercentage((($totalTime - step.startTime - POUR_TIME) / (CYCLE_TIME - POUR_TIME)) * 100)};"></div>
           {/if}
         </div>
       </div>
@@ -78,9 +83,12 @@
 </div>
 
 <style lang="scss">
+  @reference "../../../../styles/styles.css";
+
   .pouring-timeline-carousel {
     @apply fixed bottom-0 left-0 w-full border-t-4 bg-white border-black overflow-x-auto;
     height: 128px;
+    scroll-snap-type: x proximity;
   }
 
   // .timeline-step {
@@ -93,6 +101,7 @@
 
   .timeline-step {
     @apply inline-block min-w-[300px] border-r-4 h-full p-4 border-black relative overflow-hidden;
+    scroll-snap-align: center;
 
     &::before {
       content: '';
@@ -153,6 +162,44 @@
     height: 100%;
     &.completed {
       @apply h-full;
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .pouring-timeline-carousel {
+      height: 116px;
+    }
+
+    .timeline-step {
+      min-width: 240px;
+      @apply px-3 py-3;
+    }
+
+    .step-label {
+      @apply mb-1 text-[11px];
+    }
+
+    .pour-section-label,
+    .wait-section-label {
+      @apply px-2;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .pouring-timeline-carousel {
+      height: 96px;
+    }
+
+    .timeline-step {
+      min-width: 210px;
+    }
+
+    .step-label {
+      @apply text-[10px] leading-tight;
+    }
+
+    .step-bar {
+      @apply h-8;
     }
   }
 </style>

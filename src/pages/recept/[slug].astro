@@ -1,0 +1,43 @@
+---
+import { getCollection, render } from 'astro:content';
+import PageLayout from '../../layouts/PageLayout.astro';
+
+export async function getStaticPaths() {
+  const recipes = await getCollection('recipes');
+
+  return recipes.map((recipe) => ({
+    params: { slug: recipe.id },
+    props: { recipe },
+  }));
+}
+
+const { recipe } = Astro.props;
+const { Content } = await render(recipe);
+
+const methodLabels = {
+  'pour-over': 'Pour over',
+  aeropress: 'AeroPress',
+  'french-press': 'French press',
+};
+---
+
+<PageLayout title={recipe.data.title} description={recipe.data.description}>
+  <article class="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-14 md:py-18">
+    <header class="space-y-4">
+      <p class="section-kicker">Recept</p>
+      <h1 class="text-4xl font-black leading-tight md:text-5xl">{recipe.data.title}</h1>
+      <div class="flex flex-wrap gap-2 text-sm font-black uppercase tracking-[0.12em]">
+        <span class="border-2 border-black bg-[#ffa45b] px-3 py-1">{methodLabels[recipe.data.method]}</span>
+        <span class="border-2 border-black bg-white px-3 py-1">{recipe.data.brewTime}</span>
+        <span class="border-2 border-black bg-[#dff4d7] px-3 py-1">{recipe.data.difficulty}</span>
+      </div>
+      <p class="max-w-2xl text-lg leading-8 text-black/80">{recipe.data.description}</p>
+    </header>
+
+    <div class="border-3 border-black bg-white p-8 shadow-[8px_8px_0_#000] md:p-10">
+      <div class="article-content">
+        <Content />
+      </div>
+    </div>
+  </article>
+</PageLayout>

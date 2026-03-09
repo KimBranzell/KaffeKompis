@@ -1,9 +1,6 @@
 <script>
-  import { onDestroy, tick, onMount, afterUpdate } from "svelte";
-  import { slide, fade, scale } from "svelte/transition";
-  import { linear } from "svelte/easing";
+  import { onMount } from "svelte";
 
-  // Store imports
   import {
     coffeeWeight,
     roastGrade,
@@ -13,40 +10,20 @@
     isBrewing,
     totalTime,
     waterWeight,
-  } from "./utils/brewingStore";
-
-  import {
-    calculateGrindSize
-  } from './utils/calculations';
-
-    // Utils imports
-  import {
-    calculateFirstAndSecondPours,
-    calculateSubsequentPours,
-  } from "./utils/calculations";
-  import {
-    formatTime,
-    getNumericRatio
-  } from "./utils/formatters";
-  import {
-    encodeRecipeToHash,
-    decodeHashToRecipe,
-    shareRecipe,
-  } from "./utils/recipeSharing";
-  import {
-    BREWING_CONSTANTS,
-    OPTION_SETS
-  } from "./utils/constants";
-  import {
     waterRatio,
     strength,
-    taste
+    taste,
   } from "./utils/brewingStore";
 
-  // Component imports
+  import {
+    calculateGrindSize,
+    calculateRecommendedRatio,
+  } from './utils/calculations';
+
   import CoffeeWeightInput from "./components/CoffeeWeightInput.svelte";
   import RatioSelector from "./components/RatioSelector.svelte";
   import RoastSelector from "./components/RoastSelector.svelte";
+  import RecipeSummary from "./components/RecipeSummary.svelte";
   import BrewingInstructions from "./components/BrewingInstructions.svelte";
   import BrewingControls from "./components/BrewingControls.svelte";
   import BrewingTable from "./components/BrewingTable.svelte";
@@ -56,24 +33,40 @@
   import PrintButton from "./components/PrintButton.svelte";
   import ShareButton from "./components/ShareButton.svelte";
 
-  // Initial state
   let inputValidationError = "";
   let carouselContainer;
   let initialLoadComplete = false;
+  let recommendationRemoved = false;
+  let lastRecommendedRatio = "";
 
-  // Save preferences when they change
+  const STORAGE_KEYS = {
+    coffeeWeight: "46method.coffeeWeight",
+    waterRatio: "46method.waterRatio",
+    roastGrade: "46method.roastGrade",
+    strength: "46method.strength",
+    taste: "46method.taste",
+  };
+
   $: if (typeof window !== "undefined" && initialLoadComplete) {
-    localStorage.setItem("coffeeStrength", $strength);
-    localStorage.setItem("coffeeTaste", $taste);
-    localStorage.setItem("waterRatio", $waterRatio);
+    localStorage.setItem(STORAGE_KEYS.coffeeWeight, String($coffeeWeight));
+    localStorage.setItem(STORAGE_KEYS.waterRatio, String($waterRatio));
+    localStorage.setItem(STORAGE_KEYS.roastGrade, $roastGrade);
+    localStorage.setItem(STORAGE_KEYS.strength, $strength);
+    localStorage.setItem(STORAGE_KEYS.taste, $taste);
   }
 
-  // Mark initial load as complete after first render
-  if (typeof window !== "undefined") {
+  onMount(() => {
     initialLoadComplete = true;
-  }
+  });
 
   $: recommendedGrindSize = calculateGrindSize($coffeeWeight);
+  $: recommendedRatio = calculateRecommendedRatio($coffeeWeight);
+  $: if (recommendedRatio !== lastRecommendedRatio) {
+    recommendationRemoved = false;
+    lastRecommendedRatio = recommendedRatio;
+  }
+  $: showRatioRecommendation = recommendedRatio !== `1:${$waterRatio}` && !recommendationRemoved;
+  $: generatorDescription = `${$brewingSchedule.length} pours, 1:${$waterRatio}, ${$strength.toLowerCase()} profil och ${$taste.toLowerCase()} start.`;
 
 
   $: {
@@ -96,16 +89,27 @@
   class="sr-only"
 >
   {#if $isBrewing}
-    Step {$currentStep + 1} of {$brewingSchedule.length}: Pour {$brewingSchedule[$currentStep].amount}g water
+    Steg {$currentStep + 1} av {$brewingSchedule.length}: hall {$brewingSchedule[$currentStep]?.pour?.toFixed(0) ?? 0} gram vatten
   {/if}
 </div>
 
 <div class="four-six-generator" role="main" aria-label="Kaffebryggningssimulator">
-  <div
-    class="u-container pt-40 pb-10 px-4 u-grid mx-auto grid grid-cols-1 md:grid-cols-2 gap-5 w-[1300px]" role="region" aria-label="Bryggningsinställningar"
-  >
+  <div class="generator-shell" role="region" aria-label="Bryggningsinställningar">
+    <RecipeSummary
+      coffeeWeight={$coffeeWeight}
+      waterWeight={$waterWeight}
+      waterRatio={$waterRatio}
+      temperature={$brewingTemperature}
+      strength={$strength}
+      taste={$taste}
+      brewingSchedule={$brewingSchedule}
+    />
+
+    <p class="generator-description">{generatorDescription}</p>
+
+    <div class="generator-grid">
     <div class="generator-header">
-      <div class="u-container u-grid grid h-full">
+      <div class="grid h-full gap-6">
         <div class="tools-container" role="group" aria-label="Bryggningsparametrar">
           {#if inputValidationError}
             <div class="validation-error bg-red-100 border-l-4 border-red-500 text-red-700 p-4 my-4" role="alert">
@@ -114,10 +118,10 @@
           {/if}
           <CoffeeWeightInput />
           <RoastSelector />
-          <RatioSelector />
-          <StrengthSelector selectedStrength={$strength} on:change={(e) => $strength = e.detail} />
-          <TasteSelector selectedTaste={$taste} on:change={(e) => $taste = e.detail} />
-          <div class="button-group grid grid-cols-2 gap-4 mt-6">
+          <RatioSelector bind:recommendationRemoved showRecommendation={showRatioRecommendation} {recommendedRatio} />
+          <StrengthSelector />
+          <TasteSelector />
+          <div class="button-group grid grid-cols-1 gap-3 mt-6 sm:grid-cols-2">
             <PrintButton />
             <ShareButton strength={$strength} taste={$taste} />
           </div>
@@ -132,6 +136,7 @@
       temperature={$brewingTemperature}
       {recommendedGrindSize}
     />
+    </div>
   </div>
 
   <BrewingTable />
@@ -150,12 +155,42 @@
 
 
 <style lang="scss">
+  @reference "../../../styles/styles.css";
+
   .four-six-generator {
-    @apply mx-auto p-8;
+    @apply mx-auto px-4 pb-28 pt-24 md:px-6 md:pb-36 md:pt-32;
+  }
+
+  .generator-shell {
+    @apply mx-auto flex w-full max-w-[1300px] flex-col gap-6;
+  }
+
+  .generator-grid {
+    @apply grid gap-6 xl:grid-cols-[0.88fr_1.12fr] xl:items-start;
   }
 
   .generator-header {
-    @apply bg-[#FFE566] border-4 border-black p-8;
-    box-shadow: 4px 4px 0px 0px #000000;
+    @apply rounded-[1.75rem] bg-[#FFE566] border-4 border-black p-5 md:p-8;
+    box-shadow: 8px 8px 0px 0px #000000;
+  }
+
+  .generator-description {
+    @apply text-sm font-black uppercase tracking-[0.16em] text-black/55;
+  }
+
+  @media (max-width: 1023px) {
+    .four-six-generator {
+      @apply pb-32 pt-24;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .four-six-generator {
+      @apply px-3 pt-22 pb-24;
+    }
+
+    .generator-description {
+      @apply text-[11px] leading-5;
+    }
   }
 </style>

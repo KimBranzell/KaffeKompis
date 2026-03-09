@@ -1,14 +1,30 @@
 
 ---
-const { title, date, slug } = Astro.props;
+const { title, date, slug, link, description, tags = [] } = Astro.props;
+const href = link ?? `/blogg/${slug}/`;
 ---
 
-<article class="bg-[#FF90E8] p-6 border-3 border-black neo-card-shadow">
-  <div class="inline-block bg-white px-4 py-1 border-2 border-black rotate-2 mb-4">
-    {date}
+<article class="flex h-full flex-col justify-between border-3 border-black bg-[#ff9fcb] p-6 shadow-[6px_6px_0_#000]">
+  <div class="space-y-4">
+    <div class="inline-flex rotate-[-2deg] border-2 border-black bg-white px-4 py-1 text-sm font-black uppercase tracking-[0.12em]">
+      {date}
+    </div>
+    <div class="space-y-3">
+      <h3 class="text-2xl font-black leading-tight">{title}</h3>
+      {description && <p class="text-base leading-7 text-black/80">{description}</p>}
+    </div>
   </div>
-  <h3 class="text-2xl font-bold mb-4">{title}</h3>
-  <a href={`/blog/${slug}`} class="inline-block bg-black text-white px-4 py-2 font-bold hover:-translate-y-1 transition-transform">
-    Läs mer →
-  </a>
+
+  <div class="mt-6 space-y-4">
+    {tags.length > 0 && (
+      <div class="flex flex-wrap gap-2">
+        {tags.slice(0, 3).map((tag: string) => (
+          <span class="border-2 border-black bg-white px-2 py-1 text-xs font-black uppercase tracking-[0.12em]">{tag}</span>
+        ))}
+      </div>
+    )}
+    <a href={href} class="inline-flex border-3 border-black bg-black px-4 py-3 text-sm font-black uppercase tracking-[0.16em] text-white transition-transform hover:-translate-y-1">
+      Las mer
+    </a>
+  </div>
 </article>

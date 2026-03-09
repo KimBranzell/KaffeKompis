@@ -56,6 +56,8 @@
 </div>
 
 <style lang="scss">
+  @reference "../../../../styles/styles.css";
+
   .calculator-item {
     select {
       @apply w-full p-4 border-4 border-black bg-white;

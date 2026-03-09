@@ -5,13 +5,29 @@
     currentStep,
     totalTime,
     brewingSchedule,
+    resetTimerState,
   } from "../utils/brewingStore";
+  import { BREWING_CONSTANTS } from "../utils/constants";
 
-  let prepTime = 5;
+  let prepTime = BREWING_CONSTANTS.PREP_DURATION_SECONDS;
   let isPrepping = false;
   let intervalId = null;
 
+  function clearCurrentTimer() {
+    if (intervalId !== null) {
+      clearInterval(intervalId);
+      intervalId = null;
+    }
+  }
+
   function startPrepTimer() {
+    if (!$brewingSchedule.length) {
+      return;
+    }
+
+    clearCurrentTimer();
+    resetTimerState();
+    prepTime = BREWING_CONSTANTS.PREP_DURATION_SECONDS;
     isPrepping = true;
     intervalId = setInterval(() => {
       if (prepTime > 1) {
@@ -26,39 +42,33 @@
 
   function startTimer() {
     $isBrewing = true;
-    if (intervalId !== null) {
-      clearInterval(intervalId);
-    }
+    clearCurrentTimer();
     $totalTime = 0;
-    $currentStep = 0;
+
+    const lastStepStartTime = $brewingSchedule[$brewingSchedule.length - 1]?.startTime ?? 0;
+    const totalDuration = lastStepStartTime + BREWING_CONSTANTS.CYCLE_DURATION_SECONDS;
+
     intervalId = setInterval(() => {
-      $totalTime += 0.1;
-      updateCurrentStep();
+      const nextTime = Number(($totalTime + 0.1).toFixed(1));
+
+      if (nextTime >= totalDuration) {
+        $totalTime = totalDuration;
+        stopBrewing();
+        return;
+      }
+
+      $totalTime = nextTime;
     }, 100);
   }
 
-  function updateCurrentStep() {
-    let timeAccumulated = 0;
-    for (let i = 0; i < $brewingSchedule.length; i++) {
-      timeAccumulated += $brewingSchedule[i].time;
-      if ($totalTime <= timeAccumulated) {
-        if ($currentStep !== i) {
-          $currentStep = i;
-        }
-        break;
-      }
-    }
-
-    if ($totalTime > timeAccumulated) {
-      clearInterval(intervalId);
-      $isBrewing = false;
-    }
+  function stopBrewing() {
+    clearCurrentTimer();
+    isPrepping = false;
+    $isBrewing = false;
   }
 
   onDestroy(() => {
-    if (intervalId !== null) {
-      clearInterval(intervalId);
-    }
+    clearCurrentTimer();
   });
 
   function formatTime(seconds) {
@@ -77,29 +87,41 @@
 <div class="flex flex-1 mt-8">
   <h2 class="sr-only">Kaffebryggarkontroller</h2>
 
-  <button
-    class="action-button"
-    on:click={startPrepTimer}
-    aria-label={$isBrewing
-      ? "Currently brewing coffee"
-      : "Start brewing coffee"}
-    aria-pressed={$isBrewing}
-  >
-    {#if !$isBrewing}
-      Brygg kaffe
-    {:else}
-      Brygger...
-    {/if}
-  </button>
+  <div class="grid w-full gap-4 md:grid-cols-2">
+    <button
+      type="button"
+      class="action-button"
+      on:click={startPrepTimer}
+      aria-label={$isBrewing ? "Starta om bryggning" : "Starta bryggning"}
+      aria-pressed={$isBrewing}
+    >
+      {#if isPrepping}
+        Gor dig redo...
+      {:else if !$isBrewing}
+        Brygg kaffe
+      {:else}
+        Starta om
+      {/if}
+    </button>
+
+    <button
+      type="button"
+      class="action-button action-button--secondary"
+      on:click={stopBrewing}
+      disabled={!$isBrewing && !isPrepping}
+    >
+      Stoppa timer
+    </button>
+  </div>
 </div>
 
 {#if isPrepping}
   <div class="prep-timer" role="status" aria-live="polite">
     <span class="sr-only">
-      Gör dig redo! Instruktionerna börja om {formatTimeAnnouncement(prepTime)}
+      Gor dig redo! Instruktionerna borjar om {formatTimeAnnouncement(prepTime)}
     </span>
     <span aria-hidden="true">
-      Gör dig redo! Instruktionerna börja om {prepTime} sekunder...
+      Gor dig redo! Instruktionerna borjar om {prepTime} sekunder...
     </span>
   </div>
 {:else if $isBrewing}
@@ -118,11 +140,25 @@
 {/if}
 
 <style lang="scss">
+  @reference "../../../../styles/styles.css";
+
   .action-button {
     @apply px-8 py-4 w-full inline-flex items-center text-text justify-center whitespace-nowrap rounded-base text-xl font-bold ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-main border-2 border-border shadow-light hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none;
   }
+
+  .action-button--secondary {
+    @apply bg-white;
+  }
+
   .prep-timer,
   .brew-timer {
     @apply fixed bottom-32 left-0 bg-black text-white w-screen text-xl font-bold text-center p-4;
+  }
+
+  @media (max-width: 767px) {
+    .prep-timer,
+    .brew-timer {
+      @apply bottom-24 px-4 py-3 text-base;
+    }
   }
 </style>

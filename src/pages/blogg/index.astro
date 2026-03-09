@@ -1,16 +1,50 @@
 ---
-title: 'Page Title'
-
+import { getCollection } from 'astro:content';
 import PageLayout from '../../layouts/PageLayout.astro';
-const allPosts = await Astro.glob('../../pages/blogg/*.md');
+import BlogCard from '../../components/Cards/BlogCard.astro';
 
-export const frontmatter = {
-  title: "Blogg"
-};
+const base = import.meta.env.BASE_URL;
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+const dateFormatter = new Intl.DateTimeFormat('sv-SE', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
 ---
 
-<PageLayout title="Blogg">
-  <p>Här kommer det finnas nyheter!</p>
+<PageLayout
+  title="Blogg"
+  description="Korta guider och artiklar om bryggning, rostning och hur du far mer konsekvent kaffe hemma."
+>
+  <section class="mx-auto flex w-full max-w-7xl flex-col gap-10 px-4 py-14 md:py-18">
+    <div class="grid gap-8 lg:grid-cols-[0.75fr_1.25fr] lg:items-end">
+      <div class="space-y-4">
+        <p class="section-kicker">Blogg</p>
+        <h1 class="section-title">Korta artiklar for nar du vill fatta battre bryggbeslut snabbare.</h1>
+        <p class="section-copy">
+          Fokus ligger pa praktiska justeringar: rostning, malning, temperatur och utrustning som faktiskt gor skillnad i koppen.
+        </p>
+      </div>
+      <div class="rounded-[1.75rem] border-3 border-black bg-[#fff7ed] p-8 shadow-[8px_8px_0_#000]">
+        <p class="text-sm font-black uppercase tracking-[0.16em] text-black/60">Senaste artikel</p>
+        <h2 class="mt-3 text-3xl font-black leading-tight">{posts[0]?.data.title}</h2>
+        <p class="mt-3 text-base leading-7 text-black/80">{posts[0]?.data.description}</p>
+      </div>
+    </div>
 
-  {allPosts.map((post) => <li><a href={post.url}>{post.frontmatter.title}</a></li>)}
+    <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      {posts.map((post) => (
+        <BlogCard
+          title={post.data.title}
+          date={dateFormatter.format(post.data.pubDate)}
+          slug={post.id}
+          link={`${base}blogg/${post.id}/`}
+          description={post.data.description}
+          tags={post.data.tags}
+        />
+      ))}
+    </div>
+  </section>
 </PageLayout>

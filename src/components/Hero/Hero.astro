@@ -1,56 +1,76 @@
 ---
+export interface Props {
+  toolCount?: number;
+  recipeCount?: number;
+  postCount?: number;
+  featuredToolTitle?: string;
+}
+
+const base = import.meta.env.BASE_URL;
+const {
+  toolCount = 0,
+  recipeCount = 0,
+  postCount = 0,
+  featuredToolTitle = '4:6-metoden',
+} = Astro.props;
+
+const stats = [
+  { label: 'Verktyg', value: toolCount },
+  { label: 'Recept', value: recipeCount },
+  { label: 'Artiklar', value: postCount },
+];
 ---
 
-<section class="relative overflow-hidden bg-[#FFF7ED] neo-brutal-shadow p-24">
-  <div class="max-w-7xl mx-auto px-4 py-20">
-    <div class="relative z-10">
-      <h1 class="text-6xl font-bold mb-6">
-        Din perfekta kopp kaffe börjar här
-      </h1>
-      <p class="text-2xl mb-8 max-w-2xl">
-        Upptäck verktyg, recept och guider för att brygga fantastiskt specialkaffe hemma.
-      </p>
-      <div class="flex gap-4">
-        <a href="/tools" class="bg-main  px-8 py-4 text-xl font-bold inline-flex items-center text-text justify-center whitespace-nowrap rounded-base text-sm font-base ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border-2 border-border dark:border-darkBorder shadow-light dark:shadow-dark hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none dark:hover:shadow-none">
-          Ta mig till verktygen
+<section class="relative overflow-hidden border-b-3 border-black bg-[linear-gradient(135deg,#fff7ed_0%,#ffe7ba_52%,#ffd166_100%)]">
+  <div class="absolute inset-0 opacity-15" style={`background-image: url(${base}coffee-pattern.svg);`}></div>
+  <div class="absolute inset-y-0 right-0 hidden w-2/5 bg-[radial-gradient(circle_at_top,#ffffffaa_0%,transparent_65%)] lg:block"></div>
+
+  <div class="relative mx-auto grid w-full max-w-7xl gap-10 px-4 py-14 md:py-18 lg:grid-cols-[1.2fr_0.8fr] lg:items-center lg:py-24">
+    <div class="space-y-8">
+      <div class="inline-flex items-center gap-3 border-3 border-black bg-white px-4 py-2 text-sm font-black uppercase tracking-[0.18em] shadow-[6px_6px_0_#000]">
+        <span>Specialkaffe utan gissningar</span>
+      </div>
+
+      <div class="space-y-5">
+        <h1 class="max-w-4xl text-5xl font-black leading-none text-black md:text-6xl lg:text-7xl">
+          Brygg battre kaffe med verktyg som faktiskt hjalper.
+        </h1>
+        <p class="max-w-2xl text-lg leading-8 text-black/80 md:text-xl">
+          Kaffekompis samlar kalkylatorer, recept och korta guider for dig som vill brygga mer konsekvent hemma,
+          utan att jaga information i fem olika forumtradar.
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-4 sm:flex-row">
+        <a href={`${base}verktyg/`} class="inline-flex items-center justify-center border-3 border-black bg-black px-7 py-4 text-base font-black text-white shadow-[6px_6px_0_#000] transition-transform hover:-translate-y-1">
+          Oppna verktygen
         </a>
-        <a href="/recept" class="inline-flex items-center text-text px-8 py-4 text-xl font-bold justify-center whitespace-nowrap rounded-base text-sm font-base ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-white dark:bg-secondaryBlack dark:text-darkText border-2 border-border dark:border-darkBorder shadow-light dark:shadow-dark hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none dark:hover:shadow-none">
-          Se recept
+        <a href={`${base}recept/`} class="inline-flex items-center justify-center border-3 border-black bg-white px-7 py-4 text-base font-black text-black shadow-[6px_6px_0_#000] transition-transform hover:-translate-y-1">
+          Utforska recept
         </a>
       </div>
     </div>
 
-    <div class="absolute right-0 top-0 w-1/3 h-full">
-      <div class="relative h-full">
-        <div class="absolute inset-0 bg-coffee-pattern opacity-10"></div>
-        <div class="absolute inset-0 bg-gradient-to-l from-[#FFF7ED] to-transparent"></div>
+    <div class="grid gap-4">
+      <div class="border-3 border-black bg-[#111111] p-6 text-[#fff8e8] shadow-[8px_8px_0_#000]">
+        <p class="text-sm font-black uppercase tracking-[0.2em] text-[#ffd166]">Just nu i fokus</p>
+        <h2 class="mt-3 text-3xl font-black leading-tight">{featuredToolTitle}</h2>
+        <p class="mt-4 text-base leading-7 text-[#f6ead3]">
+          En snabb vag in till ratios, pours och tydliga bryggsteg nar du vill upprepa en kopp som faktiskt blev bra.
+        </p>
+        <a href={`${base}verktyg/4-6-metoden/`} class="mt-6 inline-flex items-center border-3 border-[#ffd166] px-4 py-3 text-sm font-black uppercase tracking-[0.14em] text-[#ffd166] transition-transform hover:-translate-y-1">
+          Prova nu
+        </a>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-3">
+        {stats.map((stat) => (
+          <div class="border-3 border-black bg-white px-5 py-4 shadow-[6px_6px_0_#000]">
+            <p class="text-sm font-black uppercase tracking-[0.16em] text-black/60">{stat.label}</p>
+            <p class="mt-2 text-4xl font-black">{stat.value}</p>
+          </div>
+        ))}
       </div>
     </div>
   </div>
 </section>
-
-<style>
-  .neo-brutal-shadow {
-    box-shadow: 8px 8px 0px 0px #000000;
-  }
-
-  .neo-brutal-title {
-    text-shadow: 4px 4px 0px #000000;
-  }
-
-  .neo-brutal-button {
-    border: 3px solid #000000;
-    box-shadow: 4px 4px 0px 0px #000000;
-  }
-
-  .neo-brutal-button-outline {
-    background: transparent;
-    border: 3px solid #000000;
-    box-shadow: 4px 4px 0px 0px #000000;
-  }
-
-  .bg-coffee-pattern {
-    background-image: url('/coffee-pattern.svg');
-    background-repeat: repeat;
-  }
-</style>

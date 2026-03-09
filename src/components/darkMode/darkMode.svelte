@@ -2,55 +2,43 @@
   import { writable } from 'svelte/store';
   import { onMount } from 'svelte';
 
-  const STORE_PREFIX = 'theme'; // Define your store prefix here
-  let theme = writable('light'); // Default theme
+  const STORAGE_KEY = 'theme';
+  const theme = writable('light');
 
-  // Function to determine the system theme preference
-  function systemTheme() {
-    if (typeof window !== 'undefined') {
-      const checkDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      return checkDark ? 'dark' : 'light';
-    }
-    return 'light'; // Default to 'light' if window is not defined
+  function getPreferredTheme() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
 
-  if (typeof window !== 'undefined') {
+  function applyTheme(currentTheme) {
+    document.documentElement.classList.toggle('dark', currentTheme === 'dark');
+  }
 
-    function updateBodyClass(currentTheme) {
-      document.body.classList.toggle('dark-theme', currentTheme === 'dark');
-      document.body.classList.toggle('light-theme', currentTheme === 'light');
-    }
-    onMount(() => {
-      const themeLocal = localStorage.getItem(`${STORE_PREFIX}`);
-      theme.set(themeLocal ? JSON.parse(themeLocal) : systemTheme());
+  onMount(() => {
+    const storedTheme = localStorage.getItem(STORAGE_KEY);
+    const initialTheme = storedTheme === 'dark' || storedTheme === 'light'
+      ? storedTheme
+      : getPreferredTheme();
 
-      // Apply initial body class
-      updateBodyClass($theme);
+    theme.set(initialTheme);
 
-      // Subscribe to theme changes and update localStorage
-      const unsubscribe = theme.subscribe((value) => {
-        localStorage.setItem(`${STORE_PREFIX}`, JSON.stringify(value));
-        updateBodyClass(value);
-      });
-
-      // Cleanup subscription when component is destroyed
-      return () => {
-        unsubscribe();
-      };
+    const unsubscribe = theme.subscribe((value) => {
+      localStorage.setItem(STORAGE_KEY, value);
+      applyTheme(value);
     });
-  }
 
-  // Toggle theme function
+    return unsubscribe;
+  });
+
   function toggle() {
     theme.update(current => current === 'light' ? 'dark' : 'light');
   }
 </script>
 
-<button on:click={toggle}>
+<button type="button" on:click={toggle} aria-label="Växla färgtema">
   {#if $theme === 'dark'}
-    Go light
+    Ljust läge
   {:else}
-    Go dark
+    Mörkt läge
   {/if}
 </button>
 

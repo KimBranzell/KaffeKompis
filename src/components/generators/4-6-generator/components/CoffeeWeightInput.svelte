@@ -38,6 +38,8 @@
 </div>
 
 <style lang="scss">
+  @reference "../../../../styles/styles.css";
+
   .calculator-item {
     @apply mb-6;
 

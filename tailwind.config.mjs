@@ -1,4 +1,5 @@
 import { fontFamily } from "tailwindcss/defaultTheme";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 /** @type {import('tailwindcss').Config} */
 const config = {
@@ -8,8 +9,13 @@ const config = {
 	],
 	safelist: ["dark"],
 	theme: {
+		screens: {
+			m500: '500px',
+			m750: '750px',
+			m900: '900px'
+		},
     	container: {
-    		center: 'true',
+	    		center: true,
     		padding: '2rem',
     		screens: {
     			'2xl': '1400px'
@@ -69,6 +75,7 @@ const config = {
 					// dark mode
 					darkBg: '#272933',
 					darkText: '#eeefe9',
+					darkNavBorder: '#000',
 					darkBorder: '#000',
 					secondaryBlack: '#212121',
     		},
@@ -98,8 +105,7 @@ const config = {
     	}
     },
 	plugins: [
-		require('preline/plugin'),
-        require("tailwindcss-animate")
+		tailwindcssAnimate
     ]
 };
 

@@ -1,11 +1,9 @@
 import { defineConfig } from 'astro/config';
 import path from 'path';
 import svelte from "@astrojs/svelte";
-import purgecss from "astro-purgecss";
 import AstroPWA from '@vite-pwa/astro';
-import criticalCss from "astro-critical-css";
-import tailwind from '@astrojs/tailwind';
 import react from '@astrojs/react';
+import tailwindcss from '@tailwindcss/vite';
 
 const isProd = process.env.NODE_ENV === 'production';
 const base = isProd ? '/KaffeKompis' : '/';
@@ -19,6 +17,7 @@ export default defineConfig({
   },
   prefetch: true,
   vite: {
+    plugins: [tailwindcss()],
     resolve: {
       alias: {
         '$lib': path.resolve('./src')
@@ -44,20 +43,6 @@ export default defineConfig({
       }]
     }
   }),
-  // purgecss({
-  //   fontFace: true,
-  //   keyframes: true,
-  //   safelist: ['random', 'yep', 'button', /^nav-/],
-  //   blocklist: ['usedClass', /^nav-/],
-  //   content: [
-  //     process.cwd() + '/src/**/*.{astro,svelte,jsx,tsx,js,ts}',
-  //     process.cwd() + '/src/**/*.{css,scss}',
-  //   ]
-  // }),
-  tailwind({
-    applyBaseStyles: true,
-  }),
   react()
-],
-  renderers: ['@astrojs/renderer-preact', '@astrojs/renderer-svelte']
+]
 });

@@ -6,6 +6,15 @@ export const BREWING_CONSTANTS = {
   /** Initial delay before starting the brewing process */
   INITIAL_DELAY_SECONDS: 0,
 
+  /** Countdown before the brewing timer starts */
+  PREP_DURATION_SECONDS: 5,
+
+  /** Active pouring time inside each 45 second cycle */
+  POUR_DURATION_SECONDS: 10,
+
+  /** Total duration per pour cycle */
+  CYCLE_DURATION_SECONDS: 45,
+
   /** Ratio of water used in the first pour (40%) */
   FIRST_POUR_RATIO: 0.4,
 

@@ -82,6 +82,8 @@
 </div>
 
 <style lang="scss">
+  @reference "../../styles/styles.css";
+
   .custom-select {
     @apply relative w-full;
   }

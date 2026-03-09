@@ -26,6 +26,11 @@ export function encodeRecipeToHash(coffeeWeight, waterRatio, roastGrade, strengt
   return packed.toString(36);
 }
 
+export function syncRecipeHash(hash) {
+  const nextUrl = `${window.location.pathname}${window.location.search}#${hash}`;
+  window.history.replaceState(null, "", nextUrl);
+}
+
 /**
  * Decodes a compact hash string back into a coffee recipe.
  *
@@ -62,7 +67,7 @@ export function decodeHashToRecipe(hash) {
     };
 
     return decoded;
-  } catch (e) {
+  } catch {
     return null;
   }
 }
@@ -78,30 +83,38 @@ export function decodeHashToRecipe(hash) {
  * @param {string} recipe.taste - The taste profile of the coffee, one of 'Acidic', 'Balanced', or 'Sweet'.
  * @returns {Promise<boolean>} A promise that resolves to `true` if the recipe was successfully shared, or `false` if an error occurred.
  */
-export function shareRecipe({ coffeeWeight, waterRatio, roastGrade, strength, taste }) {
+export async function shareRecipe({ coffeeWeight, waterRatio, roastGrade, strength, taste }) {
   const hash = encodeRecipeToHash(coffeeWeight, waterRatio, roastGrade, strength, taste);
+  syncRecipeHash(hash);
   const shareableUrl = `${window.location.origin}${window.location.pathname}#${hash}`;
 
-  if (navigator.share) {
-    return navigator.share({
-      title: 'Min 4:6-metod på Kaffekompis',
-      text: 'Kolla in mitt kafferecept!',
-      url: shareableUrl
-    });
-  }
+  try {
+    if (navigator.share) {
+      await navigator.share({
+        title: 'Min 4:6-metod på Kaffekompis',
+        text: 'Kolla in mitt kafferecept!',
+        url: shareableUrl
+      });
 
-  return navigator.clipboard.writeText(shareableUrl)
-    .then(() => {
-      // Return an object with additional info that the component can use
       return {
         success: true,
-        method: 'clipboard',
-        message: 'Kopierad!'
+        method: 'share',
+        message: 'Delat!'
       };
-    })
-    .catch(() => ({
-      success: false,
+    }
+
+    await navigator.clipboard.writeText(shareableUrl);
+
+    return {
+      success: true,
       method: 'clipboard',
-      message: 'Kunde inte kopiera'
-    }));
+      message: 'Kopierad!'
+    };
+  } catch {
+    return {
+      success: false,
+      method: navigator.share ? 'share' : 'clipboard',
+      message: 'Kunde inte dela receptet'
+    };
+  }
 }

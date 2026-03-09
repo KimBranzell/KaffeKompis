@@ -1,16 +1,54 @@
 ---
+import { getCollection } from 'astro:content';
 import PageLayout from '../../layouts/PageLayout.astro';
+import ToolCard from '../../components/Cards/ToolCard.astro';
 
-export const frontmatter = {
-  title: "Kaffe-till-Vatten-kalkylator"
-};
+const base = import.meta.env.BASE_URL;
+const tools = (await getCollection('tools')).sort((a, b) => {
+  if (a.data.featured !== b.data.featured) {
+    return Number(b.data.featured) - Number(a.data.featured);
+  }
+
+  if (a.data.status !== b.data.status) {
+    return a.data.status === 'live' ? -1 : 1;
+  }
+
+  return a.data.title.localeCompare(b.data.title, 'sv');
+});
 ---
 
-<PageLayout title="Verktyg">
-  <p>Här kommer det finnas kalkylatorer och annat smått och gått att tillgå</p>
+<PageLayout
+  title="Verktyg"
+  description="Interaktiva kaffeverktyg for ratio, bryggupplagg och snabbare beslutsstod under bryggningen."
+>
+  <section class="mx-auto flex w-full max-w-7xl flex-col gap-10 px-4 py-14 md:py-18">
+    <div class="grid gap-8 lg:grid-cols-[0.75fr_1.25fr] lg:items-end">
+      <div class="space-y-4">
+        <p class="section-kicker">Verktyg</p>
+        <h1 class="section-title">Interaktiva hjalpmedel som gor bryggningen enklare att upprepa.</h1>
+        <p class="section-copy">
+          I stallet for allmanna tips far du konkreta kontroller for dos, pours och vattenmangd. Precis det som behovs nar du vill finjustera en kopp.
+        </p>
+      </div>
+      <div class="rounded-[1.75rem] border-3 border-black bg-[#fff7ed] p-8 shadow-[8px_8px_0_#000]">
+        <p class="text-sm font-black uppercase tracking-[0.16em] text-black/60">Hur sidan ar tankt att anvandas</p>
+        <p class="mt-3 text-lg leading-8 text-black/80">
+          Borja med ett verktyg, testa receptet i verkligheten och anvand sedan bloggens guider for att forsta vad du ska justera nasta gang.
+        </p>
+      </div>
+    </div>
 
-  <ul>
-    <li><a href="/verktyg/4-6-metoden/">Tetsu Kasuyas 4:6-metod</a></li>
-    <li><a href="/verktyg/kaffe-till-vatten-kalkylator/">Kaffe-till-Vatten-kalkylator</a></li>
-  </ul>
+    <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      {tools.map((tool) => (
+        <ToolCard
+          title={tool.data.title}
+          description={tool.data.description}
+          icon={tool.data.icon}
+          link={tool.data.href ? `${base}${tool.data.href.replace(/^\//, '')}` : undefined}
+          status={tool.data.status}
+          badge={tool.data.badge}
+        />
+      ))}
+    </div>
+  </section>
 </PageLayout>

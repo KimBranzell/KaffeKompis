@@ -1,68 +1,128 @@
 ---
+import { getCollection } from 'astro:content';
 import PageLayout from '../layouts/PageLayout.astro';
 import Hero from '../components/Hero/Hero.astro';
 import ToolCard from '../components/Cards/ToolCard.astro';
 import BlogCard from '../components/Cards/BlogCard.astro';
 import RecipeCard from '../components/Cards/RecipeCard.astro';
 
+const base = import.meta.env.BASE_URL;
+const dateFormatter = new Intl.DateTimeFormat('sv-SE', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
 
-export const frontmatter = {
-  title: "Hem"
-};
-const tools = [
-  { title: 'Bryggkalkylatorer', description: 'Räkna ut perfekt kaffe-vatten-ratio', icon: '⚖️', link: '/tools/calculator' },
-  { title: 'Bryggtimers', description: 'Håll koll på din bryggtid', icon: '⏲️', link: '/tools/timer' },
-  { title: 'Malningsguide', description: 'Hitta rätt malningsgrad', icon: '☕', link: '/tools/grind' }
-];
-
-const latestPosts = [
-  { title: 'Så väljer du rätt kaffekvarn', date: '2024-01-15', slug: 'valja-kaffekvarn' },
-  { title: 'Guide till olika rostningsgrader', date: '2024-01-10', slug: 'rostningsgrader' }
-];
-
-const recipes = [
-  {
-    title: 'Klassisk Pour Over',
-    method: 'pour-over',
-    difficulty: 'Medel',
-    time: '4 min',
-    slug: 'klassisk-pour-over'
-  },
-  {
-    title: 'Stark AeroPress',
-    method: 'aeropress',
-    difficulty: 'Enkel',
-    time: '2 min',
-    slug: 'stark-aeropress'
+const tools = (await getCollection('tools')).sort((a, b) => {
+  if (a.data.featured !== b.data.featured) {
+    return Number(b.data.featured) - Number(a.data.featured);
   }
-];
+
+  if (a.data.status !== b.data.status) {
+    return a.data.status === 'live' ? -1 : 1;
+  }
+
+  return a.data.title.localeCompare(b.data.title, 'sv');
+});
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+const recipes = (await getCollection('recipes')).sort((a, b) => {
+  if (a.data.featured !== b.data.featured) {
+    return Number(b.data.featured) - Number(a.data.featured);
+  }
+
+  return a.data.title.localeCompare(b.data.title, 'sv');
+});
+
+const featuredTool = tools.find((tool) => tool.data.featured)?.data.title;
 ---
 
-<PageLayout title="Home Page">
-  <Hero />
-  <main class="w-full max-w-7xl mx-auto px-4 py-12">
-    <!-- Tools Section -->
-    <section class="mb-20">
-      <h2 class="text-4xl font-bold mb-8 neo-brutal-title">Bryggverktyg</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {tools.map(tool => <ToolCard {...tool} />)}
+<PageLayout
+  title="Hem"
+  description="Kaffekompis samlar smarta kaffeverktyg, tydliga recept och korta guider for handbryggning hemma."
+>
+  <Hero
+    toolCount={tools.length}
+    recipeCount={recipes.length}
+    postCount={posts.length}
+    featuredToolTitle={featuredTool}
+  />
+
+  <section class="mx-auto flex w-full max-w-7xl flex-col gap-18 px-4 py-14 md:py-18">
+    <section class="grid gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:items-end">
+      <div class="space-y-4">
+        <p class="section-kicker">Verktyg</p>
+        <h2 class="section-title">Byggt for verklig bryggning, inte bara inspiration.</h2>
+        <p class="section-copy">
+          Starta med de verktyg som redan finns live. De ar gjorda for att minska friktion nar du faktiskt star med kvarn,
+          filter och kettle framfor dig.
+        </p>
+      </div>
+      <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {tools.map((tool) => (
+          <ToolCard
+            title={tool.data.title}
+            description={tool.data.description}
+            icon={tool.data.icon}
+            link={tool.data.href ? `${base}${tool.data.href.replace(/^\//, '')}` : undefined}
+            status={tool.data.status}
+            badge={tool.data.badge}
+          />
+        ))}
       </div>
     </section>
 
-    <!-- Latest Posts Section -->
-    <section class="mb-20">
-      <h2 class="text-4xl font-bold mb-8 neo-brutal-title">Senaste Inläggen</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {latestPosts.map(post => <BlogCard {...post} />)}
+    <section class="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+      <div class="rounded-[1.75rem] border-3 border-black bg-[#111111] p-8 text-[#fff8e8] shadow-[8px_8px_0_#000]">
+        <p class="section-kicker text-[#ffd166]">Nytt pa sidan</p>
+        <h2 class="mt-3 text-4xl font-black leading-tight">Korta guider nar du vill justera med mindre trial and error.</h2>
+        <p class="mt-4 max-w-2xl text-lg leading-8 text-[#f6ead3]">
+          Bloggen fungerar som ett praktiskt komplement till verktygen: mindre teori for teorins skull, mer konkreta beslut
+          om malning, temperatur och rostning.
+        </p>
+        <a href={`${base}blogg/`} class="mt-6 inline-flex border-3 border-[#ffd166] px-5 py-3 text-sm font-black uppercase tracking-[0.16em] text-[#ffd166] transition-transform hover:-translate-y-1">
+          Se alla inlagg
+        </a>
+      </div>
+      <div class="grid gap-6 md:grid-cols-2">
+        {posts.slice(0, 2).map((post) => (
+          <BlogCard
+            title={post.data.title}
+            date={dateFormatter.format(post.data.pubDate)}
+            slug={post.id}
+            link={`${base}blogg/${post.id}/`}
+            description={post.data.description}
+            tags={post.data.tags}
+          />
+        ))}
       </div>
     </section>
 
-    <!-- Recipes Section -->
-    <section class="mb-20">
-      <h2 class="text-4xl font-bold mb-8 neo-brutal-title">Bryggrecept</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {recipes.map(recipe => <RecipeCard {...recipe} />)}
+    <section class="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:items-start">
+      <div class="space-y-4">
+        <p class="section-kicker">Recept</p>
+        <h2 class="section-title">Recept du kan brygga direkt utan att tolka runt luckorna.</h2>
+        <p class="section-copy">
+          Varje recept ar skrivet for att vara anvandbart pa koksbanken: dos, bryggtid, metod och enkla justeringar om smaken
+          drar ivag.
+        </p>
+      </div>
+      <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {recipes.map((recipe) => (
+          <RecipeCard
+            title={recipe.data.title}
+            method={recipe.data.method}
+            difficulty={recipe.data.difficulty}
+            time={recipe.data.brewTime}
+            slug={recipe.id}
+            link={`${base}recept/${recipe.id}/`}
+            description={recipe.data.description}
+          />
+        ))}
       </div>
     </section>
-  </main>
+  </section>
 </PageLayout>

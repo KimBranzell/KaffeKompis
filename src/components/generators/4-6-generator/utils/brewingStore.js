@@ -1,26 +1,71 @@
 import { writable, derived } from "svelte/store";
 import { BREWING_CONSTANTS } from "./constants.js";
 import { decodeHashToRecipe } from "./recipeSharing.js";
+import {
+  calculateFirstAndSecondPours,
+  calculateSubsequentPours,
+} from "./calculations.js";
+
+const STORAGE_KEYS = {
+  coffeeWeight: "46method.coffeeWeight",
+  waterRatio: "46method.waterRatio",
+  roastGrade: "46method.roastGrade",
+  strength: "46method.strength",
+  taste: "46method.taste",
+};
+
+const VALID_ROASTS = ["Light", "Medium", "Dark"];
+const VALID_STRENGTHS = ["Strong", "Balanced", "Weak"];
+const VALID_TASTES = ["Acidic", "Balanced", "Sweet"];
+
+function readNumberFromStorage(key, fallback) {
+  if (typeof window === "undefined") {
+    return fallback;
+  }
+
+  const storedValue = Number(window.localStorage.getItem(key));
+  return Number.isFinite(storedValue) ? storedValue : fallback;
+}
+
+function readEnumFromStorage(key, allowedValues, fallback) {
+  if (typeof window === "undefined") {
+    return fallback;
+  }
+
+  const storedValue = window.localStorage.getItem(key);
+  return allowedValues.includes(storedValue) ? storedValue : fallback;
+}
 
 /**
  * Creates and manages the brewing store with all necessary state variables
  * for the 4:6 brewing method.
  */
 export function createBrewingStore() {
-  /** Check for hash in URL */
   const hash =
     typeof window !== "undefined" ? window.location.hash.substring(1) : "";
   const recipeFromHash = hash ? decodeHashToRecipe(hash) : null;
 
-  /** Core brewing parameters */
-  const coffeeWeight = writable(recipeFromHash ? recipeFromHash.weight : 20);
-  const waterRatio = writable(recipeFromHash ? recipeFromHash.ratio : 15);
-  const roastGrade = writable(recipeFromHash ? recipeFromHash.roast : "Medium");
-  const brewingTemperature = writable(93);
+  const initialCoffeeWeight = recipeFromHash?.weight ?? readNumberFromStorage(STORAGE_KEYS.coffeeWeight, 20);
+  const initialWaterRatio = recipeFromHash?.ratio ?? readNumberFromStorage(STORAGE_KEYS.waterRatio, 15);
+  const initialRoastGrade = recipeFromHash?.roast ?? readEnumFromStorage(STORAGE_KEYS.roastGrade, VALID_ROASTS, "Medium");
+  const initialStrength = recipeFromHash?.strength ?? readEnumFromStorage(STORAGE_KEYS.strength, VALID_STRENGTHS, "Balanced");
+  const initialTaste = recipeFromHash?.taste ?? readEnumFromStorage(STORAGE_KEYS.taste, VALID_TASTES, "Balanced");
+
+  const roastTemperatures = {
+    Light: 94,
+    Medium: 92,
+    Dark: 90,
+  };
+
+  const coffeeWeight = writable(initialCoffeeWeight);
+  const waterRatio = writable(initialWaterRatio);
+  const roastGrade = writable(initialRoastGrade);
+  const brewingTemperature = writable(roastTemperatures[initialRoastGrade]);
   const strength = writable(
-    recipeFromHash ? recipeFromHash.strength : "Balanced"
+    initialStrength
   );
-  const taste = writable(recipeFromHash ? recipeFromHash.taste : "Balanced");
+  const taste = writable(initialTaste);
+  let isApplyingHashRecipe = false;
 
   /** Derived water weight based on coffee weight and ratio */
   const waterWeight = derived(
@@ -28,54 +73,28 @@ export function createBrewingStore() {
     ([$coffeeWeight, $waterRatio]) => $coffeeWeight * $waterRatio
   );
 
-  if (hash && typeof window !== "undefined") {
-    history.replaceState(null, "", window.location.pathname);
-  }
+  roastGrade.subscribe((value) => {
+    brewingTemperature.set(roastTemperatures[value] ?? roastTemperatures.Medium);
+  });
 
   const brewingSchedule = derived(
     [waterWeight, strength, taste],
     ([$waterWeight, $strength, $taste]) => {
-      // First 40% calculations based on taste
-      const firstPortion = $waterWeight * 0.4;
-      let firstPourSplit;
+      const firstPortion = $waterWeight * BREWING_CONSTANTS.FIRST_POUR_RATIO;
+      const remainingPortion = $waterWeight * BREWING_CONSTANTS.SECOND_POUR_RATIO;
+      const [firstPour, secondPour] = calculateFirstAndSecondPours($taste, firstPortion);
+      const remainingPours = calculateSubsequentPours($strength, remainingPortion);
 
-      switch($taste) {
-        case "Sweet":
-          firstPourSplit = [1/3, 2/3];
-          break;
-        case "Acidic":
-          firstPourSplit = [2/3, 1/3];
-          break;
-        default: // Balanced
-          firstPourSplit = [0.5, 0.5];
-      }
-
-      // Remaining 60% calculations based on strength
-      const remainingPortion = $waterWeight * 0.6;
-      let remainingPours;
-
-      switch($strength) {
-        case "Strong":
-          remainingPours = Array(4).fill(remainingPortion / 4);
-          break;
-        case "Weak":
-          remainingPours = Array(2).fill(remainingPortion / 2);
-          break;
-        default: // Balanced
-          remainingPours = Array(3).fill(remainingPortion / 3);
-      }
-
-      // Build the complete schedule
       let schedule = [
-        { startTime: 0, pour: firstPortion * firstPourSplit[0], total: firstPortion * firstPourSplit[0] },
-        { startTime: 45, pour: firstPortion * firstPourSplit[1], total: firstPortion }
+        { startTime: BREWING_CONSTANTS.INITIAL_DELAY_SECONDS, pour: firstPour, total: firstPour },
+        { startTime: BREWING_CONSTANTS.CYCLE_DURATION_SECONDS, pour: secondPour, total: firstPortion }
       ];
 
       let currentTotal = firstPortion;
       remainingPours.forEach((pour, index) => {
         currentTotal += pour;
         schedule.push({
-          startTime: 90 + (index * 45), // 45 second intervals
+          startTime: BREWING_CONSTANTS.CYCLE_DURATION_SECONDS * (index + 2),
           pour: pour,
           total: currentTotal
         });
@@ -94,7 +113,7 @@ export function createBrewingStore() {
   const calculatedStep = derived(
     [totalTime, brewingSchedule],
     ([$totalTime, $brewingSchedule]) => {
-      return $brewingSchedule.findIndex((step, index) => {
+      return $brewingSchedule.findIndex((_, index) => {
         const nextStep = $brewingSchedule[index + 1];
         return nextStep ? $totalTime < nextStep.startTime : true;
       });
@@ -105,6 +124,56 @@ export function createBrewingStore() {
   calculatedStep.subscribe(value => {
     currentStep.set(value);
   });
+
+  const resetTimerState = () => {
+    currentStep.set(0);
+    isBrewing.set(false);
+    totalTime.set(0);
+  };
+
+  const resetRecipeState = () => {
+    coffeeWeight.set(20);
+    waterRatio.set(15);
+    roastGrade.set("Medium");
+    strength.set("Balanced");
+    taste.set("Balanced");
+    resetTimerState();
+  };
+
+  function applyRecipe(recipe) {
+    if (!recipe) {
+      return;
+    }
+
+    isApplyingHashRecipe = true;
+    coffeeWeight.set(recipe.weight);
+    waterRatio.set(recipe.ratio);
+    roastGrade.set(recipe.roast);
+    strength.set(recipe.strength);
+    taste.set(recipe.taste);
+    resetTimerState();
+    isApplyingHashRecipe = false;
+  }
+
+  if (recipeFromHash) {
+    applyRecipe(recipeFromHash);
+  }
+
+  if (typeof window !== "undefined") {
+    window.addEventListener("hashchange", () => {
+      if (isApplyingHashRecipe) {
+        return;
+      }
+
+      const nextHash = window.location.hash.substring(1);
+      if (!nextHash) {
+        return;
+      }
+
+      const decodedRecipe = decodeHashToRecipe(nextHash);
+      applyRecipe(decodedRecipe);
+    });
+  }
 
   return {
     // Core parameters
@@ -125,18 +194,9 @@ export function createBrewingStore() {
     totalTime,
 
     // Store reset function
-    reset: () => {
-      coffeeWeight.set(20);
-      waterRatio.set(15);
-      roastGrade.set("Medium");
-      brewingTemperature.set(94);
-      strength.set("Balanced");
-      taste.set("Balanced");
-      currentStep.set(0);
-      isBrewing.set(false);
-      totalTime.set(0);
-      brewingSchedule.set([]);
-    },
+    reset: resetRecipeState,
+    resetTimerState,
+    applyRecipe,
   };
 }
 
@@ -153,4 +213,7 @@ export const {
   totalTime,
   strength,
   taste,
+  reset,
+  resetTimerState,
+  applyRecipe,
 } = createBrewingStore();

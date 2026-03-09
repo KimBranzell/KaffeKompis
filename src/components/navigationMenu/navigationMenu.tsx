@@ -4,33 +4,39 @@ import * as React from 'react'
 import {
   NavigationMenu as BaseNavigationMenu,
   NavigationMenuContent,
-  NavigationMenuIndicator,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  NavigationMenuViewport,
 } from "@/components/ui/navigation-menu"
 
 import { cn } from '@/lib/utils'
 
+type NavigationSubItem = {
+  href: string;
+  label: string;
+  description?: string;
+};
+
+type NavigationItem = {
+  href: string;
+  label: string;
+  icon: string;
+  subItems?: NavigationSubItem[];
+};
+
 interface Props {
-  data: {
-    href: string;
-    label: string;
-    icon: string;
-    subItems: Array<any>;
-  }[];
+  data: NavigationItem[];
 }
 
 export function NavigationMenu({ data }: Props) {
   return (
     <BaseNavigationMenu className="z-[5] m750:max-w-[300px]">
       <NavigationMenuList className="m750:max-w-[300px]">
-        {data.map((item, i) => {
+        {data.map((item) => {
           return(
-            <NavigationMenuItem key={`item-${i.toFixed()}`}>
-              {!item.subItems ? (
+            <NavigationMenuItem key={item.href}>
+              {!item.subItems?.length ? (
                 <NavigationMenuLink href={item.href}>
                   {item.label}
                 </NavigationMenuLink>
@@ -41,10 +47,10 @@ export function NavigationMenu({ data }: Props) {
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid w-[500px] gap-3 p-6 lg:grid-cols-[.75fr_1fr] m750:w-[300px]">
-                      {item.subItems.map((subItem, i) => {
+                      {item.subItems.map((subItem) => {
                         return (
-                          <ListItem href={subItem.href} key={`subItem-${i.toFixed()}`} title={subItem.label}>
-                            Introduction to the tool
+                          <ListItem href={subItem.href} key={subItem.href} title={subItem.label}>
+                            {subItem.description ?? 'Läs mer om verktyget'}
                           </ListItem>
                         );
                       })}

@@ -1,10 +1,10 @@
 <script>
-  import { coffeeWeight, brewingTemperature } from '../utils/brewingStore';
   import { getGrinderSetting } from '../utils/grinderSettings';
 
-  export let coffeeWeightGrams;
+  export let coffeeWeight;
   export let waterWeight;
   export let recommendedGrindSize;
+  export let temperature;
 
   $: grinderSetting = getGrinderSetting(recommendedGrindSize);
 </script>
@@ -13,13 +13,13 @@
   <h2 class="text-3xl font-bold mb-6 neo-title">Ingredienser</h2>
   <ul class="ingredient-list mb-8">
     <li class="text-xl mb-2 flex items-center">
-      <span class="inline-block bg-[#FFE566] p-2 border-2 border-black mr-3">{$coffeeWeight}g kaffe</span>
+      <span class="inline-block bg-[#FFE566] p-2 border-2 border-black mr-3">{coffeeWeight}g kaffe</span>
     </li>
     <li class="text-xl mb-2 flex items-center">
       <span class="inline-block bg-[#FFE566] p-2 border-2 border-black mr-3">{waterWeight ? waterWeight.toFixed(0) : 0}g vatten</span>
     </li>
     <li class="text-xl mb-2 flex items-center">
-      <span class="inline-block bg-[#FFE566] p-2 border-2 border-black mr-3">Temperatur: {$brewingTemperature}°C</span>
+      <span class="inline-block bg-[#FFE566] p-2 border-2 border-black mr-3">Temperatur: {temperature}°C</span>
     </li>
     <li class="text-xl mb-2 flex items-center">
       <span class="inline-block bg-[#FFE566] p-2 border-2 border-black mr-3">
@@ -65,3 +65,33 @@
     <li class="text-xl mb-2">• Paul från YouTube-kanalen Brewing Habits</li>
   </ul>
 </div>
+
+<style lang="scss">
+  @reference "../../../../styles/styles.css";
+
+  .instructions {
+    @apply rounded-[1.75rem] shadow-[8px_8px_0_#000] md:p-8;
+  }
+
+  .ingredient-list,
+  .instruction-list,
+  .tips-list,
+  .sources-list {
+    @apply grid gap-3;
+  }
+
+  @media (max-width: 767px) {
+    .instructions {
+      @apply p-5;
+    }
+
+    .instructions h2 {
+      @apply text-2xl mb-4;
+    }
+
+    .instructions li,
+    .instructions span {
+      @apply text-base;
+    }
+  }
+</style>

@@ -1,11 +1,51 @@
 ---
+import { getCollection } from 'astro:content';
 import PageLayout from '../../layouts/PageLayout.astro';
+import RecipeCard from '../../components/Cards/RecipeCard.astro';
 
-export const frontmatter = {
-  title: "Recept"
-};
+const base = import.meta.env.BASE_URL;
+const recipes = (await getCollection('recipes')).sort((a, b) => {
+  if (a.data.featured !== b.data.featured) {
+    return Number(b.data.featured) - Number(a.data.featured);
+  }
+
+  return a.data.title.localeCompare(b.data.title, 'sv');
+});
 ---
 
-<PageLayout title="Recept">
-  <p>Här kommer det finnas recept(-generatorer) för kaffebryggning</p>
+<PageLayout
+  title="Recept"
+  description="Handfasta bryggrecept for pour over, AeroPress och presskanna med tydliga steg och justeringar."
+>
+  <section class="mx-auto flex w-full max-w-7xl flex-col gap-10 px-4 py-14 md:py-18">
+    <div class="grid gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
+      <div class="space-y-4">
+        <p class="section-kicker">Recept</p>
+        <h1 class="section-title">Tydliga bryggrecept for olika metoder och olika morgnar.</h1>
+        <p class="section-copy">
+          Varje recept kommer med metod, tid och enkel felsokning sa att du kan justera snarare an att borja om fran noll.
+        </p>
+      </div>
+      <div class="rounded-[1.75rem] border-3 border-black bg-[#dff4d7] p-8 shadow-[8px_8px_0_#000]">
+        <p class="text-sm font-black uppercase tracking-[0.16em] text-black/60">Snabb orientering</p>
+        <p class="mt-3 text-lg leading-8 text-black/80">
+          Borja med ett recept som ligger nara din utrustning hemma. Nar koppen sitter kan du anvanda verktygen for att finjustera ratio och pours.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      {recipes.map((recipe) => (
+        <RecipeCard
+          title={recipe.data.title}
+          method={recipe.data.method}
+          difficulty={recipe.data.difficulty}
+          time={recipe.data.brewTime}
+          slug={recipe.id}
+          link={`${base}recept/${recipe.id}/`}
+          description={recipe.data.description}
+        />
+      ))}
+    </div>
+  </section>
 </PageLayout>

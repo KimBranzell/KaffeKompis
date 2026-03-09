@@ -1,0 +1,11 @@
+---
+import PageLayout from '../../../layouts/PageLayout.astro';
+import BrewTroubleshooter from '../../../components/tools/BrewTroubleshooter.svelte';
+---
+
+<PageLayout
+  title="Bryggfelsokning"
+  description="Interaktiv kaffefelsokning for surt, bittert, tunt eller grumligt kaffe med forslag pa nasta justering."
+>
+  <BrewTroubleshooter client:load />
+</PageLayout>
