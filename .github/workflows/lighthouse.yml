@@ -1,0 +1,52 @@
+name: Lighthouse Accessibility Audit
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lighthouse-a11y:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enable Corepack and prepare pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.31.0 --activate
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build site
+        run: pnpm build
+
+      - name: Serve built site
+        run: |
+          npx http-server ./dist -p 8080 -c-1 &
+          # Wait for the server to respond (timeout after 30s)
+          for i in {1..30}; do
+            if curl -sSf http://127.0.0.1:8080/KaffeKompis/ >/dev/null 2>&1; then
+              echo "Server is up"; break;
+            fi
+            sleep 1
+          done
+
+      - name: Run Lighthouse accessibility audit
+        run: |
+          mkdir -p reports
+          npx -y lighthouse http://127.0.0.1:8080/KaffeKompis/ --only-categories=accessibility --output=json --output-path=reports/lighthouse-accessibility.json --chrome-flags="--no-sandbox"
+
+      - name: Upload Lighthouse report
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-accessibility-report
+          path: reports/lighthouse-accessibility.json

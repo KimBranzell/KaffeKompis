@@ -154,3 +154,13 @@ body {
 .neo-input-shadow {
   box-shadow: 2px 2px 0px 0px #000000;
 }
+
+/* Accessibility: visible focus outlines for keyboard users */
+:focus-visible {
+  outline: 3px solid #000000;
+  outline-offset: 3px;
+}
+
+.dark :focus-visible {
+  outline-color: #ffffff;
+}

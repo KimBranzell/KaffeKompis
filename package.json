@@ -7,6 +7,9 @@
     "start": "astro dev",
     "check": "astro check",
     "build": "astro build",
+    "lint": "eslint . --ext .js,.ts,.svelte,.astro",
+    "format": "prettier --write .",
+    "test": "vitest",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -44,7 +47,24 @@
     "sharp": "^0.34.5",
     "vite-plugin-pwa": "^1.2.0",
     "workbox-build": "^7.4.0",
-    "workbox-window": "^7.4.0"
+    "workbox-window": "^7.4.0",
+    "eslint": "^8.46.0",
+    "prettier": "^2.8.8",
+    "husky": "^8.0.0",
+    "lint-staged": "^14.0.0",
+    "vitest": "^1.2.0",
+    "eslint-config-prettier": "^8.8.0"
+  },
+  "lint-staged": {
+    "**/*.{js,ts,svelte,astro,css,scss,md}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   },
   "packageManager": "pnpm@10.31.0"
 }

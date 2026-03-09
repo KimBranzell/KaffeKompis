@@ -3,6 +3,7 @@ import path from 'path';
 import svelte from "@astrojs/svelte";
 import AstroPWA from '@vite-pwa/astro';
 import react from '@astrojs/react';
+
 import tailwindcss from '@tailwindcss/vite';
 
 const isProd = process.env.NODE_ENV === 'production';
