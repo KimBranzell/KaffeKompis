@@ -6,7 +6,7 @@ import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 
 const isProd = process.env.NODE_ENV === 'production';
-const base = isProd ? '/KaffeKompis' : '/';
+const base = isProd ? '/KaffeKompis/' : '/';
 
 // https://astro.build/config
 export default defineConfig({
