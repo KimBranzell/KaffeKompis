@@ -173,10 +173,47 @@
     },
   };
 
+  import { tick } from 'svelte';
+
   let selectedMethod = 'pour-over';
   let selectedSymptom = 'sour';
   let selectedRoast = 'medium';
   let selectedFlow = 'normal';
+
+  let liveAnnouncement = '';
+
+  async function announceRecommendations() {
+    // Wait for reactive recomputation of `recommendations`
+    await tick();
+    if (!recommendations || recommendations.length === 0) {
+      liveAnnouncement = 'Inga rekommendationer tillgängliga.';
+      return;
+    }
+    const top = recommendations.slice(0, 3).map((r, i) => `${i + 1}. ${r.title}`).join(' ');
+    liveAnnouncement = `Prioriterade justeringar: ${top}`;
+    // Clear after a short delay so successive changes re-announce
+    setTimeout(() => (liveAnnouncement = ''), 4000);
+  }
+
+  async function setMethod(id) {
+    selectedMethod = id;
+    await announceRecommendations();
+  }
+
+  async function setSymptom(id) {
+    selectedSymptom = id;
+    await announceRecommendations();
+  }
+
+  async function setRoast(id) {
+    selectedRoast = id;
+    await announceRecommendations();
+  }
+
+  async function setFlow(id) {
+    selectedFlow = id;
+    await announceRecommendations();
+  }
 
   function createFlowAdjustment(symptom, flow) {
     if (flow === 'normal') {
@@ -311,13 +348,13 @@
     <div class="space-y-6 rounded-[1.75rem] border-3 border-black bg-white p-6 shadow-[8px_8px_0_#000] md:p-8">
       <div>
         <p class="text-sm font-black uppercase tracking-[0.16em] text-black/60">1. Valj metod</p>
-        <div class="mt-3 grid gap-3 sm:grid-cols-3">
+        <div class="mt-3 grid gap-3 sm:grid-cols-3" role="group" aria-label="Välj metod">
           {#each methods as method}
             <button
               type="button"
               class:selected={selectedMethod === method.id}
               class="selector-button"
-              on:click={() => selectedMethod = method.id}
+              on:click={() => setMethod(method.id)}
               aria-pressed={selectedMethod === method.id}
             >
               {method.label}
@@ -328,13 +365,13 @@
 
       <div>
         <p class="text-sm font-black uppercase tracking-[0.16em] text-black/60">2. Hur smakar koppen?</p>
-        <div class="mt-3 grid gap-3 md:grid-cols-2">
+        <div class="mt-3 grid gap-3 md:grid-cols-2" role="group" aria-label="Välj symptom">
           {#each Object.entries(symptoms) as [key, symptom]}
             <button
               type="button"
               class:selected={selectedSymptom === key}
               class="selector-card text-left"
-              on:click={() => selectedSymptom = key}
+              on:click={() => setSymptom(key)}
               aria-pressed={selectedSymptom === key}
             >
               <span class="text-lg font-black">{symptom.label}</span>
@@ -347,13 +384,13 @@
       <div class="grid gap-6 md:grid-cols-2">
         <div>
           <p class="text-sm font-black uppercase tracking-[0.16em] text-black/60">3. Rostning</p>
-          <div class="mt-3 grid gap-3">
+          <div class="mt-3 grid gap-3" role="group" aria-label="Välj rostning">
             {#each roasts as roast}
               <button
                 type="button"
                 class:selected={selectedRoast === roast.id}
                 class="selector-button selector-button--compact"
-                on:click={() => selectedRoast = roast.id}
+                on:click={() => setRoast(roast.id)}
                 aria-pressed={selectedRoast === roast.id}
               >
                 {roast.label}
@@ -364,13 +401,13 @@
 
         <div>
           <p class="text-sm font-black uppercase tracking-[0.16em] text-black/60">4. Bryggflode</p>
-          <div class="mt-3 grid gap-3">
+          <div class="mt-3 grid gap-3" role="group" aria-label="Välj bryggflöde">
             {#each flows as flow}
               <button
                 type="button"
                 class:selected={selectedFlow === flow.id}
                 class="selector-button selector-button--compact"
-                on:click={() => selectedFlow = flow.id}
+                on:click={() => setFlow(flow.id)}
                 aria-pressed={selectedFlow === flow.id}
               >
                 {flow.label}
@@ -409,6 +446,7 @@
       <article class="rounded-[1.75rem] border-3 border-black bg-white p-6 shadow-[8px_8px_0_#000] md:p-8">
         <p class="text-sm font-black uppercase tracking-[0.16em] text-black/60">Prioriterade justeringar</p>
         <div class="mt-4 grid gap-4">
+          <div id="troubleshooter-live" class="sr-only" role="status" aria-live="polite" aria-atomic="true">{liveAnnouncement}</div>
           {#each recommendations as recommendation, index}
             <div class="rounded-2xl border-3 border-black bg-[#fffaf1] p-5">
               <div class="flex items-start gap-4">

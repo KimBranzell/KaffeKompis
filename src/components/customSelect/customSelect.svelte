@@ -12,6 +12,9 @@
   let selectContainer;
   let optionNodes = [];
   let activeIndex = -1;
+  let typeaheadBuffer = '';
+  let typeaheadTimeout = null;
+  const TYPEAHEAD_TIMEOUT = 500; // ms
 
   $: selectedLabel = options.find(opt => opt.value === value)?.label || '';
 
@@ -57,6 +60,19 @@
       e.preventDefault();
       toggleDropdown(e);
     }
+    // Open + focus first/last on Home/End
+    if (e.key === 'Home') {
+      e.preventDefault();
+      if (!isOpen) isOpen = true;
+      activeIndex = 0;
+      setTimeout(() => optionNodes[activeIndex]?.focus(), 0);
+    }
+    if (e.key === 'End') {
+      e.preventDefault();
+      if (!isOpen) isOpen = true;
+      activeIndex = options.length - 1;
+      setTimeout(() => optionNodes[activeIndex]?.focus(), 0);
+    }
   }
 
   function onOptionKeydown(e, idx, option) {
@@ -70,6 +86,24 @@
       const prev = Math.max(idx - 1, 0);
       activeIndex = prev;
       optionNodes[prev]?.focus();
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      activeIndex = 0;
+      optionNodes[0]?.focus();
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      activeIndex = options.length - 1;
+      optionNodes[activeIndex]?.focus();
+    } else if (e.key === 'PageDown') {
+      e.preventDefault();
+      const next = Math.min(idx + 10, options.length - 1);
+      activeIndex = next;
+      optionNodes[next]?.focus();
+    } else if (e.key === 'PageUp') {
+      e.preventDefault();
+      const prev = Math.max(idx - 10, 0);
+      activeIndex = prev;
+      optionNodes[prev]?.focus();
     } else if (e.key === 'Escape') {
       e.preventDefault();
       isOpen = false;
@@ -77,6 +111,23 @@
     } else if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       handleSelect(option);
+    } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      // Typeahead: accumulate a short buffer and jump to matching option
+      const char = e.key.toLowerCase();
+      clearTimeout(typeaheadTimeout);
+      typeaheadBuffer += char;
+      typeaheadTimeout = setTimeout(() => {
+        typeaheadBuffer = '';
+      }, TYPEAHEAD_TIMEOUT);
+
+      const start = idx + 1;
+      const combined = options.slice(start).concat(options.slice(0, start));
+      const foundIndex = combined.findIndex(o => o.label.toLowerCase().startsWith(typeaheadBuffer));
+      if (foundIndex >= 0) {
+        const realIndex = (start + foundIndex) % options.length;
+        activeIndex = realIndex;
+        optionNodes[realIndex]?.focus();
+      }
     }
   }
 

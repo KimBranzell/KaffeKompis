@@ -96,6 +96,11 @@ body {
   min-height: calc(100vh - 5rem);
 }
 
+/* Ensure skip-link target is not hidden behind the fixed header */
+.page-layout {
+  scroll-margin-top: 112px; /* header height (88px) + some breathing room */
+}
+
 .border-3 {
   border-width: 3px;
 }
@@ -114,6 +119,23 @@ body {
 
 .skip-link:focus {
   transform: translateY(0);
+}
+
+/* Respect user's reduced motion preference globally */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Improve visibility of the skip-link when focused on top of a fixed header */
+.skip-link:focus {
+  top: 1rem;
+  transform: translateY(0);
+  z-index: 60;
 }
 
 .article-content {
@@ -163,4 +185,11 @@ body {
 
 .dark :focus-visible {
   outline-color: #ffffff;
+}
+
+/* Make focus rings slightly thicker on small screens for clarity */
+@media (max-width: 767px) {
+  :focus-visible {
+    outline-width: 4px;
+  }
 }

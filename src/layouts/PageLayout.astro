@@ -33,8 +33,8 @@ const pageTitle = `${title} | Kaffekompis`;
   <body>
     <a href="#main-content" class="skip-link">Hoppa till innehållet</a>
     <Header />
-    <main id="main-content" role="main" class="page-layout">
-        <slot />
+    <main id="main-content" role="main" class="page-layout" tabindex="-1">
+      <slot />
     </main>
     <Footer role="contentinfo" />
   </body>
