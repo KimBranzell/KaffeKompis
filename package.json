@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "a11y": "node scripts/run-axe.js",
+    "a11y": "node scripts/run-axe.cjs",
     "check": "astro check",
     "build": "astro build",
     "lint": "eslint . --ext .js,.ts,.svelte,.astro",
