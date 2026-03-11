@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-const { spawn } = require('child_process');
-const fs = require('fs');
-const path = require('path');
-const puppeteer = require('puppeteer');
-const axe = require('axe-core');
+import { spawn } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import puppeteer from 'puppeteer';
+import * as axe from 'axe-core';
 
 async function waitForServer(url, attempts = 30, delay = 500) {
   for (let i = 0; i < attempts; i++) {
@@ -13,12 +13,12 @@ async function waitForServer(url, attempts = 30, delay = 500) {
     } catch (e) {
       // ignore
     }
-    await new Promise(r => setTimeout(r, delay));
+    await new Promise((r) => setTimeout(r, delay));
   }
   return false;
 }
 
-(async () => {
+const run = async () => {
   const distDir = path.resolve(process.cwd(), 'dist');
   if (!fs.existsSync(distDir)) {
     console.error('Built site not found in ./dist. Run `pnpm build` first.');
@@ -30,7 +30,7 @@ async function waitForServer(url, attempts = 30, delay = 500) {
   const server = spawn('npx', ['http-server', './dist', '-p', '8080', '-c-1'], { stdio: 'inherit' });
 
   // Give server a moment
-  await new Promise(r => setTimeout(r, 1000));
+  await new Promise((r) => setTimeout(r, 1000));
 
   const base = 'http://127.0.0.1:8080';
   const routes = ['/', '/verktyg/4-6-metoden/', '/verktyg/bryggfelsokning/', '/verktyg/kaffe-till-vatten-kalkylator/'];
@@ -45,10 +45,12 @@ async function waitForServer(url, attempts = 30, delay = 500) {
       console.log('Visiting', url);
       await page.goto(url, { waitUntil: 'networkidle0' });
 
-      // inject axe
+      // inject axe as a string into the page context
       await page.evaluate(axe.source);
       const res = await page.evaluate(async () => {
-        return await axe.run(document, { runOnly: { type: 'rule', values: [] } });
+        // axe will be available as a global after injection
+        // @ts-ignore
+        return await axe.run(document);
       });
 
       results[route] = res;
@@ -64,6 +66,7 @@ async function waitForServer(url, attempts = 30, delay = 500) {
     console.log('Axe run complete. Reports written to /reports');
   } catch (err) {
     console.error('Error running axe checks:', err);
+    process.exitCode = 1;
   } finally {
     // Kill the static server
     try {
@@ -72,4 +75,6 @@ async function waitForServer(url, attempts = 30, delay = 500) {
       // ignore
     }
   }
-})();
+};
+
+run();
