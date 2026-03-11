@@ -34,6 +34,9 @@
   import ShareButton from "./components/ShareButton.svelte";
 
   let inputValidationError = "";
+  let inputErrorTarget = null;
+  const coffeeWeightErrorId = crypto.randomUUID() + '-coffeeWeight-error';
+  const waterRatioErrorId = crypto.randomUUID() + '-waterRatio-error';
   let carouselContainer;
   let initialLoadComplete = false;
   let recommendationRemoved = false;
@@ -71,15 +74,19 @@
 
   $: {
     inputValidationError = "";
+    inputErrorTarget = null;
 
     if (isNaN($coffeeWeight) || $coffeeWeight < 6) {
       inputValidationError = "Vi rekommenderar att du använder minst 6 gram kaffe för det här receptet.";
+      inputErrorTarget = 'coffeeWeight';
     }
     else if ($coffeeWeight > 76) {
       inputValidationError = "Vi rekommenderar att du använder max 76 gram kaffe för det här receptet.";
+      inputErrorTarget = 'coffeeWeight';
     }
     else if ($waterRatio <= 0) {
       inputValidationError = "Vänligen ange ett giltigt värde för vatten till kaffe-ratio.";
+      inputErrorTarget = 'waterRatio';
     }
   }
 </script>
@@ -112,13 +119,17 @@
       <div class="grid h-full gap-6">
         <div class="tools-container" role="group" aria-label="Bryggningsparametrar">
           {#if inputValidationError}
-            <div class="validation-error bg-red-100 border-l-4 border-red-500 text-red-700 p-4 my-4" role="alert">
+            <div
+              class="validation-error bg-red-100 border-l-4 border-red-500 text-red-700 p-4 my-4"
+              role="alert"
+              id={inputErrorTarget === 'coffeeWeight' ? coffeeWeightErrorId : inputErrorTarget === 'waterRatio' ? waterRatioErrorId : undefined}
+            >
               <p>{inputValidationError}</p>
             </div>
           {/if}
-          <CoffeeWeightInput />
+          <CoffeeWeightInput errorId={inputErrorTarget === 'coffeeWeight' ? coffeeWeightErrorId : undefined} />
           <RoastSelector />
-          <RatioSelector bind:recommendationRemoved showRecommendation={showRatioRecommendation} {recommendedRatio} />
+          <RatioSelector bind:recommendationRemoved showRecommendation={showRatioRecommendation} {recommendedRatio} errorId={inputErrorTarget === 'waterRatio' ? waterRatioErrorId : undefined} />
           <StrengthSelector />
           <TasteSelector />
           <div class="button-group grid grid-cols-1 gap-3 mt-6 sm:grid-cols-2">

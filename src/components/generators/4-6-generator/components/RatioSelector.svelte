@@ -6,6 +6,7 @@
   export let recommendedRatio = "";
   export let recommendationRemoved = false;
   export let headline = "Vatten/Kaffe-ratio";
+  export let errorId = undefined;
 
   function changeToRecommendedRatio() {
     switch (recommendedRatio) {
@@ -31,8 +32,8 @@
 
 
 <div class="calculator-item mt-8">
-  <label class="select-headline" for="ratio-select">{headline}</label>
-  <select id="waterToCoffeeRatio" name="waterToCoffeeRatio" bind:value={$waterRatio} defaultValue={15}>
+  <label class="select-headline" for="waterToCoffeeRatio">{headline}</label>
+  <select id="waterToCoffeeRatio" name="waterToCoffeeRatio" bind:value={$waterRatio} defaultValue={15} aria-describedby={errorId} aria-invalid={errorId ? true : undefined}>
     {#if $waterRatio}
       {#each Array(7).fill().map((_, i) => i + 12) as ratio}
         <option value={ratio}>1:{ratio}</option>
