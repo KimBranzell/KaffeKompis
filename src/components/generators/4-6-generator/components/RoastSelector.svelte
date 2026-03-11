@@ -60,7 +60,7 @@
         <svg aria-hidden="true" focusable="false" class="coffee-bean mb-3" viewBox="0 0 50 50" width="50" height="50">
           <path fill={color} d="m40.9 40.9c-6 6-13.6 9.1-20.7 9.1-5 0-9.7-1.5-13.4-4.7 0.2-1.8 2.4-13.2 18.8-18.3 14.4-4.5 19.3-13.5 21-18.5 6.1 9 3.9 22.8-5.7 32.4zm-37.5 0.6c-6.1-9-3.9-22.8 5.7-32.4 10.2-10.2 25.2-12 34.1-4.4-0.2 1.8-2.4 13.2-18.8 18.3-14.4 4.5-19.3 13.5-21 18.5z"/>
         </svg>
-        
+
         <div class="roast-label">{label}</div>
         <div class="temp-label">{temp}°C</div>
       </button>
