@@ -5,10 +5,13 @@
   export let value;
   export let label = '';
   export let storeName; // Add this prop to identify which store to update
+  export let id = crypto.randomUUID();
 
   let isOpen = false;
   let selectedLabel = '';
   let selectContainer;
+  let optionNodes = [];
+  let activeIndex = -1;
 
   $: selectedLabel = options.find(opt => opt.value === value)?.label || '';
 
@@ -25,11 +28,56 @@
     }
     // Add other store cases as needed
     isOpen = false;
+    document.getElementById(`${id}-trigger`)?.focus();
   }
 
   function toggleDropdown(event) {
     event.stopPropagation();
     isOpen = !isOpen;
+    if (isOpen) {
+      activeIndex = options.findIndex(o => o.value === value);
+      if (activeIndex < 0) activeIndex = 0;
+      setTimeout(() => optionNodes[activeIndex]?.focus(), 0);
+    } else {
+      activeIndex = -1;
+    }
+  }
+
+  function onTriggerKeydown(e) {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (!isOpen) {
+        isOpen = true;
+        activeIndex = options.findIndex(o => o.value === value);
+        if (activeIndex < 0) activeIndex = 0;
+        setTimeout(() => optionNodes[activeIndex]?.focus(), 0);
+      }
+    }
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleDropdown(e);
+    }
+  }
+
+  function onOptionKeydown(e, idx, option) {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const next = Math.min(idx + 1, options.length - 1);
+      activeIndex = next;
+      optionNodes[next]?.focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prev = Math.max(idx - 1, 0);
+      activeIndex = prev;
+      optionNodes[prev]?.focus();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      isOpen = false;
+      document.getElementById(`${id}-trigger`)?.focus();
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleSelect(option);
+    }
   }
 
   onMount(() => {
@@ -50,32 +98,48 @@
   bind:this={selectContainer}
   on:click|stopPropagation
 >
+  {#if label}
+    <label id={`${id}-label`} class="select-headline">{label}</label>
+  {/if}
+
   <button
     type="button"
+    id={`${id}-trigger`}
     class="select-button"
     on:click={toggleDropdown}
+    on:keydown={onTriggerKeydown}
     aria-haspopup="listbox"
     aria-expanded={isOpen}
+    aria-labelledby={label ? `${id}-label` : `${id}-trigger`}
+    aria-controls={`${id}-listbox`}
   >
     <span>{selectedLabel || 'Select option'}</span>
-    <svg class="arrow" class:open={isOpen} viewBox="0 0 24 24">
+    <svg class="arrow" class:open={isOpen} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
       <path d="M7 10l5 5 5-5z"/>
     </svg>
   </button>
 
   {#if isOpen}
     <div
+      id={`${id}-listbox`}
       class="options-container"
+      role="listbox"
+      aria-labelledby={label ? `${id}-label` : undefined}
       on:click|stopPropagation
     >
-      {#each options as option}
-        <button
+      {#each options as option, idx}
+        <div
+          role="option"
           class="option"
           class:selected={value === option.value}
+          aria-selected={value === option.value}
+          tabindex="0"
+          bind:this={el => optionNodes[idx] = el}
           on:click={() => handleSelect(option)}
+          on:keydown={(e) => onOptionKeydown(e, idx, option)}
         >
           {option.label}
-        </button>
+        </div>
       {/each}
     </div>
   {/if}

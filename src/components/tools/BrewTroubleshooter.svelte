@@ -318,6 +318,7 @@
               class:selected={selectedMethod === method.id}
               class="selector-button"
               on:click={() => selectedMethod = method.id}
+              aria-pressed={selectedMethod === method.id}
             >
               {method.label}
             </button>
@@ -334,6 +335,7 @@
               class:selected={selectedSymptom === key}
               class="selector-card text-left"
               on:click={() => selectedSymptom = key}
+              aria-pressed={selectedSymptom === key}
             >
               <span class="text-lg font-black">{symptom.label}</span>
               <span class="mt-2 block text-sm leading-6 text-black/70">{symptom.summary}</span>
@@ -352,6 +354,7 @@
                 class:selected={selectedRoast === roast.id}
                 class="selector-button selector-button--compact"
                 on:click={() => selectedRoast = roast.id}
+                aria-pressed={selectedRoast === roast.id}
               >
                 {roast.label}
               </button>
@@ -368,6 +371,7 @@
                 class:selected={selectedFlow === flow.id}
                 class="selector-button selector-button--compact"
                 on:click={() => selectedFlow = flow.id}
+                aria-pressed={selectedFlow === flow.id}
               >
                 {flow.label}
               </button>
