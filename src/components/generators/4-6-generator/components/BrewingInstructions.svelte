@@ -9,7 +9,7 @@
   $: grinderSetting = getGrinderSetting(recommendedGrindSize);
 </script>
 
-<div class="instructions bg-[#FFF7ED] border-3 border-black p-8 neo-card-shadow">
+<div class="instructions accent-panel bg-[#FFF7ED] border-3 border-black p-8 neo-card-shadow">
   <h2 class="text-3xl font-bold mb-6 neo-title">Ingredienser</h2>
   <ul class="ingredient-list mb-8">
     <li class="text-xl mb-2 flex items-center">
@@ -23,9 +23,11 @@
     </li>
     <li class="text-xl mb-2 flex items-center">
       <span class="inline-block bg-[#FFE566] p-2 border-2 border-black mr-3">
-        Malgrad: ~{recommendedGrindSize}μm
+        Startpunkt för malning: ~{recommendedGrindSize} μm
         {#if grinderSetting}
-          (Timemore C2 Max: {grinderSetting.clicks} klick)
+          (ungefär {grinderSetting.clicks} klick på Timemore C2 Max)
+        {:else}
+          (utanför tabellen för Timemore C2 Max)
         {/if}
       </span>
     </li>

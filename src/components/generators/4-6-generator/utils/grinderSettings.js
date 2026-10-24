@@ -38,7 +38,7 @@ const GRINDER_SETTINGS = {
 
 export function getGrinderSetting(microns, grinderModel = 'timemore-c2-max') {
   const settings = GRINDER_SETTINGS[grinderModel];
-  if (!settings) return null;
+  if (!settings || !Number.isFinite(microns) || microns < settings[0].microns || microns > settings[settings.length - 1].microns) return null;
 
   // Find the closest matching setting
   return settings.reduce((closest, current) => {

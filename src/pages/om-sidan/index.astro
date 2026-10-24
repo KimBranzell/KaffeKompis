@@ -1,11 +1,16 @@
 ---
 import PageLayout from '../../layouts/PageLayout.astro';
-const title = "this is title";
-export const frontmatter = {
-  title: "Om Sidan"
-};
+const base = import.meta.env.BASE_URL;
 ---
-
-<PageLayout title={title}>
-  <p>Detta är sidan som ska beskriva hemsidan lite grann.</p>
+<PageLayout title="Om Kaffekompis" description="Kaffekompis är Kim Branzells samling av recept, verktyg och kunskap om kaffebryggning hemma.">
+  <article class="mx-auto w-full max-w-3xl space-y-6 px-4 py-12">
+    <p class="section-kicker">Om sidan</p>
+    <h1 class="section-title">En plats för kaffekunskap.</h1>
+    <div class="article-content paper-surface border-3 border-black p-6 md:p-10">
+      <p>Kaffekompis är mitt projekt för att samla det jag lär mig om kaffe på ett ställe. Jag heter Kim Branzell och bygger sidan kring bryggrecept som går att använda hemma.</p>
+      <p>Här finns recept för olika bryggmetoder, verktyg för vattenmängd och hällningar samt guider som hjälper dig att förstå nästa justering. Recept och rekommendationer är startpunkter: ditt kaffe, din kvarn och din smak avgör vad som fungerar bäst.</p>
+      <p>Projektet är också ett sätt för mig att lära mig Astro och Svelte. Innehåll och verktyg utvecklas tillsammans med mina erfarenheter vid kaffebryggaren.</p>
+      <p><a href={`${base}recept/`}>Utforska bryggrecepten</a> eller <a href={`${base}kontakt/`}>lämna ett förslag</a>.</p>
+    </div>
+  </article>
 </PageLayout>

@@ -1,6 +1,7 @@
 <script>
   import { OPTION_SETS } from '../utils/constants';
-  import { strength } from '../utils/brewingStore';
+  import { getBrewingStore } from '../utils/context.js';
+  const { strength } = getBrewingStore();
 </script>
 
 <div class="select-container  mt-4">

@@ -1,5 +1,4 @@
 ---
-// import { pwaInfo } from 'virtual:pwa-info';
 
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
@@ -12,7 +11,7 @@ export interface Props {
 }
 
 const base = import.meta.env.BASE_URL;
-const { title, description = 'Verktyg, recept och guider for battre handbryggt kaffe hemma.' } = Astro.props;
+const { title, description = 'Verktyg, recept och guider för bättre handbryggt kaffe hemma.' } = Astro.props;
 const pageTitle = `${title} | Kaffekompis`;
 ---
 <html lang="sv">
@@ -21,14 +20,32 @@ const pageTitle = `${title} | Kaffekompis`;
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
-    <link rel="apple-touch-icon" href={`${base}apple-touch-icon.png`} sizes="180x180">
-    <link rel="mask-icon" href={`${base}mask-icon.svg`} color="#FFFFFF">
+    <link rel="apple-touch-icon" href={`${base}pwa-192x192.png`}>
     <meta name="theme-color" content="#fff8e8">
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <title>{ pageTitle }</title>
-    <!-- { pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} /> } -->
+    <noscript>
+      <style is:inline>
+        .site-header { position: static; height: auto; }
+        .site-header .header-inner { flex-wrap: wrap; padding-block: 1rem; }
+        .site-header site-navigation { order: 3; width: 100%; margin: 0; }
+        .site-header nav { position: static; max-height: none; border: 0; padding-inline: 0; }
+        .site-header button { display: none !important; }
+        .page-layout { padding-top: 0; }
+      </style>
+    </noscript>
+    <script is:inline>
+      try {
+        const saved = localStorage.getItem('theme');
+        const dark = saved === 'dark' || (saved !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.toggle('dark', dark);
+        document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#191814' : '#fff8e8');
+      } catch {
+        document.documentElement.classList.toggle('dark', matchMedia('(prefers-color-scheme: dark)').matches);
+      }
+    </script>
   </head>
   <body>
     <a href="#main-content" class="skip-link">Hoppa till innehållet</a>

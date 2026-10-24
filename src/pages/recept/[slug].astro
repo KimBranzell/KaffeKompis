@@ -27,14 +27,14 @@ const methodLabels = {
       <p class="section-kicker">Recept</p>
       <h1 class="text-4xl font-black leading-tight md:text-5xl">{recipe.data.title}</h1>
       <div class="flex flex-wrap gap-2 text-sm font-black uppercase tracking-[0.12em]">
-        <span class="border-2 border-black bg-[#ffa45b] px-3 py-1">{methodLabels[recipe.data.method]}</span>
-        <span class="border-2 border-black bg-white px-3 py-1">{recipe.data.brewTime}</span>
-        <span class="border-2 border-black bg-[#dff4d7] px-3 py-1">{recipe.data.difficulty}</span>
+        <span class="border-2 border-black accent-panel bg-[#ffa45b] px-3 py-1">{methodLabels[recipe.data.method]}</span>
+        <span class="border-2 border-black paper-surface px-3 py-1">{recipe.data.brewTime}</span>
+        <span class="border-2 border-black accent-panel bg-[#dff4d7] px-3 py-1">{recipe.data.difficulty}</span>
       </div>
-      <p class="max-w-2xl text-lg leading-8 text-black/80">{recipe.data.description}</p>
+      <p class="max-w-2xl text-lg leading-8 text-foreground/80">{recipe.data.description}</p>
     </header>
 
-    <div class="border-3 border-black bg-white p-8 shadow-[8px_8px_0_#000] md:p-10">
+    <div class="border-3 border-black paper-surface p-8 shadow-[8px_8px_0_#000] md:p-10">
       <div class="article-content">
         <Content />
       </div>

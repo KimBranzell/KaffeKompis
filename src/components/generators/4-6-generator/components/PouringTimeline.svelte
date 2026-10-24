@@ -1,205 +1,40 @@
 <script>
-  import { brewingSchedule, currentStep, totalTime } from '../utils/brewingStore';
-  import { BREWING_CONSTANTS } from '../utils/constants';
-
-  export let carouselContainer;
-  const POUR_TIME = BREWING_CONSTANTS.POUR_DURATION_SECONDS;
-  const CYCLE_TIME = BREWING_CONSTANTS.CYCLE_DURATION_SECONDS;
-
-  function clampPercentage(value) {
-    return `${Math.min(100, Math.max(0, value))}%`;
+  import { getBrewingStore } from '../utils/context.js';
+  import { BREWING_CONSTANTS } from '../utils/constants.js';
+  import { formatTime } from '../utils/formatters.js';
+  const { brewingSchedule, currentStep, totalTime } = getBrewingStore();
+  let carouselContainer;
+  function scrollToStep(index) {
+    if (!carouselContainer) return;
+    queueMicrotask(() => {
+      const step = carouselContainer?.children[index];
+      if (step) carouselContainer.scrollTo({ left: step.offsetLeft - carouselContainer.offsetLeft, behavior: 'auto' });
+    });
   }
-
-  function formatTime(seconds) {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-  }
-
-  function scrollToActiveStep() {
-    if (carouselContainer) {
-      const activeStep = carouselContainer.querySelector('.timeline-step.active');
-      if (activeStep) {
-        if ($currentStep === 0) {
-          carouselContainer.scrollTo({
-            left: 0,
-            behavior: 'auto'
-          });
-        } else {
-          const offset = carouselContainer.offsetWidth / 2 - activeStep.offsetWidth / 2;
-          carouselContainer.scrollTo({
-            left: activeStep.offsetLeft - offset,
-            behavior: 'auto'
-          });
-        }
-      }
-    }
-  }
-
-  $: {
-    scrollToActiveStep();
-  }
-  $: stepWidth = $brewingSchedule.length ? `${100 / $brewingSchedule.length}%` : '100%';
+  $: scrollToStep($currentStep);
 </script>
 
-<div class="pouring-timeline-carousel" bind:this={carouselContainer}>
+<!-- svelte-ignore a11y_no_noninteractive_tabindex (The horizontal scroll region must be reachable by keyboard.) -->
+<div class="pouring-timeline-carousel" bind:this={carouselContainer} tabindex="0" role="region" aria-label="Hällningsschema. Rulla i sidled för att se alla steg.">
   {#each $brewingSchedule as step, index}
-    <div
-      class="timeline-step {index === $currentStep ? 'active' : ''} {index < $currentStep ? 'completed' : ''}"
-      style="
-      width: {stepWidth};
-      --progress-width: {index === $currentStep ? clampPercentage((($totalTime - step.startTime) / CYCLE_TIME) * 100) : '0%'}
-      "
-      >
-      <div class="step-label" style="margin-left: -1rem; margin-right: -1rem; width: calc(100% + 2rem)">
-        <div class="pour-section-label" style="font-size: 14px; text-align: center; width: {(POUR_TIME / CYCLE_TIME) * 100}%">
-          <strong>{formatTime(step.startTime)} - {formatTime(step.startTime + POUR_TIME)}</strong><br />
-          häller du {step.pour.toFixed(2)}g ...
-        </div>
-        <div class="wait-section-label" style="width: {((CYCLE_TIME - POUR_TIME) / CYCLE_TIME) * 100}%">
-          {formatTime(step.startTime + POUR_TIME)} - {formatTime(step.startTime + CYCLE_TIME)}
-          <br>
-           ...upp till {step.total.toFixed(2)}g
-        </div>
-      </div>
-      <div class="step-bar">
-        <div class="pour-section">
-          {#if index < $currentStep || (index === $currentStep && $totalTime >= step.startTime + POUR_TIME)}
-            <div class="progress-bar completed"></div>
-          {:else if index === $currentStep}
-            <div class="progress-bar" style="width: {clampPercentage((($totalTime - step.startTime) / POUR_TIME) * 100)};"></div>
-          {/if}
-        </div>
-        <div class="wait-section">
-          {#if index < $currentStep}
-            <div class="progress-bar completed"></div>
-          {:else if index === $currentStep && $totalTime >= step.startTime + POUR_TIME}
-            <div class="progress-bar" style="width: {clampPercentage((($totalTime - step.startTime - POUR_TIME) / (CYCLE_TIME - POUR_TIME)) * 100)};"></div>
-          {/if}
-        </div>
+    <div class="timeline-step" class:active={index === $currentStep} class:completed={index < $currentStep}
+      aria-current={index === $currentStep ? 'step' : undefined}>
+      <p class="step-heading">{formatTime(step.startTime)} · Häll {step.pour.toFixed(0)} g</p>
+      <p>Vågen ska visa <strong>{step.total.toFixed(0)} g</strong></p>
+      <div class="step-bar" aria-hidden="true">
+        <span style="width: {index < $currentStep ? 100 : index === $currentStep ? Math.max(0, Math.min(100, ($totalTime - step.startTime) / BREWING_CONSTANTS.CYCLE_DURATION_SECONDS * 100)) : 0}%"></span>
       </div>
     </div>
   {/each}
+  {#if !$brewingSchedule.length}<p class="p-4">Ange giltiga värden för att se hällningsschemat.</p>{/if}
 </div>
 
-<style lang="scss">
-  @reference "../../../../styles/styles.css";
-
-  .pouring-timeline-carousel {
-    @apply fixed bottom-0 left-0 w-full border-t-4 bg-white border-black overflow-x-auto;
-    height: 128px;
-    scroll-snap-type: x proximity;
-  }
-
-  // .timeline-step {
-  //   @apply inline-block min-w-[300px] border-r-4 h-full p-4 border-black;
-
-  //   &.active {
-  //     @apply bg-[#FFE566];
-  //   }
-  // }
-
-  .timeline-step {
-    @apply inline-block min-w-[300px] border-r-4 h-full p-4 border-black relative overflow-hidden;
-    scroll-snap-align: center;
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: calc((10 / 45) * 100%);  // POUR_TIME / CYCLE_TIME
-      height: 100%;
-      width: 2px;
-      background-color: black;
-      opacity: 0.3;
-      z-index: 1;
-    }
-    &.active {
-      @apply bg-[#FFE566];
-
-      &::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        background: #4CAF50;
-        width: var(--progress-width, 0%);
-        transition: width 0.3s linear;
-        z-index: 0;
-        opacity: 0.5;
-      }
-    }
-
-    &.completed {
-      @apply bg-[#4CAF50];
-    }
-  }
-
-  // Make sure the content stays above the background
-  .step-label, .step-bar {
-    position: relative;
-    z-index: 1;
-  }
-  .step-bar {
-    @apply h-12 relative flex w-full;
-  }
-
-  .pour-section, .wait-section {
-    @apply relative h-full;
-  }
-
-  .step-label {
-    @apply flex w-full mb-2;
-  }
-
-  .pour-section-label, .wait-section-label {
-    @apply px-4;
-  }
-
-  .progress-bar {
-    @apply absolute bottom-0 left-0 w-full bg-[#4CAF50] transition-all duration-300 ease-linear;
-    height: 100%;
-    &.completed {
-      @apply h-full;
-    }
-  }
-
-  @media (max-width: 1023px) {
-    .pouring-timeline-carousel {
-      height: 116px;
-    }
-
-    .timeline-step {
-      min-width: 240px;
-      @apply px-3 py-3;
-    }
-
-    .step-label {
-      @apply mb-1 text-[11px];
-    }
-
-    .pour-section-label,
-    .wait-section-label {
-      @apply px-2;
-    }
-  }
-
-  @media (max-width: 767px) {
-    .pouring-timeline-carousel {
-      height: 96px;
-    }
-
-    .timeline-step {
-      min-width: 210px;
-    }
-
-    .step-label {
-      @apply text-[10px] leading-tight;
-    }
-
-    .step-bar {
-      @apply h-8;
-    }
-  }
+<style>
+  .pouring-timeline-carousel { position: fixed; z-index: 15; bottom: 0; left: 0; width: 100%; height: 112px; display: flex; overflow-x: auto; border-top: 3px solid #111; background: var(--surface); color: hsl(var(--foreground)); scroll-snap-type: x proximity; }
+  .timeline-step { position: relative; flex: 1 0 225px; min-width: 0; padding: .75rem 1rem; border-right: 2px solid #111; scroll-snap-align: start; }
+  .active { background: #ffe566; color: #111; }
+  .completed { background: #dff4d7; color: #111; }
+  .step-heading { font-weight: 800; }
+  .step-bar { margin-top: .5rem; height: 6px; background: #9995; }
+  .step-bar span { display: block; height: 100%; background: #237a39; }
 </style>

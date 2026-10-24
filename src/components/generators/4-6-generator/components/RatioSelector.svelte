@@ -1,11 +1,13 @@
 <script>
-  import { waterRatio } from '../utils/brewingStore';
+  import { RATIOS } from '../utils/recipe.js';
+  import { getBrewingStore } from '../utils/context.js';
+  const { waterRatio } = getBrewingStore();
 
 
   export let showRecommendation = false;
   export let recommendedRatio = "";
   export let recommendationRemoved = false;
-  export let headline = "Vatten/Kaffe-ratio";
+  export let headline = "Bryggförhållande (kaffe:vatten)";
   export let errorId = undefined;
 
   function changeToRecommendedRatio() {
@@ -33,22 +35,21 @@
 
 <div class="calculator-item mt-8">
   <label class="select-headline" for="waterToCoffeeRatio">{headline}</label>
-  <select id="waterToCoffeeRatio" name="waterToCoffeeRatio" bind:value={$waterRatio} defaultValue={15} aria-describedby={errorId} aria-invalid={errorId ? true : undefined}>
-    {#if $waterRatio}
-      {#each Array(7).fill().map((_, i) => i + 12) as ratio}
+  <select id="waterToCoffeeRatio" name="waterToCoffeeRatio" bind:value={$waterRatio}  aria-describedby={errorId} aria-invalid={errorId ? true : undefined}>
+
+      {#each RATIOS as ratio}
         <option value={ratio}>1:{ratio}</option>
       {/each}
-    {/if}
-  </select>
+      </select>
 
   {#if showRecommendation}
     <div class="recommendation-panel">
-      <p class="text-xl mb-4">Rekommenderad ratio: {recommendedRatio}</p>
-      <div class="flex gap-4">
-        <button class="recommend-button" on:click={changeToRecommendedRatio}>
-          Använd rekommenderad ratio
+      <p class="text-xl mb-4">Föreslaget bryggförhållande: {recommendedRatio}</p>
+      <div class="flex flex-wrap gap-3">
+        <button type="button" class="recommend-button" on:click={changeToRecommendedRatio}>
+          Använd förslaget
         </button>
-        <button class="close-button" on:click={removeRecommendation}>
+        <button type="button" class="close-button" on:click={removeRecommendation}>
           Stäng
         </button>
       </div>
@@ -63,8 +64,6 @@
     select {
       @apply w-full p-4 border-4 border-black bg-white;
       box-shadow: 2px 2px 0px 0px #000000;
-      transform-origin: top;
-      animation: selectAppear 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 
       &:focus {
         @apply outline-none -translate-x-1 -translate-y-1;
@@ -85,14 +84,4 @@
     @apply bg-white px-4 py-2 border-4 border-black font-bold hover:-translate-y-1 transition-transform;
   }
 
-  @keyframes selectAppear {
-    0% {
-      opacity: 0;
-      transform: scale(0.95) translateY(-10px);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
-  }
 </style>

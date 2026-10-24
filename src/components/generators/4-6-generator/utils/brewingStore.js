@@ -1,219 +1,131 @@
-import { writable, derived } from "svelte/store";
-import { BREWING_CONSTANTS } from "./constants.js";
-import { decodeHashToRecipe } from "./recipeSharing.js";
-import {
-  calculateFirstAndSecondPours,
-  calculateSubsequentPours,
-} from "./calculations.js";
+import { writable, derived, get } from 'svelte/store';
+import { BREWING_CONSTANTS } from './constants.js';
+import { DEFAULT_RECIPE, validateRecipe, temperatureForRoast, readSavedRecipe, saveRecipe } from './recipe.js';
+import { recipeFromUrl, createShareUrl, decodeHashToRecipe } from './recipeSharing.js';
+import { calculateFirstAndSecondPours, calculateSubsequentPours } from './calculations.js';
 
-const STORAGE_KEYS = {
-  coffeeWeight: "46method.coffeeWeight",
-  waterRatio: "46method.waterRatio",
-  roastGrade: "46method.roastGrade",
-  strength: "46method.strength",
-  taste: "46method.taste",
-};
-
-const VALID_ROASTS = ["Light", "Medium", "Dark"];
-const VALID_STRENGTHS = ["Strong", "Balanced", "Weak"];
-const VALID_TASTES = ["Acidic", "Balanced", "Sweet"];
-
-function readNumberFromStorage(key, fallback) {
-  if (typeof window === "undefined") {
-    return fallback;
-  }
-
-  const storedValue = Number(window.localStorage.getItem(key));
-  return Number.isFinite(storedValue) ? storedValue : fallback;
+function scheduleForRecipe(recipe) {
+  if (validateRecipe(recipe)) return [];
+  const water = recipe.weight * recipe.ratio;
+  const firstPortion = water * BREWING_CONSTANTS.FIRST_POUR_RATIO;
+  const [first, second] = calculateFirstAndSecondPours(recipe.taste, firstPortion);
+  const pours = [first, second, ...calculateSubsequentPours(recipe.strength, water * BREWING_CONSTANTS.SECOND_POUR_RATIO)];
+  let total = 0;
+  return pours.map((pour, index) => ({ startTime: index * BREWING_CONSTANTS.CYCLE_DURATION_SECONDS, pour, total: (total += pour) }));
 }
 
-function readEnumFromStorage(key, allowedValues, fallback) {
-  if (typeof window === "undefined") {
-    return fallback;
-  }
-
-  const storedValue = window.localStorage.getItem(key);
-  return allowedValues.includes(storedValue) ? storedValue : fallback;
-}
-
-/**
- * Creates and manages the brewing store with all necessary state variables
- * for the 4:6 brewing method.
- */
+/** A recipe and timer belong to one mounted generator, including during SSR. */
 export function createBrewingStore() {
-  const hash =
-    typeof window !== "undefined" ? window.location.hash.substring(1) : "";
-  const recipeFromHash = hash ? decodeHashToRecipe(hash) : null;
-
-  const initialCoffeeWeight = recipeFromHash?.weight ?? readNumberFromStorage(STORAGE_KEYS.coffeeWeight, 20);
-  const initialWaterRatio = recipeFromHash?.ratio ?? readNumberFromStorage(STORAGE_KEYS.waterRatio, 15);
-  const initialRoastGrade = recipeFromHash?.roast ?? readEnumFromStorage(STORAGE_KEYS.roastGrade, VALID_ROASTS, "Medium");
-  const initialStrength = recipeFromHash?.strength ?? readEnumFromStorage(STORAGE_KEYS.strength, VALID_STRENGTHS, "Balanced");
-  const initialTaste = recipeFromHash?.taste ?? readEnumFromStorage(STORAGE_KEYS.taste, VALID_TASTES, "Balanced");
-
-  const roastTemperatures = {
-    Light: 94,
-    Medium: 92,
-    Dark: 90,
-  };
-
-  const coffeeWeight = writable(initialCoffeeWeight);
-  const waterRatio = writable(initialWaterRatio);
-  const roastGrade = writable(initialRoastGrade);
-  const brewingTemperature = writable(roastTemperatures[initialRoastGrade]);
-  const strength = writable(
-    initialStrength
-  );
-  const taste = writable(initialTaste);
-  let isApplyingHashRecipe = false;
-
-  /** Derived water weight based on coffee weight and ratio */
-  const waterWeight = derived(
-    [coffeeWeight, waterRatio],
-    ([$coffeeWeight, $waterRatio]) => $coffeeWeight * $waterRatio
-  );
-
-  roastGrade.subscribe((value) => {
-    brewingTemperature.set(roastTemperatures[value] ?? roastTemperatures.Medium);
-  });
-
-  const brewingSchedule = derived(
-    [waterWeight, strength, taste],
-    ([$waterWeight, $strength, $taste]) => {
-      const firstPortion = $waterWeight * BREWING_CONSTANTS.FIRST_POUR_RATIO;
-      const remainingPortion = $waterWeight * BREWING_CONSTANTS.SECOND_POUR_RATIO;
-      const [firstPour, secondPour] = calculateFirstAndSecondPours($taste, firstPortion);
-      const remainingPours = calculateSubsequentPours($strength, remainingPortion);
-
-      let schedule = [
-        { startTime: BREWING_CONSTANTS.INITIAL_DELAY_SECONDS, pour: firstPour, total: firstPour },
-        { startTime: BREWING_CONSTANTS.CYCLE_DURATION_SECONDS, pour: secondPour, total: firstPortion }
-      ];
-
-      let currentTotal = firstPortion;
-      remainingPours.forEach((pour, index) => {
-        currentTotal += pour;
-        schedule.push({
-          startTime: BREWING_CONSTANTS.CYCLE_DURATION_SECONDS * (index + 2),
-          pour: pour,
-          total: currentTotal
-        });
-      });
-
-      return schedule;
-    }
-  );
-
-  /** Brewing process state */
-  const currentStep = writable(0);
-  const isBrewing = writable(false);
+  const coffeeWeight = writable(DEFAULT_RECIPE.weight);
+  const waterRatio = writable(DEFAULT_RECIPE.ratio);
+  const roastGrade = writable(DEFAULT_RECIPE.roast);
+  const strength = writable(DEFAULT_RECIPE.strength);
+  const taste = writable(DEFAULT_RECIPE.taste);
+  const recipe = derived([coffeeWeight, waterRatio, roastGrade, strength, taste],
+    ([weight, ratio, roast, strength, taste]) => ({ weight, ratio, roast, strength, taste }));
+  const validationError = derived(recipe, validateRecipe);
+  const status = writable('idle');
+  const isLocked = derived(status, value => value === 'preparing' || value === 'brewing');
+  const isBrewing = derived(status, value => value === 'brewing');
   const totalTime = writable(0);
+  const prepTime = writable(BREWING_CONSTANTS.PREP_DURATION_SECONDS);
+  const snapshot = writable(null);
+  const displayRecipe = derived([recipe, snapshot, isLocked], ([setup, active, locked]) => locked && active ? active : setup);
+  const brewingTemperature = derived(displayRecipe, value => temperatureForRoast(value.roast));
+  const waterWeight = derived(displayRecipe, value => validateRecipe(value) ? 0 : value.weight * value.ratio);
+  const brewingSchedule = derived(displayRecipe, scheduleForRecipe);
+  const currentStep = derived([totalTime, brewingSchedule], ([time, schedule]) =>
+    Math.max(0, schedule.findIndex((_, index) => !schedule[index + 1] || time < schedule[index + 1].startTime)));
+  const loadNotice = writable('');
+  let intervalId = null;
+  let brewStartsAt = 0;
+  let duration = 0;
 
-  // Replace the writable currentStep with derived
-  const calculatedStep = derived(
-    [totalTime, brewingSchedule],
-    ([$totalTime, $brewingSchedule]) => {
-      return $brewingSchedule.findIndex((_, index) => {
-        const nextStep = $brewingSchedule[index + 1];
-        return nextStep ? $totalTime < nextStep.startTime : true;
-      });
-    }
-  );
+  function clearTimer() {
+    if (intervalId !== null) clearInterval(intervalId);
+    intervalId = null;
+  }
 
-  // Subscribe to the calculated step and update the writable store
-  calculatedStep.subscribe(value => {
-    currentStep.set(value);
-  });
-
-  const resetTimerState = () => {
-    currentStep.set(0);
-    isBrewing.set(false);
+  function resetTimerState() {
+    clearTimer();
+    status.set('idle');
+    snapshot.set(null);
     totalTime.set(0);
-  };
+    prepTime.set(BREWING_CONSTANTS.PREP_DURATION_SECONDS);
+  }
 
-  const resetRecipeState = () => {
-    coffeeWeight.set(20);
-    waterRatio.set(15);
-    roastGrade.set("Medium");
-    strength.set("Balanced");
-    taste.set("Balanced");
+  function startBrewing() {
+    const nextRecipe = { ...get(recipe) };
+    if (validateRecipe(nextRecipe)) return false;
     resetTimerState();
-  };
+    snapshot.set(nextRecipe);
+    duration = scheduleForRecipe(nextRecipe).length * BREWING_CONSTANTS.CYCLE_DURATION_SECONDS;
+    brewStartsAt = Date.now() + BREWING_CONSTANTS.PREP_DURATION_SECONDS * 1000;
+    status.set('preparing');
+    intervalId = setInterval(updateTimer, 100);
+    return true;
+  }
 
-  function applyRecipe(recipe) {
-    if (!recipe) {
+  function updateTimer() {
+    // Wall time includes background tabs and sleep; callbacks only refresh the display.
+    const elapsed = (Date.now() - brewStartsAt) / 1000;
+    if (elapsed < 0) {
+      prepTime.set(Math.ceil(-elapsed));
       return;
     }
+    totalTime.set(Math.max(0, Math.min(duration, elapsed)));
+    if (elapsed >= duration) {
+      clearTimer();
+      status.set('completed');
+    } else status.set('brewing');
+  }
 
-    isApplyingHashRecipe = true;
-    coffeeWeight.set(recipe.weight);
-    waterRatio.set(recipe.ratio);
-    roastGrade.set(recipe.roast);
-    strength.set(recipe.strength);
-    taste.set(recipe.taste);
+  function stopBrewing() {
+    clearTimer();
+    status.set('stopped');
+  }
+
+  function applyRecipe(nextRecipe) {
+    if (get(isLocked) || validateRecipe(nextRecipe)) return false;
     resetTimerState();
-    isApplyingHashRecipe = false;
+    coffeeWeight.set(nextRecipe.weight);
+    waterRatio.set(nextRecipe.ratio);
+    roastGrade.set(nextRecipe.roast);
+    strength.set(nextRecipe.strength);
+    taste.set(nextRecipe.taste);
+    return true;
   }
 
-  if (recipeFromHash) {
-    applyRecipe(recipeFromHash);
-  }
-
-  if (typeof window !== "undefined") {
-    window.addEventListener("hashchange", () => {
-      if (isApplyingHashRecipe) {
-        return;
-      }
-
-      const nextHash = window.location.hash.substring(1);
-      if (!nextHash) {
-        return;
-      }
-
-      const decodedRecipe = decodeHashToRecipe(nextHash);
-      applyRecipe(decodedRecipe);
+  function connectBrowser(browser) {
+    let storage;
+    try { storage = browser.localStorage; } catch { /* Storage can be unavailable. */ }
+    const url = new URL(browser.location.href);
+    const shared = recipeFromUrl(url);
+    applyRecipe(shared ?? readSavedRecipe(storage));
+    if (url.searchParams.has('recipe') && !shared) {
+      loadNotice.set('Delningslänken innehåller ogiltiga värden. Dina sparade inställningar eller standardreceptet visas.');
+    }
+    if (shared && !url.searchParams.has('recipe') && decodeHashToRecipe(url.hash.slice(1))) {
+      browser.history.replaceState(null, '', createShareUrl(url.href, shared));
+    }
+    // Links load once per page. Anchor navigation and its history never replace a recipe.
+    const onVisibilityChange = () => { if (get(isLocked)) updateTimer(); };
+    browser.document?.addEventListener('visibilitychange', onVisibilityChange);
+    const unsubscribe = recipe.subscribe(value => {
+      saveRecipe(storage, value);
+      if (!get(isLocked)) resetTimerState();
     });
+    return () => {
+      unsubscribe();
+      browser.document?.removeEventListener('visibilitychange', onVisibilityChange);
+      resetTimerState();
+    };
   }
 
   return {
-    // Core parameters
-    coffeeWeight,
-    waterRatio,
-    roastGrade,
-    brewingTemperature,
-    strength,
-    taste,
-
-    // Derived values
-    waterWeight,
-
-    // Process state
-    brewingSchedule,
-    currentStep,
-    isBrewing,
-    totalTime,
-
-    // Store reset function
-    reset: resetRecipeState,
-    resetTimerState,
-    applyRecipe,
+    coffeeWeight, waterRatio, roastGrade, strength, taste, recipe, displayRecipe,
+    validationError, brewingTemperature, waterWeight, brewingSchedule, currentStep,
+    status, isLocked, isBrewing, totalTime, prepTime, loadNotice,
+    startBrewing, stopBrewing, resetTimerState, applyRecipe, connectBrowser,
   };
 }
-
-/** Create and export the store instance */
-export const {
-  coffeeWeight,
-  waterRatio,
-  roastGrade,
-  brewingTemperature,
-  waterWeight,
-  brewingSchedule,
-  currentStep,
-  isBrewing,
-  totalTime,
-  strength,
-  taste,
-  reset,
-  resetTimerState,
-  applyRecipe,
-} = createBrewingStore();

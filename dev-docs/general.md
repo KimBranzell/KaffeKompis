@@ -1,26 +1,32 @@
+# Roadmap
 
-# Prioriterad backlogg
+## Stage 1 — trustworthy current site
 
-## P0 - Stabilitet och release
+Implemented:
 
-- Fardigstall Tailwind v4-migreringen och hall produkten fri fran blandad v3/v4-konfiguration.
-- Lagg till `check`, lint och build i CI sa att navigations- och typfel stoppas innan deploy.
-- Konsolidera browser-state helpers och ta bort legacy-filer som inte hor hemma i Astro.
+- Valid initial and saved 4:6 settings, including recovery when storage is unavailable.
+- Validated, versioned recipe links with decimal doses; compatibility with valid older links.
+- Recipe URLs isolated from skip links and other page anchors.
+- One set of roast temperatures and consistent input limits.
+- A timer based on elapsed wall time, with a fixed recipe during preparation and brewing.
+- Accessible mobile/desktop navigation, fixed-header spacing, numbered recipe steps, and readable themes.
+- A validated coffee/water calculator, corrected Swedish copy, and useful About/Contact pages.
+- Regression tests, Svelte compiler checks, production-aware browser/accessibility checks, and check/test gates before deployment.
 
-## P1 - Produktkvalitet
+The review at `project-review.md` records the original findings; its first-stage defects describe the pre-change baseline.
 
-- Flytta blogginlagg, recept och verktygsmetadata till Astro content collections.
-- Bygg tydliga landningssidor for verktyg och recept i stallet for placeholder-copy.
-- Lagga till metadata per sida: title, description, canonical och Open Graph.
+## Stage 2 — one excellent recipe
 
-## P2 - Nya funktioner
+- Complete and structure the pour-over recipe's quantities, equipment requirements, and steps.
+- Build recipe scaling and a shared recipe layout.
+- Add focused brewing sessions to recipe pages.
+- Put recipes first on the homepage and link to relevant knowledge and troubleshooting.
 
-- Brew journal med sparade bryggningar, anteckningar och smakutfall.
-- Felsokningsguide for surt, bittert, svagt eller grumligt kaffe.
-- Fler bryggverktyg: bypass-kalkylator, iced coffee-dilution och batch brew-skalning.
+## Stage 3 — repeat and learn
 
-## Estimering
+- Extend the recipe model to AeroPress and French press.
+- Add favorites and a local brew journal with export/import.
+- Support repeating and comparing saved brews.
+- Complete PWA registration, offline availability, and a non-disruptive update flow.
 
-- P0: 1 till 2 arbetsdagar.
-- P1: 2 till 4 arbetsdagar.
-- P2: 1 till 2 veckor beroende pa hur mycket data och polish som ska med.
+See `project-review.md` for the detailed rationale and acceptance criteria.

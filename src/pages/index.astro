@@ -42,7 +42,7 @@ const featuredTool = tools.find((tool) => tool.data.featured)?.data.title;
 
 <PageLayout
   title="Hem"
-  description="Kaffekompis samlar smarta kaffeverktyg, tydliga recept och korta guider for handbryggning hemma."
+  description="Kaffekompis samlar smarta kaffeverktyg, tydliga recept och korta guider för handbryggning hemma."
 >
   <Hero
     toolCount={tools.length}
@@ -55,10 +55,10 @@ const featuredTool = tools.find((tool) => tool.data.featured)?.data.title;
     <section class="grid gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:items-end">
       <div class="space-y-4">
         <p class="section-kicker">Verktyg</p>
-        <h2 class="section-title">Byggt for verklig bryggning, inte bara inspiration.</h2>
+        <h2 class="section-title">Byggt för verklig bryggning, inte bara inspiration.</h2>
         <p class="section-copy">
-          Starta med de verktyg som redan finns live. De ar gjorda for att minska friktion nar du faktiskt star med kvarn,
-          filter och kettle framfor dig.
+          Starta med de verktyg som redan finns live. De är gjorda för att minska friktion när du faktiskt står med kvarn,
+          filter och vattenkokare framför dig.
         </p>
       </div>
       <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -77,14 +77,14 @@ const featuredTool = tools.find((tool) => tool.data.featured)?.data.title;
 
     <section class="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
       <div class="rounded-[1.75rem] border-3 border-black bg-[#111111] p-8 text-[#fff8e8] shadow-[8px_8px_0_#000]">
-        <p class="section-kicker text-[#ffd166]">Nytt pa sidan</p>
-        <h2 class="mt-3 text-4xl font-black leading-tight">Korta guider nar du vill justera med mindre trial and error.</h2>
+        <p class="section-kicker text-[#ffd166]">Nytt på sidan</p>
+        <h2 class="mt-3 text-4xl font-black leading-tight">Korta guider när du vill justera med mindre trial and error.</h2>
         <p class="mt-4 max-w-2xl text-lg leading-8 text-[#f6ead3]">
-          Bloggen fungerar som ett praktiskt komplement till verktygen: mindre teori for teorins skull, mer konkreta beslut
+          Bloggen fungerar som ett praktiskt komplement till verktygen: mindre teori för teorins skull, mer konkreta beslut
           om malning, temperatur och rostning.
         </p>
         <a href={`${base}blogg/`} class="mt-6 inline-flex border-3 border-[#ffd166] px-5 py-3 text-sm font-black uppercase tracking-[0.16em] text-[#ffd166] transition-transform hover:-translate-y-1">
-          Se alla inlagg
+          Se alla inlägg
         </a>
       </div>
       <div class="grid gap-6 md:grid-cols-2">
@@ -106,8 +106,8 @@ const featuredTool = tools.find((tool) => tool.data.featured)?.data.title;
         <p class="section-kicker">Recept</p>
         <h2 class="section-title">Recept du kan brygga direkt utan att tolka runt luckorna.</h2>
         <p class="section-copy">
-          Varje recept ar skrivet for att vara anvandbart pa koksbanken: dos, bryggtid, metod och enkla justeringar om smaken
-          drar ivag.
+          Varje recept är skrivet för att vara användbart på köksbänken: dos, bryggtid, metod och enkla justeringar om smaken
+          drar iväg.
         </p>
       </div>
       <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">

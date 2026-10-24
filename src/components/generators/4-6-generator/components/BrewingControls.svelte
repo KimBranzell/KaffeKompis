@@ -1,164 +1,44 @@
 <script>
-  import { onDestroy } from "svelte";
-  import {
-    isBrewing,
-    currentStep,
-    totalTime,
-    brewingSchedule,
-    resetTimerState,
-  } from "../utils/brewingStore";
-  import { BREWING_CONSTANTS } from "../utils/constants";
-
-  let prepTime = BREWING_CONSTANTS.PREP_DURATION_SECONDS;
-  let isPrepping = false;
-  let intervalId = null;
-
-  function clearCurrentTimer() {
-    if (intervalId !== null) {
-      clearInterval(intervalId);
-      intervalId = null;
-    }
-  }
-
-  function startPrepTimer() {
-    if (!$brewingSchedule.length) {
-      return;
-    }
-
-    clearCurrentTimer();
-    resetTimerState();
-    prepTime = BREWING_CONSTANTS.PREP_DURATION_SECONDS;
-    isPrepping = true;
-    intervalId = setInterval(() => {
-      if (prepTime > 1) {
-        prepTime--;
-      } else {
-        clearInterval(intervalId);
-        isPrepping = false;
-        startTimer();
-      }
-    }, 1000);
-  }
-
-  function startTimer() {
-    $isBrewing = true;
-    clearCurrentTimer();
-    $totalTime = 0;
-
-    const lastStepStartTime = $brewingSchedule[$brewingSchedule.length - 1]?.startTime ?? 0;
-    const totalDuration = lastStepStartTime + BREWING_CONSTANTS.CYCLE_DURATION_SECONDS;
-
-    intervalId = setInterval(() => {
-      const nextTime = Number(($totalTime + 0.1).toFixed(1));
-
-      if (nextTime >= totalDuration) {
-        $totalTime = totalDuration;
-        stopBrewing();
-        return;
-      }
-
-      $totalTime = nextTime;
-    }, 100);
-  }
-
-  function stopBrewing() {
-    clearCurrentTimer();
-    isPrepping = false;
-    $isBrewing = false;
-  }
-
-  onDestroy(() => {
-    clearCurrentTimer();
-  });
-
-  function formatTime(seconds) {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-  }
-
-  function formatTimeAnnouncement(seconds) {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes} minuter och ${remainingSeconds} sekunder`;
-  }
+  import { getBrewingStore } from '../utils/context.js';
+  import { formatTime } from '../utils/formatters.js';
+  const { status, isLocked, validationError, totalTime, prepTime, currentStep, brewingSchedule,
+    startBrewing, stopBrewing, resetTimerState } = getBrewingStore();
+  $: announcement = $status === 'preparing' ? 'Gör dig redo. Bryggningen börjar om fem sekunder.'
+    : $status === 'brewing' ? `Steg ${$currentStep + 1} av ${$brewingSchedule.length}: häll ${$brewingSchedule[$currentStep]?.pour.toFixed(0)} gram vatten.`
+    : $status === 'completed' ? 'Bryggningen är klar.'
+    : $status === 'stopped' ? 'Timern är stoppad. Du kan ändra receptet.' : '';
 </script>
 
-<div class="flex flex-1 mt-8">
-  <h2 class="sr-only">Kaffebryggarkontroller</h2>
-
-  <div class="grid w-full gap-4 md:grid-cols-2">
-    <button
-      type="button"
-      class="action-button"
-      on:click={startPrepTimer}
-      aria-label={$isBrewing ? "Starta om bryggning" : "Starta bryggning"}
-      aria-pressed={$isBrewing}
-    >
-      {#if isPrepping}
-        Gor dig redo...
-      {:else if !$isBrewing}
-        Brygg kaffe
-      {:else}
-        Starta om
-      {/if}
+<div class="brewing-controls">
+  <div class="controls-grid">
+    <button type="button" class="action-button" on:click={startBrewing}
+      disabled={!!$validationError} aria-label={$isLocked ? 'Starta om bryggning' : 'Starta bryggning'}>
+      {$isLocked ? 'Starta om' : 'Brygg kaffe'}
     </button>
-
-    <button
-      type="button"
-      class="action-button action-button--secondary"
-      on:click={stopBrewing}
-      disabled={!$isBrewing && !isPrepping}
-    >
-      Stoppa timer
-    </button>
+    <button type="button" class="action-button secondary" on:click={stopBrewing} disabled={!$isLocked}>Stoppa timer</button>
   </div>
+  {#if !$isLocked && $status !== 'idle'}
+    <button type="button" class="reset-button" on:click={resetTimerState}>Nollställ timer</button>
+  {/if}
+  <p class="timer-note">Timern fortsätter i bakgrunden. Tiden uppdateras när du återvänder till sidan.</p>
+  <p role="status" class="sr-only" aria-atomic="true">{announcement}</p>
+  {#if $status !== 'idle'}
+    <div class="brew-timer" aria-hidden="true">
+      {#if $status === 'preparing'}Gör dig redo: {$prepTime} s
+      {:else if $status === 'completed'}Bryggningen är klar · {formatTime($totalTime)}
+      {:else if $status === 'stopped'}Stoppad · {formatTime($totalTime)}
+      {:else}Steg {$currentStep + 1} av {$brewingSchedule.length} · {formatTime($totalTime)}{/if}
+    </div>
+  {/if}
 </div>
 
-{#if isPrepping}
-  <div class="prep-timer" role="status" aria-live="polite">
-    <span class="sr-only">
-      Gor dig redo! Instruktionerna borjar om {formatTimeAnnouncement(prepTime)}
-    </span>
-    <span aria-hidden="true">
-      Gor dig redo! Instruktionerna borjar om {prepTime} sekunder...
-    </span>
-  </div>
-{:else if $isBrewing}
-  <div class="brew-timer" role="status" aria-live="polite">
-    <span class="sr-only">
-      Steg {$currentStep + 1} av {$brewingSchedule.length}, tidsförbrukning: {formatTimeAnnouncement(
-        $totalTime
-      )}
-    </span>
-    <span aria-hidden="true">
-      Steg {$currentStep + 1} av {$brewingSchedule.length}: {formatTime(
-        $totalTime
-      )}
-    </span>
-  </div>
-{/if}
-
-<style lang="scss">
-  @reference "../../../../styles/styles.css";
-
-  .action-button {
-    @apply px-8 py-4 w-full inline-flex items-center text-text justify-center whitespace-nowrap rounded-base text-xl font-bold ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-main border-2 border-border shadow-light hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none;
-  }
-
-  .action-button--secondary {
-    @apply bg-white;
-  }
-
-  .prep-timer,
-  .brew-timer {
-    @apply fixed bottom-32 left-0 bg-black text-white w-screen text-xl font-bold text-center p-4;
-  }
-
-  @media (max-width: 767px) {
-    .prep-timer,
-    .brew-timer {
-      @apply bottom-24 px-4 py-3 text-base;
-    }
-  }
+<style>
+  .brewing-controls { margin-top: 1.5rem; }
+  .controls-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+  .action-button { padding: .8rem .3rem; border: 2px solid #111; background: #fd9745; color: #111; font-weight: 800; box-shadow: 3px 3px 0 #111; }
+  .secondary { background: white; }
+  .reset-button { margin-top: 1rem; text-decoration: underline; }
+  .timer-note { font-size: .875rem; margin-top: 1rem; }
+  .brew-timer { position: fixed; z-index: 15; bottom: 112px; left: 0; width: 100%; padding: .75rem; background: #111; color: white; font-weight: 800; text-align: center; }
+  button:disabled { opacity: .55; cursor: not-allowed; }
 </style>

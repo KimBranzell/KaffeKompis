@@ -9,7 +9,9 @@ body {
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 40 100% 98%;
+    --surface: #ffffff;
+    --header-height: 76px;
     --foreground: 0 0% 3.9%;
     --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 45.1%;
@@ -37,7 +39,8 @@ body {
   }
 
   .dark {
-    --background: 0 0% 3.9%;
+    --background: 48 11% 9%;
+    --surface: #292720;
     --foreground: 0 0% 98%;
     --muted: 0 0% 14.9%;
     --muted-foreground: 0 0% 63.9%;
@@ -80,7 +83,7 @@ body {
 
 @layer components {
   .section-kicker {
-    @apply text-sm font-black uppercase tracking-[0.2em] text-black/60;
+    @apply text-sm font-black uppercase tracking-[0.2em] text-foreground/70;
   }
 
   .section-title {
@@ -88,17 +91,18 @@ body {
   }
 
   .section-copy {
-    @apply max-w-2xl text-lg leading-8 text-black/80;
+    @apply max-w-2xl text-lg leading-8 text-foreground/80;
   }
 }
 
 .page-layout {
   min-height: calc(100vh - 5rem);
+  padding-top: var(--header-height);
 }
 
 /* Ensure skip-link target is not hidden behind the fixed header */
 .page-layout {
-  scroll-margin-top: 112px; /* header height (88px) + some breathing room */
+  scroll-margin-top: calc(var(--header-height) + 1rem);
 }
 
 .border-3 {
@@ -183,8 +187,8 @@ body {
   outline-offset: 3px;
 }
 
-.dark :focus-visible {
-  outline-color: #ffffff;
+:focus-visible {
+  outline-color: currentColor;
 }
 
 /* Make focus rings slightly thicker on small screens for clarity */
@@ -192,4 +196,38 @@ body {
   :focus-visible {
     outline-width: 4px;
   }
+}
+/* Surfaces declare both their background and readable foreground. */
+.paper-surface {
+  background-color: var(--surface);
+  color: hsl(var(--foreground));
+}
+.accent-panel {
+  --foreground: 0 0% 7%;
+  color: #111111;
+}
+.dark body {
+  background-image: radial-gradient(circle at top left, #47392355, transparent 35%), linear-gradient(#191814, #211f1b);
+  color-scheme: dark;
+}
+.accent-panel { color-scheme: light; }
+.article-content ol { list-style-type: decimal; }
+.article-content ul { list-style-type: disc; }
+.article-content a { text-decoration: underline; text-underline-offset: .2em; }
+.article-content li::marker { font-weight: 800; }
+.validation-error { margin-bottom: 1rem; padding: 1rem; border: 2px solid #9f1d1d; background: #fff1f0; color: #821717; font-weight: 600; }
+button:not(:disabled), summary { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+fieldset:disabled { opacity: .8; }
+input, select { max-width: 100%; }
+body:has(.four-six-generator) { padding-bottom: 112px; }
+body:has(.brew-timer) { padding-bottom: 176px; }
+@media print {
+  :root { --foreground: 0 0% 7%; --surface: #fff; }
+  .site-header, .skip-link, footer, .pouring-timeline-carousel, .brew-timer, .button-group, .brewing-controls { display: none !important; }
+  body:has(.four-six-generator) { padding-bottom: 0; }
+  .page-layout { padding-top: 0; }
+  body { background: white !important; color: black !important; }
+  .paper-surface { background: white; color: black; }
+  .recipe-summary, .summary-card, .summary-copy, .summary-kicker { background: white !important; color: black !important; border-color: black !important; }
 }

@@ -1,9 +1,9 @@
 ---
 title: "Stark AeroPress"
-description: "Kort och koncentrerad AeroPress-bryggning for en fylligare kopp eller bas till mjolkdrycker."
+description: "Kort och koncentrerad AeroPress-bryggning för en fylligare kopp eller bas till mjölkdrycker."
 method: "aeropress"
 difficulty: "Enkel"
-brewTime: "2:00"
+brewTime: "1:30"
 featured: true
 ---
 
@@ -16,9 +16,9 @@ featured: true
 
 ## Bryggning
 
-1. Montera AeroPress i inverterad eller vanlig metod.
-2. Tillsatt kaffe och allt vatten direkt.
-3. Ror om ordentligt och lat sta i 60 sekunder.
-4. Pressa langsamt under 30 sekunder.
+1. Sätt ett pappersfilter i filterhållaren, skölj det och montera AeroPress i vanlig position på en stabil kopp.
+2. Tillsätt kaffet. Starta timern och häll i allt vatten.
+3. Rör om ordentligt och låt stå i 60 sekunder.
+4. Pressa långsamt under 30 sekunder.
 
-Vill du ha renare kopp, anvand pappersfilter och lite grvre malning.
+Vill du ha renare kopp, använd pappersfilter och lite grövre malning.

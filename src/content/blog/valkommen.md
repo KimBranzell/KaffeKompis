@@ -1,22 +1,22 @@
 ---
-title: "Valkommen till Kaffekompis"
-description: "Varfor Kaffekompis byggs, vilka problem verktygen ska losa och hur sidan kommer utvecklas framover."
+title: "Välkommen till Kaffekompis"
+description: "Varför Kaffekompis byggs, vilka problem verktygen ska lösa och hur sidan kommer utvecklas framöver."
 pubDate: 2026-03-09
 author: "Kim Branzell"
 tags: ["kaffe", "astro", "specialkaffe"]
 featured: true
 ---
 
-Kaffekompis ar ett praktiskt sidoprojekt for hemmabryggare som vill fa battre kaffe utan att fastna i forumtrad och spridda anteckningar.
+Kaffekompis är ett praktiskt sidoprojekt för hemmabryggare som vill få bättre kaffe utan att fastna i forumtråd och spridda anteckningar.
 
-Tanken ar enkel: samla de verktyg, recept och guider som faktiskt hjalper i bryggningen pa ett stalle.
+Tanken är enkel: samla de verktyg, recept och guider som faktiskt hjälper i bryggningen på ett ställe.
 
 ## Fokus just nu
 
 - Interaktiva verktyg som sparar tid vid bryggning.
-- Recept som ar tillrackligt tydliga for att kunna foljas direkt vid kvarnen och kettle.
-- Kortare guider som hjalper nar koppen smakar surt, bittert eller tunt.
+- Recept som är tillräckligt tydliga för att kunna följas direkt vid kvarnen och vattenkokare.
+- Kortare guider som hjälper när koppen smakar surt, bittert eller tunt.
 
-## Vad som kommer harnast
+## Vad som kommer härnäst
 
-Nast pa tur star fler recept, en battre felsokningsguide och mojlighet att spara favoritbryggningar.
+Näst på tur står fler recept, en bättre felsökningsguide och möjlighet att spara favoritbryggningar.

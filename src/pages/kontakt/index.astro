@@ -1,11 +1,15 @@
 ---
 import PageLayout from '../../layouts/PageLayout.astro';
-
-export const frontmatter = {
-  title: "Kontakt"
-};
 ---
-
-<PageLayout title="Kontakt">
-  <p>Här kommer det finnas kontaktformulär eller andra kontaktsätt som är förenliga med plattformen.</p>
+<PageLayout title="Kontakt och förslag" description="Rapportera problem, föreslå förbättringar eller bidra till Kaffekompis via projektet på GitHub.">
+  <section class="mx-auto w-full max-w-3xl space-y-6 px-4 py-12">
+    <p class="section-kicker">Kontakt</p>
+    <h1 class="section-title">Hjälp Kaffekompis att bli bättre.</h1>
+    <div class="paper-surface article-content border-3 border-black p-6 md:p-10">
+      <p>Har du hittat ett fel i ett recept eller verktyg? Har du ett förslag på något som skulle göra bryggningen enklare? Lämna ett ärende i projektets öppna GitHub-repository.</p>
+      <p>Beskriv gärna vilken sida du använde, vad du försökte göra och vad som hände. Undvik att skriva privata uppgifter eftersom ärenden är offentliga.</p>
+      <p><a href="https://github.com/KimBranzell/KaffeKompis/issues/new">Lämna ett förslag eller rapportera ett problem på GitHub</a> (GitHub-konto behövs).</p>
+      <p><a href="https://github.com/KimBranzell/KaffeKompis">Visa projektet och källkoden</a>.</p>
+    </div>
+  </section>
 </PageLayout>

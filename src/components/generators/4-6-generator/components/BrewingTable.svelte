@@ -1,5 +1,6 @@
 <script>
-  import { brewingSchedule, currentStep } from '../utils/brewingStore';
+  import { getBrewingStore } from '../utils/context.js';
+  const { brewingSchedule, currentStep } = getBrewingStore();
 
   function formatTime(seconds) {
     const minutes = Math.floor(seconds / 60);
@@ -11,11 +12,12 @@
 
 <div class="generator-body px-4 mb-40">
   <table>
+    <caption class="sr-only">Hällningsschema med tid, vatten per hällning och total vattenvikt</caption>
     <tbody>
       <tr class="table-head-row">
-        <th>Tid</th>
-        <th>Vatten (g)</th>
-        <th>Total vätska (g)</th>
+        <th scope="col">Tid</th>
+        <th scope="col">Vatten (g)</th>
+        <th scope="col">Vågens totalvikt (g)</th>
       </tr>
       {#each $brewingSchedule as {startTime, pour, total}, index}
         <tr class="{index === $currentStep ? 'active-row' : ''} {index < $currentStep ? 'done-row' : ''}">
@@ -32,7 +34,7 @@
   @reference "../../../../styles/styles.css";
 
   table {
-    @apply w-full border-4 border-black bg-white mb-8;
+    @apply w-full border-4 border-black bg-white text-black mb-8;
     box-shadow: 4px 4px 0px 0px #000000;
 
     th {

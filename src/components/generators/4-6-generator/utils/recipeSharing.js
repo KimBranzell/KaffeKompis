@@ -1,120 +1,64 @@
-/**
- * Functions for encoding, decoding and sharing coffee recipes
- */
-/**
- * Encodes a coffee recipe into a compact hash string.
- *
- * @param {number} coffeeWeight - The weight of the coffee in grams.
- * @param {number} waterRatio - The ratio of water to coffee, as a percentage.
- * @param {string} roastGrade - The roast grade of the coffee, one of 'Light', 'Medium', or 'Dark'.
- * @param {string} strength - The strength of the coffee, one of 'Strong', 'Balanced', or 'Weak'.
- * @param {string} taste - The taste profile of the coffee, one of 'Acidic', 'Balanced', or 'Sweet'.
- * @returns {string} A compact hash string representing the coffee recipe.
- */
-export function encodeRecipeToHash(coffeeWeight, waterRatio, roastGrade, strength, taste) {
-  const roastMap = { Light: 0, Medium: 1, Dark: 2 };
-  const strengthMap = { Strong: 0, Balanced: 1, Weak: 2 };
-  const tasteMap = { Acidic: 0, Balanced: 1, Sweet: 2 };
+import { validateRecipe } from './recipe.js';
 
-  const packed =
-    coffeeWeight * 1000000 +
-    waterRatio * 10000 +
-    roastMap[roastGrade] * 1000 +
-    strengthMap[strength] * 100 +
-    tasteMap[taste] * 10;
-
-  return packed.toString(36);
+/** Versioned parameters preserve decimal doses without overlapping packed fields. */
+export function encodeRecipe(recipe) {
+  if (validateRecipe(recipe)) return null;
+  return ['v1', recipe.weight, recipe.ratio, recipe.roast, recipe.strength, recipe.taste].join(':');
 }
 
-export function syncRecipeHash(hash) {
-  const nextUrl = `${window.location.pathname}${window.location.search}#${hash}`;
-  window.history.replaceState(null, "", nextUrl);
+export function decodeRecipe(value) {
+  if (typeof value !== 'string' || value.length > 100) return null;
+  const [version, weight, ratio, roast, strength, taste, extra] = value.split(':');
+  if (version !== 'v1' || extra !== undefined || !/^\d+(?:\.\d)?$/.test(weight) || !/^\d+$/.test(ratio)) return null;
+  const recipe = { weight: Number(weight), ratio: Number(ratio), roast, strength, taste };
+  return validateRecipe(recipe) ? null : recipe;
 }
 
-/**
- * Decodes a compact hash string back into a coffee recipe.
- *
- * @param {string} hash - A compact hash string representing a coffee recipe.
- * @returns {Object} An object containing the coffee recipe details, or `null` if the hash is invalid.
- * @property {number} weight - The weight of the coffee in grams.
- * @property {number} ratio - The ratio of water to coffee, as a percentage.
- * @property {string} roast - The roast grade of the coffee, one of 'Light', 'Medium', or 'Dark'.
- * @property {string} strength - The strength of the coffee, one of 'Strong', 'Balanced', or 'Weak'.
- * @property {string} taste - The taste profile of the coffee, one of 'Acidic', 'Balanced', or 'Sweet'.
- */
+/** Strict compatibility decoder for previously shared integer-dose links. */
 export function decodeHashToRecipe(hash) {
-  const roastMap = { 0: 'Light', 1: 'Medium', 2: 'Dark' };
-  const strengthMap = { 0: 'Strong', 1: 'Balanced', 2: 'Weak' };
-  const tasteMap = { 0: 'Acidic', 1: 'Balanced', 2: 'Sweet' };
-
-  try {
-    const packed = parseInt(hash, 36);
-
-    // Extract values
-    const weight = Math.floor(packed / 1000000);
-    const ratio = Math.floor((packed % 1000000) / 10000);
-    const roastIndex = Math.floor((packed % 10000) / 1000);
-    const strengthIndex = Math.floor((packed % 1000) / 100);
-    const tasteIndex = Math.floor((packed % 100) / 10);
-
-    // Create decoded object with proper type checking
-    const decoded = {
-      weight: isNaN(weight) ? 20 : weight,
-      ratio: isNaN(ratio) ? 15 : ratio,
-      roast: roastMap[roastIndex] || 'Medium',
-      strength: strengthMap[strengthIndex] || 'Balanced',
-      taste: tasteMap[tasteIndex] || 'Balanced'
-    };
-
-    return decoded;
-  } catch {
-    return null;
-  }
+  if (typeof hash !== 'string' || !/^[0-9a-z]{4,6}$/.test(hash)) return null;
+  const packed = parseInt(hash, 36);
+  if (!Number.isSafeInteger(packed) || packed % 10 !== 0) return null;
+  const recipe = {
+    weight: Math.floor(packed / 1000000),
+    ratio: Math.floor((packed % 1000000) / 10000),
+    roast: ['Light', 'Medium', 'Dark'][Math.floor((packed % 10000) / 1000)],
+    strength: ['Strong', 'Balanced', 'Weak'][Math.floor((packed % 1000) / 100)],
+    taste: ['Acidic', 'Balanced', 'Sweet'][Math.floor((packed % 100) / 10)],
+  };
+  return validateRecipe(recipe) ? null : recipe;
 }
 
-/**
- * Shares a coffee recipe by encoding it into a compact hash string and generating a shareable URL.
- *
- * @param {Object} recipe - The coffee recipe to share.
- * @param {number} recipe.weight - The weight of the coffee in grams.
- * @param {number} recipe.ratio - The ratio of water to coffee, as a percentage.
- * @param {string} recipe.roast - The roast grade of the coffee, one of 'Light', 'Medium', or 'Dark'.
- * @param {string} recipe.strength - The strength of the coffee, one of 'Strong', 'Balanced', or 'Weak'.
- * @param {string} recipe.taste - The taste profile of the coffee, one of 'Acidic', 'Balanced', or 'Sweet'.
- * @returns {Promise<boolean>} A promise that resolves to `true` if the recipe was successfully shared, or `false` if an error occurred.
- */
-export async function shareRecipe({ coffeeWeight, waterRatio, roastGrade, strength, taste }) {
-  const hash = encodeRecipeToHash(coffeeWeight, waterRatio, roastGrade, strength, taste);
-  syncRecipeHash(hash);
-  const shareableUrl = `${window.location.origin}${window.location.pathname}#${hash}`;
+export function recipeFromUrl(url) {
+  if (url.searchParams.has('recipe')) return decodeRecipe(url.searchParams.get('recipe'));
+  return decodeHashToRecipe(url.hash.slice(1));
+}
 
-  try {
-    if (navigator.share) {
-      await navigator.share({
-        title: 'Min 4:6-metod på Kaffekompis',
-        text: 'Kolla in mitt kafferecept!',
-        url: shareableUrl
-      });
+export function createShareUrl(href, recipe) {
+  const encoded = encodeRecipe(recipe);
+  if (!encoded) return null;
+  const url = new URL(href);
+  url.searchParams.set('recipe', encoded);
+  url.hash = '';
+  return url;
+}
 
-      return {
-        success: true,
-        method: 'share',
-        message: 'Delat!'
-      };
+export async function shareRecipe(recipe) {
+  const url = createShareUrl(window.location.href, recipe);
+  if (!url) return { success: false, message: 'Kontrollera receptets värden innan du delar.' };
+  window.history.replaceState(null, '', url);
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: 'Min 4:6-metod på Kaffekompis', text: 'Mitt bryggrecept', url: url.href });
+      return { success: true, message: 'Receptet har delats.' };
+    } catch (error) {
+      if (error.name === 'AbortError') return { success: false, message: 'Delningen avbröts.' };
     }
-
-    await navigator.clipboard.writeText(shareableUrl);
-
-    return {
-      success: true,
-      method: 'clipboard',
-      message: 'Kopierad!'
-    };
+  }
+  try {
+    await navigator.clipboard.writeText(url.href);
+    return { success: true, message: 'Receptlänken har kopierats.' };
   } catch {
-    return {
-      success: false,
-      method: navigator.share ? 'share' : 'clipboard',
-      message: 'Kunde inte dela receptet'
-    };
+    return { success: false, message: 'Kunde inte kopiera länken. Kopiera adressen i adressfältet.' };
   }
 }

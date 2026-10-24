@@ -8,98 +8,98 @@
   const roasts = [
     { id: 'light', label: 'Ljusrost' },
     { id: 'medium', label: 'Mellanrost' },
-    { id: 'dark', label: 'Morkrost' },
+    { id: 'dark', label: 'Mörkrost' },
   ];
 
   const flows = [
-    { id: 'fast', label: 'Rinner for snabbt' },
-    { id: 'normal', label: 'Kanns normal' },
-    { id: 'slow', label: 'Rinner for langsamt' },
+    { id: 'fast', label: 'Rinner för snabbt' },
+    { id: 'normal', label: 'Känns normal' },
+    { id: 'slow', label: 'Rinner för långsamt' },
   ];
 
   const symptoms = {
     sour: {
       label: 'Surt och vasst',
-      summary: 'Koppen drar mot citrus, gron syra eller kanns tunn innan sotman hinner komma fram.',
-      likelyCause: 'Vanligtvis underextraktion: for grov malning, for lite energi i bryggningen eller for snabb drawdown.',
+      summary: 'Koppen drar mot citrus, grön syra eller känns tunn innan sötman hinner komma fram.',
+      likelyCause: 'Vanligtvis underextraktion: för grov malning, för lite energi i bryggningen eller för snabb drawdown.',
       baseRecommendations: [
         {
           title: 'Mala lite finare',
           change: 'Flytta kvarnen 1 till 2 steg finare.',
-          why: 'Du okar kontakttiden och far ut mer sotma ur kaffet.',
+          why: 'Du ökar kontakttiden och får ut mer sötma ur kaffet.',
         },
         {
-          title: 'Hoja vattentemperaturen',
-          change: 'Sikta pa ungefarligt 94 till 96 grader.',
-          why: 'Ljusare eller tatta bnor behover ofta mer energi for att smaka balanserat.',
+          title: 'Höj vattentemperaturen',
+          change: 'Sikta på ungefär 94 till 96 grader.',
+          why: 'Ljusare eller täta bönor behöver ofta mer energi för att smaka balanserat.',
         },
       ],
       watchouts: [
-        'Om drawdown redan ar langsam, borja med temperatur i stallet for att ga for langt pa malningen.',
-        'For snabb bryggning tillsammans med sur smak ar ofta ett tydligt tecken pa for grov malning.',
+        'Om drawdown redan är långsam, börja med temperatur i stället för att gå för långt på malningen.',
+        'För snabb bryggning tillsammans med sur smak är ofta ett tydligt tecken på för grov malning.',
       ],
     },
     bitter: {
       label: 'Bittert och torrt',
-      summary: 'Smaken stannar kvar, kanns askig eller ger en torr eftersmak i sidorna av munnen.',
-      likelyCause: 'Vanligtvis overextraktion: for fin malning, for hog temperatur eller for aggressiv agitation.',
+      summary: 'Smaken stannar kvar, känns askig eller ger en torr eftersmak i sidorna av munnen.',
+      likelyCause: 'Vanligtvis överextraktion: för fin malning, för hög temperatur eller för aggressiv agitation.',
       baseRecommendations: [
         {
-          title: 'Mala lite grvre',
-          change: 'Ga 1 till 2 steg grvre pa kvarnen.',
+          title: 'Mala lite grövre',
+          change: 'Gå 1 till 2 steg grövre på kvarnen.',
           why: 'Du minskar hur mycket av de torra, bittra tonerna som kommer ut i slutet av bryggningen.',
         },
         {
-          title: 'Sank temperaturen nagot',
-          change: 'Testa 90 till 93 grader beroende pa rostning.',
-          why: 'Det dapar aggressiv extraktion, sarskilt pa morkare kaffe.',
+          title: 'Sänk temperaturen något',
+          change: 'Testa 90 till 93 grader beroende på rostning.',
+          why: 'Det dämpar aggressiv extraktion, särskilt på mörkare kaffe.',
         },
       ],
       watchouts: [
-        'Om bryggningen ocksa ar langsam ar det ofta malningen som ar huvudproblemet.',
-        'Morkrost svarar ofta snabbare pa justerad temperatur an pa stora hopp i ratio.',
+        'Om bryggningen också är långsam är det ofta malningen som är huvudproblemet.',
+        'Mörkrost svarar ofta snabbare på justerad temperatur än på stora hopp i ratio.',
       ],
     },
     thin: {
       label: 'Tunt och svagt',
-      summary: 'Koppen smakar ren men saknar kropp, sotma och tydlig struktur.',
-      likelyCause: 'Ofta for hog ratio, for lite kaffe eller for lite extraktion for just det receptet.',
+      summary: 'Koppen smakar ren men saknar kropp, sötma och tydlig struktur.',
+      likelyCause: 'Ofta för hög ratio, för lite kaffe eller för lite extraktion för just det receptet.',
       baseRecommendations: [
         {
-          title: 'Stark upp ratio lite',
-          change: 'Ga mot mindre vatten eller lite mer kaffe i nasta bryggning.',
+          title: 'Öka koncentrationen lite',
+          change: 'Gå mot mindre vatten eller lite mer kaffe i nästa bryggning.',
           why: 'Mer koncentration ger kroppen en chans att komma fram.',
         },
         {
-          title: 'Finjustera malningen mot finare hall',
-          change: 'Testa ett litet steg finare om koppen ocksa saknar sotma.',
-          why: 'Tunn smak tillsammans med lag sotma betyder ofta att kaffet inte extraherats fullt ut.',
+          title: 'Finjustera malningen mot finare håll',
+          change: 'Testa ett litet steg finare om koppen också saknar sötma.',
+          why: 'Tunn smak tillsammans med låg sötma betyder ofta att kaffet inte extraherats fullt ut.',
         },
       ],
       watchouts: [
-        'Om smaken ar tunn men bitter ar problemet sannolikt ratio eller dos, inte mer extraktion.',
-        'Bygg bara en variabel i taget: dos eller malning, inte bada samtidigt.',
+        'Om smaken är tunn men bitter är problemet sannolikt ratio eller dos, inte mer extraktion.',
+        'Ändra bara en variabel i taget: dos eller malning, inte båda samtidigt.',
       ],
     },
     muddy: {
       label: 'Grumligt och smutsigt',
-      summary: 'Koppen kanns tung, dammig eller stangd i smaken i stallet for ren och tydlig.',
-      likelyCause: 'Ofta for mycket fines i koppen, for mycket agitation eller for sen servering efter bryggning.',
+      summary: 'Koppen känns tung, dammig eller stängd i smaken i stället för ren och tydlig.',
+      likelyCause: 'Ofta för mycket fines i koppen, för mycket agitation eller för sen servering efter bryggning.',
       baseRecommendations: [
         {
-          title: 'Mala lite grvre eller mjukare',
-          change: 'Backa ett steg pa kvarnen och undvik att driva igenom for mycket fines.',
-          why: 'Det ger renare kopp och minskar slamkansla.',
+          title: 'Mala lite grövre eller mjukare',
+          change: 'Backa ett steg på kvarnen och undvik att driva igenom för mycket fines.',
+          why: 'Det ger renare kopp och minskar slamkänsla.',
         },
         {
-          title: 'Ror och hall mindre aggressivt',
-          change: 'Hall jamnare, undvik hard swirl och decantera direkt efter bryggning.',
-          why: 'For mycket rörelse lyfter fines och gor smaken stangd.',
+          title: 'Rör och häll mindre aggressivt',
+          change: 'Häll jämnare, undvik hård swirl och decantera direkt efter bryggning.',
+          why: 'För mycket rörelse lyfter fines och gör smaken stängd.',
         },
       ],
       watchouts: [
-        'French press behover ofta snabb servering bort fran sumpen nar den ar klar.',
-        'I filterbryggning kan ojamn hallning skapa bade grumlighet och bitterhet samtidigt.',
+        'French press behöver ofta snabb servering bort från sumpen när den är klar.',
+        'I filterbryggning kan ojämn hällning skapa både grumlighet och bitterhet samtidigt.',
       ],
     },
   };
@@ -107,73 +107,73 @@
   const methodAdjustments = {
     'pour-over': {
       sour: {
-        title: 'Lat bloom och hallningar jobba langre',
-        change: 'Ge bloom 5 till 10 sekunder extra och hall lugnare sa badden inte springer igenom.',
+        title: 'Låt bloom och hällningar jobba längre',
+        change: 'Ge bloom 5 till 10 sekunder extra och häll lugnare så bädden inte springer igenom.',
         why: 'Pour over straffar snabb drawdown direkt i koppen.',
       },
       bitter: {
-        title: 'Dra ner pa agitationen',
-        change: 'Skippa hard swirl sent i bryggningen och halla mer kontrollerat.',
-        why: 'Det minskar overextraktion i slutet av drawdown.',
+        title: 'Dra ner på agitationen',
+        change: 'Skippa hård swirl sent i bryggningen och häll mer kontrollerat.',
+        why: 'Det minskar överextraktion i slutet av drawdown.',
       },
       thin: {
-        title: 'Jamna ut fordelningen',
-        change: 'Sikta pa en stadigare hallning och se till att hela badden blir genomvatt.',
-        why: 'Ojamt vattenflode ger ofta tunn och splittrad kopp.',
+        title: 'Jämna ut fördelningen',
+        change: 'Sikta på en stadigare hällning och se till att hela bädden blir genomvåt.',
+        why: 'Ojämnt vattenflöde ger ofta tunn och splittrad kopp.',
       },
       muddy: {
-        title: 'Hall narmare och lugnare',
-        change: 'Hall lagre over badden med mindre turbulens.',
-        why: 'Du far renare kopp och mindre fines i filterbryggningen.',
+        title: 'Häll närmare och lugnare',
+        change: 'Häll lägre över bädden med mindre turbulens.',
+        why: 'Du får renare kopp och mindre fines i filterbryggningen.',
       },
     },
     aeropress: {
       sour: {
-        title: 'Lat kaffet dra lite langre',
-        change: 'Laggt till 15 till 30 sekunder innan press.',
-        why: 'AeroPress reagerar snabbt pa kort kontakttid.',
+        title: 'Låt kaffet dra lite längre',
+        change: 'Lägg till 15 till 30 sekunder innan press.',
+        why: 'AeroPress reagerar snabbt på kort kontakttid.',
       },
       bitter: {
         title: 'Pressa mjukare',
-        change: 'Pressa med mindre kraft och avsluta innan sista harda motstandet.',
-        why: 'Sista delen av pressen kan dra med oonskad bitterhet.',
+        change: 'Pressa med mindre kraft och avsluta innan sista hårda motståndet.',
+        why: 'Sista delen av pressen kan dra med oönskad bitterhet.',
       },
       thin: {
-        title: 'Kortare bypass eller hogre dos',
-        change: 'Om du spader efterat, skruva ned bypass lite grann.',
-        why: 'Manga tunna AeroPress-koppar ar i grunden for utspadda.',
+        title: 'Kortare bypass eller högre dos',
+        change: 'Om du späder efteråt, skruva ned bypass lite grann.',
+        why: 'Många tunna AeroPress-koppar är i grunden för utspädda.',
       },
       muddy: {
-        title: 'Filter och presshastighet forst',
-        change: 'Anvand pappersfilter och undvik att forcera genom sista centimetern.',
-        why: 'Det ger markant renare kopp utan att du behover gora om hela receptet.',
+        title: 'Filter och presshastighet först',
+        change: 'Använd pappersfilter och undvik att forcera genom sista centimetern.',
+        why: 'Det ger markant renare kopp utan att du behöver göra om hela receptet.',
       },
     },
     'french-press': {
       sour: {
-        title: 'Langre dragtid',
-        change: 'Testa 30 till 45 sekunder langre steep innan du pressar.',
-        why: 'Presskanna vinner ofta mer pa tid an pa aggressiv temperaturhojning.',
+        title: 'Längre dragtid',
+        change: 'Testa 30 till 45 sekunder längre steep innan du pressar.',
+        why: 'Presskanna vinner ofta mer på tid än på aggressiv temperaturhöjning.',
       },
       bitter: {
-        title: 'Servera bort fran sumpen direkt',
-        change: 'Decantera hela bryggningen sa snart den ar klar.',
-        why: 'Koppen fortsatter annars att extrahera och bli torr.',
+        title: 'Servera bort från sumpen direkt',
+        change: 'Decantera hela bryggningen så snart den är klar.',
+        why: 'Koppen fortsätter annars att extrahera och bli torr.',
       },
       thin: {
-        title: 'Hoja dosen lite innan du finjusterar malningen',
-        change: 'Presskanna svarar ofta tydligt pa lite mer kaffe i stallet for mycket finare malning.',
-        why: 'Du far kropp utan att dra in onodigt mycket slam.',
+        title: 'Höj dosen lite innan du finjusterar malningen',
+        change: 'Presskanna svarar ofta tydligt på lite mer kaffe i stället för mycket finare malning.',
+        why: 'Du får kropp utan att dra in onödigt mycket slam.',
       },
       muddy: {
-        title: 'Bryt skummet och lat fines sjunka',
+        title: 'Bryt skummet och låt fines sjunka',
         change: 'Skumma av toppen och ge koppen en kort vila innan servering.',
-        why: 'Det rensar smaken mer an man tror.',
+        why: 'Det rensar smaken mer än man tror.',
       },
     },
   };
 
-  import { tick } from 'svelte';
+  import { onDestroy } from 'svelte';
 
   let selectedMethod = 'pour-over';
   let selectedSymptom = 'sour';
@@ -182,9 +182,11 @@
 
   let liveAnnouncement = '';
 
-  async function announceRecommendations() {
-    // Wait for reactive recomputation of `recommendations`
-    await tick();
+  let announcementTimeout;
+  onDestroy(() => clearTimeout(announcementTimeout));
+
+  function announceRecommendations() {
+    const recommendations = createRecommendations(selectedMethod, selectedSymptom, selectedFlow, selectedRoast);
     if (!recommendations || recommendations.length === 0) {
       liveAnnouncement = 'Inga rekommendationer tillgängliga.';
       return;
@@ -192,27 +194,28 @@
     const top = recommendations.slice(0, 3).map((r, i) => `${i + 1}. ${r.title}`).join(' ');
     liveAnnouncement = `Prioriterade justeringar: ${top}`;
     // Clear after a short delay so successive changes re-announce
-    setTimeout(() => (liveAnnouncement = ''), 4000);
+    clearTimeout(announcementTimeout);
+    announcementTimeout = setTimeout(() => (liveAnnouncement = ''), 4000);
   }
 
-  async function setMethod(id) {
+  function setMethod(id) {
     selectedMethod = id;
-    await announceRecommendations();
+    announceRecommendations();
   }
 
-  async function setSymptom(id) {
+  function setSymptom(id) {
     selectedSymptom = id;
-    await announceRecommendations();
+    announceRecommendations();
   }
 
-  async function setRoast(id) {
+  function setRoast(id) {
     selectedRoast = id;
-    await announceRecommendations();
+    announceRecommendations();
   }
 
-  async function setFlow(id) {
+  function setFlow(id) {
     selectedFlow = id;
-    await announceRecommendations();
+    announceRecommendations();
   }
 
   function createFlowAdjustment(symptom, flow) {
@@ -222,16 +225,16 @@
 
     if (symptom === 'sour' && flow === 'fast') {
       return {
-        title: 'Bekrafta drawdown-problemet',
-        change: 'Snabb bryggtid plus sur kopp pekar starkt mot for grov malning eller for aggressiv hallning.',
-        why: 'Borja dar innan du jagar ratio eller nya recept.',
+        title: 'Bekräfta drawdown-problemet',
+        change: 'Snabb bryggtid plus sur kopp pekar starkt mot för grov malning eller för aggressiv hällning.',
+        why: 'Börja där innan du jagar ratio eller nya recept.',
       };
     }
 
     if (symptom === 'bitter' && flow === 'slow') {
       return {
-        title: 'Prioritera flodet forst',
-        change: 'Langsam drawdown plus bitterhet betyder ofta att du ska ga grvre innan allt annat.',
+        title: 'Prioritera flödet först',
+        change: 'Långsam drawdown plus bitterhet betyder ofta att du ska gå grövre innan allt annat.',
         why: 'Annars kommer temperaturjusteringar bara maskera problemet.',
       };
     }
@@ -239,23 +242,23 @@
     if (symptom === 'thin' && flow === 'fast') {
       return {
         title: 'Snabb bryggning ger tunn kopp',
-        change: 'Ga ett steg finare eller hall lugnare sa vattnet inte smiter forbi kaffet.',
-        why: 'Kropp och sotma forsvinner ofta tillsammans nar drawdown springer ivag.',
+        change: 'Gå ett steg finare eller häll lugnare så vattnet inte smiter förbi kaffet.',
+        why: 'Kropp och sötma försvinner ofta tillsammans när drawdown springer iväg.',
       };
     }
 
     if (symptom === 'muddy' && flow === 'slow') {
       return {
-        title: 'For mycket motstand i badden',
-        change: 'Backa pa malningen eller minska agitationen sa fines inte packas ihop.',
-        why: 'Det ar en vanlig orsak till grumlig och stangd kopp.',
+        title: 'För mycket motstånd i bädden',
+        change: 'Backa på malningen eller minska agitationen så fines inte packas ihop.',
+        why: 'Det är en vanlig orsak till grumlig och stängd kopp.',
       };
     }
 
     return {
-      title: 'Hall koll pa bryggtiden',
-      change: 'Notera om drawdown flyttar sig nar du gor nasta justering.',
-      why: 'Smak och flode maste tolkas tillsammans for att ge ratt nasta steg.',
+      title: 'Håll koll på bryggtiden',
+      change: 'Notera om drawdown flyttar sig när du gör nästa justering.',
+      why: 'Smak och flöde måste tolkas tillsammans för att ge rätt nästa steg.',
     };
   }
 
@@ -266,17 +269,17 @@
 
     if (roast === 'light' && symptom !== 'bitter') {
       return {
-        title: 'Ljusrost behover mer energi',
-        change: 'Var inte radd for hogre temperatur eller lite finare malning.',
-        why: 'Ljusrost smakar ofta surt och tunt om bryggningen ar for forsiktig.',
+        title: 'Ljusrost behöver mer energi',
+        change: 'Var inte rädd för högre temperatur eller lite finare malning.',
+        why: 'Ljusrost smakar ofta surt och tunt om bryggningen är för försiktig.',
       };
     }
 
     if (roast === 'dark' && symptom !== 'sour') {
       return {
-        title: 'Morkrost reagerar snabbt',
-        change: 'Var forsiktig med for het temperatur och for mycket agitation.',
-        why: 'Morkrost blir bitter och torr fortare an du tror.',
+        title: 'Mörkrost reagerar snabbt',
+        change: 'Var försiktig med för het temperatur och för mycket agitation.',
+        why: 'Mörkrost blir bitter och torr fortare än du tror.',
       };
     }
 
@@ -288,22 +291,22 @@
       sour: {
         grind: flow === 'fast' ? '1 till 2 steg finare' : '1 steg finare',
         temperature: roast === 'light' ? '95 till 96 grader' : '94 till 95 grader',
-        technique: method === 'pour-over' ? 'Langre bloom och lugnare hallning' : 'Lite mer kontakttid innan servering',
+        technique: method === 'pour-over' ? 'Längre bloom och lugnare hällning' : 'Lite mer kontakttid innan servering',
       },
       bitter: {
-        grind: flow === 'slow' ? '1 till 2 steg grvre' : '1 steg grvre',
+        grind: flow === 'slow' ? '1 till 2 steg grövre' : '1 steg grövre',
         temperature: roast === 'dark' ? '90 till 92 grader' : '91 till 93 grader',
-        technique: method === 'pour-over' ? 'Mindre swirl och mindre aggressiv hallning' : 'Kortare eller mjukare avslut pa bryggningen',
+        technique: method === 'pour-over' ? 'Mindre swirl och mindre aggressiv hällning' : 'Kortare eller mjukare avslut på bryggningen',
       },
       thin: {
-        grind: flow === 'fast' ? '1 steg finare' : 'Behall malningen eller ga ett halvt steg finare',
+        grind: flow === 'fast' ? '1 steg finare' : 'Behåll malningen eller gå ett halvt steg finare',
         temperature: roast === 'light' ? '94 till 95 grader' : '93 till 94 grader',
-        technique: 'Lite starkare ratio eller nagot hogre dos',
+        technique: 'Lite starkare ratio eller något högre dos',
       },
       muddy: {
-        grind: flow === 'slow' ? '1 steg grvre' : 'Behall eller ga ett steg grvre',
+        grind: flow === 'slow' ? '1 steg grövre' : 'Behåll eller gå ett steg grövre',
         temperature: roast === 'dark' ? '90 till 92 grader' : '92 till 94 grader',
-        technique: method === 'french-press' ? 'Decantera direkt efter press' : 'Mindre agitation och renare hallning',
+        technique: method === 'french-press' ? 'Decantera direkt efter press' : 'Mindre agitation och renare hällning',
       },
     };
 
@@ -311,43 +314,43 @@
   }
 
   $: symptomProfile = symptoms[selectedSymptom];
-  $: methodAdjustment = methodAdjustments[selectedMethod][selectedSymptom];
-  $: flowAdjustment = createFlowAdjustment(selectedSymptom, selectedFlow);
-  $: roastAdjustment = createRoastAdjustment(selectedSymptom, selectedRoast);
-  $: recommendations = [
-    ...symptomProfile.baseRecommendations,
-    methodAdjustment,
-    flowAdjustment,
-    roastAdjustment,
-  ].filter(Boolean);
+  function createRecommendations(method, symptom, flow, roast) {
+    return [
+      ...symptoms[symptom].baseRecommendations,
+      methodAdjustments[method][symptom],
+      createFlowAdjustment(symptom, flow),
+      createRoastAdjustment(symptom, roast),
+    ].filter(Boolean);
+  }
+  $: recommendations = createRecommendations(selectedMethod, selectedSymptom, selectedFlow, selectedRoast);
   $: nextBrewPlan = createNextBrewPlan(selectedSymptom, selectedMethod, selectedFlow, selectedRoast);
 </script>
 
-<section class="mx-auto flex w-full max-w-7xl flex-col gap-10 px-4 py-14 md:py-18">
+<section class="troubleshooter mx-auto flex w-full max-w-7xl flex-col gap-10 px-4 py-14 md:py-18">
   <div class="grid gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
     <div class="space-y-4">
-      <p class="section-kicker">Bryggfelsokning</p>
-      <h1 class="section-title">Fa ett battre nasta bryggforsok utan att gissa i blindo.</h1>
+      <p class="section-kicker">Bryggfelsökning</p>
+      <h1 class="section-title">Få ett bättre nästa bryggförsök utan att gissa i blindo.</h1>
       <p class="section-copy">
-        Valj hur koppen smakar, hur bryggningen beter sig och vilken metod du kor. Verktyget prioriterar de forsta
-        justeringarna som mest sannolikt flyttar smaken at ratt hall.
+        Välj hur koppen smakar, hur bryggningen beter sig och vilken metod du kör. Verktyget prioriterar de första
+        justeringarna som mest sannolikt flyttar smaken at rätt häll.
       </p>
     </div>
 
     <div class="rounded-[1.75rem] border-3 border-black bg-[#111111] p-8 text-[#fff8e8] shadow-[8px_8px_0_#000]">
-      <p class="text-sm font-black uppercase tracking-[0.16em] text-[#ffd166]">Hur du far mest nytta av verktyget</p>
+      <p class="text-sm font-black uppercase tracking-[0.16em] text-[#ffd166]">Hur du får mest nytta av verktyget</p>
       <ol class="mt-4 grid gap-3 text-base leading-7 text-[#f6ead3]">
         <li>1. Beskriv den tydligaste smaken i koppen, inte alla problem samtidigt.</li>
-        <li>2. Justera bara en huvudvariabel till nasta bryggning.</li>
-        <li>3. Notera om smaken flyttar sig mot mer sotma, klarhet eller kropp.</li>
+        <li>2. Justera bara en huvudvariabel till nästa bryggning.</li>
+        <li>3. Notera om smaken flyttar sig mot mer sötma, klarhet eller kropp.</li>
       </ol>
     </div>
   </div>
 
   <div class="grid gap-8 xl:grid-cols-[0.9fr_1.1fr]">
-    <div class="space-y-6 rounded-[1.75rem] border-3 border-black bg-white p-6 shadow-[8px_8px_0_#000] md:p-8">
+    <div class="space-y-6 rounded-[1.75rem] border-3 border-black accent-panel bg-white p-6 shadow-[8px_8px_0_#000] md:p-8">
       <div>
-        <p class="text-sm font-black uppercase tracking-[0.16em] text-black/60">1. Valj metod</p>
+        <p class="text-sm font-black uppercase tracking-[0.16em] text-black/60">1. Välj metod</p>
         <div class="mt-3 grid gap-3 sm:grid-cols-3" role="group" aria-label="Välj metod">
           {#each methods as method}
             <button
@@ -400,7 +403,7 @@
         </div>
 
         <div>
-          <p class="text-sm font-black uppercase tracking-[0.16em] text-black/60">4. Bryggflode</p>
+          <p class="text-sm font-black uppercase tracking-[0.16em] text-black/60">4. Bryggflöde</p>
           <div class="mt-3 grid gap-3" role="group" aria-label="Välj bryggflöde">
             {#each flows as flow}
               <button
@@ -419,36 +422,36 @@
     </div>
 
     <div class="space-y-6">
-      <article class="rounded-[1.75rem] border-3 border-black bg-[#fff7ed] p-6 shadow-[8px_8px_0_#000] md:p-8">
+      <article class="rounded-[1.75rem] border-3 border-black accent-panel bg-[#fff7ed] p-6 shadow-[8px_8px_0_#000] md:p-8">
         <p class="text-sm font-black uppercase tracking-[0.16em] text-black/60">Trolig huvudorsak</p>
         <h2 class="mt-3 text-3xl font-black leading-tight">{symptomProfile.label}</h2>
         <p class="mt-4 text-base leading-7 text-black/80">{symptomProfile.likelyCause}</p>
       </article>
 
-      <article class="rounded-[1.75rem] border-3 border-black bg-[#dff4d7] p-6 shadow-[8px_8px_0_#000] md:p-8">
-        <p class="text-sm font-black uppercase tracking-[0.16em] text-black/60">Nasta bryggplan</p>
+      <article class="rounded-[1.75rem] border-3 border-black accent-panel bg-[#dff4d7] p-6 shadow-[8px_8px_0_#000] md:p-8">
+        <p class="text-sm font-black uppercase tracking-[0.16em] text-black/60">Nästa bryggplan</p>
         <div class="mt-4 grid gap-4 md:grid-cols-3">
-          <div class="rounded-2xl border-3 border-black bg-white p-4">
+          <div class="rounded-2xl border-3 border-black accent-panel bg-white p-4">
             <p class="text-xs font-black uppercase tracking-[0.14em] text-black/60">Malning</p>
             <p class="mt-2 text-lg font-black leading-tight">{nextBrewPlan.grind}</p>
           </div>
-          <div class="rounded-2xl border-3 border-black bg-white p-4">
+          <div class="rounded-2xl border-3 border-black accent-panel bg-white p-4">
             <p class="text-xs font-black uppercase tracking-[0.14em] text-black/60">Temperatur</p>
             <p class="mt-2 text-lg font-black leading-tight">{nextBrewPlan.temperature}</p>
           </div>
-          <div class="rounded-2xl border-3 border-black bg-white p-4">
+          <div class="rounded-2xl border-3 border-black accent-panel bg-white p-4">
             <p class="text-xs font-black uppercase tracking-[0.14em] text-black/60">Teknik</p>
             <p class="mt-2 text-lg font-black leading-tight">{nextBrewPlan.technique}</p>
           </div>
         </div>
       </article>
 
-      <article class="rounded-[1.75rem] border-3 border-black bg-white p-6 shadow-[8px_8px_0_#000] md:p-8">
+      <article class="rounded-[1.75rem] border-3 border-black accent-panel bg-white p-6 shadow-[8px_8px_0_#000] md:p-8">
         <p class="text-sm font-black uppercase tracking-[0.16em] text-black/60">Prioriterade justeringar</p>
         <div class="mt-4 grid gap-4">
           <div id="troubleshooter-live" class="sr-only" role="status" aria-live="polite" aria-atomic="true">{liveAnnouncement}</div>
           {#each recommendations as recommendation, index}
-            <div class="rounded-2xl border-3 border-black bg-[#fffaf1] p-5">
+            <div class="rounded-2xl border-3 border-black accent-panel bg-[#fffaf1] p-5">
               <div class="flex items-start gap-4">
                 <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center border-3 border-black bg-black text-sm font-black text-white">
                   {index + 1}
@@ -464,11 +467,11 @@
         </div>
       </article>
 
-      <article class="rounded-[1.75rem] border-3 border-black bg-[#ffef9f] p-6 shadow-[8px_8px_0_#000] md:p-8">
-        <p class="text-sm font-black uppercase tracking-[0.16em] text-black/60">Det har ska du observera nasta kopp</p>
+      <article class="rounded-[1.75rem] border-3 border-black accent-panel bg-[#ffef9f] p-6 shadow-[8px_8px_0_#000] md:p-8">
+        <p class="text-sm font-black uppercase tracking-[0.16em] text-black/60">Det har ska du observera nästa kopp</p>
         <ul class="mt-4 grid gap-3 text-base leading-7 text-black/80">
           {#each symptomProfile.watchouts as item}
-            <li class="rounded-2xl border-3 border-black bg-white px-4 py-3">{item}</li>
+            <li class="rounded-2xl border-3 border-black accent-panel bg-white px-4 py-3">{item}</li>
           {/each}
         </ul>
       </article>
@@ -480,6 +483,7 @@
   @reference "../../styles/styles.css";
 
   .selector-button {
+    color: #111;
     @apply rounded-2xl border-3 border-black bg-[#fff7ed] px-4 py-4 text-left text-base font-black shadow-[4px_4px_0_#000] transition-transform hover:-translate-y-0.5;
   }
 
@@ -488,6 +492,7 @@
   }
 
   .selector-card {
+    color: #111;
     @apply rounded-2xl border-3 border-black bg-[#fff7ed] px-4 py-4 shadow-[4px_4px_0_#000] transition-transform hover:-translate-y-0.5;
   }
 
