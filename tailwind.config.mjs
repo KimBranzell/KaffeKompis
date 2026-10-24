@@ -1,5 +1,4 @@
 import { fontFamily } from "tailwindcss/defaultTheme";
-import tailwindcssAnimate from "tailwindcss-animate";
 
 /** @type {import('tailwindcss').Config} */
 const config = {
@@ -7,7 +6,6 @@ const config = {
 	content: [
 		"./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}"
 	],
-	safelist: ["dark"],
 	theme: {
 		screens: {
 			m500: '500px',
@@ -104,9 +102,7 @@ const config = {
     		}
     	}
     },
-	plugins: [
-		tailwindcssAnimate
-    ]
+	plugins: []
 };
 
 export default config;

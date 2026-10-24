@@ -3,7 +3,6 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const http = require('node:http');
-const puppeteer = require('puppeteer');
 const axe = require('axe-core');
 
 async function htmlRoutes(directory, prefix = '') {
@@ -22,8 +21,8 @@ async function ready(page, url) {
 
 async function runBrowserChecks({ interactions = true } = {}) {
   const dist = path.resolve('dist');
-  const manifest = JSON.parse(await fs.readFile(path.join(dist, 'manifest.webmanifest'), 'utf8'));
-  const base = manifest.scope;
+  const { PRODUCTION_BASE: base } = await import('../site.config.mjs');
+  const { default: puppeteer } = await import('puppeteer-core');
   const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2', '.woff': 'font/woff', '.ttf': 'font/ttf', '.webmanifest': 'application/manifest+json' };
   const server = http.createServer(async (request, response) => {
     try {
@@ -40,7 +39,7 @@ async function runBrowserChecks({ interactions = true } = {}) {
   let browser;
   const failures = [];
   try {
-    browser = await puppeteer.launch({ headless: 'new', executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+    browser = await puppeteer.launch({ headless: true, executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || puppeteer.executablePath('chrome'),
       args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     const origin = `http://127.0.0.1:${server.address().port}${base}`;
     const routes = await htmlRoutes(dist);
@@ -48,7 +47,7 @@ async function runBrowserChecks({ interactions = true } = {}) {
     if (screenshotDir) await fs.mkdir(screenshotDir, { recursive: true });
     const reports = [];
     for (const width of [390, 1440]) {
-      const context = await browser.createIncognitoBrowserContext();
+      const context = await browser.createBrowserContext();
       const page = await context.newPage();
       await page.setViewport({ width, height: 900 });
       for (const theme of ['light', 'dark']) {
@@ -101,7 +100,7 @@ async function runBrowserChecks({ interactions = true } = {}) {
 }
 
 async function checkInteractions(browser, origin) {
-  const context = await browser.createIncognitoBrowserContext();
+  const context = await browser.createBrowserContext();
   try {
     const page = await context.newPage();
     await page.setViewport({ width: 390, height: 844 });

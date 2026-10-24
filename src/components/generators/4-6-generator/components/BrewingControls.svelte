@@ -13,7 +13,7 @@
   <div class="controls-grid">
     <button type="button" class="action-button" on:click={startBrewing}
       disabled={!!$validationError} aria-label={$isLocked ? 'Starta om bryggning' : 'Starta bryggning'}>
-      {$isLocked ? 'Starta om' : 'Brygg kaffe'}
+      {$isLocked ? 'Starta om' : 'Starta bryggning'}
     </button>
     <button type="button" class="action-button secondary" on:click={stopBrewing} disabled={!$isLocked}>Stoppa timer</button>
   </div>

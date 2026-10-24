@@ -18,7 +18,7 @@
   <div class="dose-buttons">
     {#each [-10, -1, 1, 10] as delta}
       <button type="button" on:click={() => changeCoffeeWeight(delta)}
-        aria-label={`${delta < 0 ? 'Minska' : 'Öka'} kaffevikten med ${Math.abs(delta)} gram`}>
+        aria-label={`${delta > 0 ? '+' : '−'}${Math.abs(delta)} g: ${delta < 0 ? 'minska' : 'öka'} kaffevikten`}>
         {delta > 0 ? '+' : '−'}{Math.abs(delta)} g
       </button>
     {/each}
