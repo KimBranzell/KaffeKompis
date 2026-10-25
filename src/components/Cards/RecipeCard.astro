@@ -1,6 +1,6 @@
 
 ---
-const { headingLevel = 3, title, method, difficulty, time, slug, link, description } = Astro.props;
+const { headingLevel = 3, dose, ratio, title, method, difficulty, time, slug, link, description } = Astro.props;
 const Heading = headingLevel === 2 ? 'h2' : 'h3';
 const href = link ?? `/recept/${slug}/`;
 
@@ -33,6 +33,7 @@ const methodLabels = {
 
     <div class="space-y-3">
       <Heading class="text-2xl font-black leading-tight">{title}</Heading>
+      {dose && <p class="font-bold text-foreground/80">{dose} g kaffe · 1:{ratio} · justerbar dos</p>}
       {description && <p class="text-base leading-7 text-foreground/80">{description}</p>}
     </div>
   </div>

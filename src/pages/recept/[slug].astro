@@ -1,43 +1,67 @@
 ---
 import { getCollection, render } from 'astro:content';
 import PageLayout from '../../layouts/PageLayout.astro';
+import RecipeWorkbench from '../../components/recipes/RecipeWorkbench.svelte';
+import BlogCard from '../../components/Cards/BlogCard.astro';
+import { recipeTimeLabel } from '../../lib/recipes/brewing.js';
 
 export async function getStaticPaths() {
-  const recipes = await getCollection('recipes');
-
-  return recipes.map((recipe) => ({
-    params: { slug: recipe.id },
-    props: { recipe },
-  }));
+  return (await getCollection('recipes')).map(recipe => ({ params: { slug: recipe.id }, props: { recipe } }));
 }
-
 const { recipe } = Astro.props;
 const { Content } = await render(recipe);
-
-const methodLabels = {
-  'pour-over': 'Pour over',
-  aeropress: 'AeroPress',
-  'french-press': 'French press',
-};
+const plan = recipe.data.brew;
+const base = import.meta.env.BASE_URL;
+const methodLabels = { 'pour-over': 'Pour over', aeropress: 'AeroPress', 'french-press': 'French press' };
+const posts = await getCollection('blog');
+const guides = (plan?.relatedGuides ?? []).map(id => {
+  const post = posts.find(post => post.id === id);
+  if (!post) throw new Error(`Receptet ${recipe.id} refererar till en guide som saknas: ${id}`);
+  return post;
+});
+const dateFormat = new Intl.DateTimeFormat('sv-SE', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Stockholm' });
 ---
-
 <PageLayout title={recipe.data.title} description={recipe.data.description}>
-  <article class="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-14 md:py-18">
+  <article class:list={['recipe-page mx-auto flex w-full flex-col gap-10 px-4 py-12 md:py-16', plan ? 'max-w-6xl' : 'max-w-3xl']}>
     <header class="space-y-4">
-      <p class="section-kicker">Recept</p>
+      <p class="section-kicker"><a href={`${base}recept/`} class="underline underline-offset-4">Alla recept</a> / {methodLabels[recipe.data.method]}</p>
       <h1 class="text-4xl font-black leading-tight md:text-5xl">{recipe.data.title}</h1>
       <div class="flex flex-wrap gap-2 text-sm font-black uppercase tracking-[0.12em]">
         <span class="border-2 border-black accent-panel bg-[#ffa45b] px-3 py-1">{methodLabels[recipe.data.method]}</span>
-        <span class="border-2 border-black paper-surface px-3 py-1">{recipe.data.brewTime}</span>
+        <span class="border-2 border-black paper-surface px-3 py-1">{recipeTimeLabel(recipe.data)}</span>
         <span class="border-2 border-black accent-panel bg-[#dff4d7] px-3 py-1">{recipe.data.difficulty}</span>
+        {plan && <span class="border-2 border-black paper-surface px-3 py-1">Skalbart recept · V60 02</span>}
       </div>
-      <p class="max-w-2xl text-lg leading-8 text-foreground/80">{recipe.data.description}</p>
+      <p class="max-w-3xl text-lg leading-8 text-foreground/80">{recipe.data.description}</p>
     </header>
 
-    <div class="border-3 border-black paper-surface p-8 shadow-[8px_8px_0_#000] md:p-10">
-      <div class="article-content">
-        <Content />
-      </div>
+    {plan && <RecipeWorkbench plan={plan} client:load />}
+    {plan && <p class="print-recipe-source">Kaffekompis · Receptversion {plan.version} · {new URL(`${base}recept/${recipe.id}/`, Astro.site).href}</p>}
+
+    <div class:list={['recipe-notes border-3 border-black paper-surface p-6 shadow-[6px_6px_0_#000] md:p-10', !plan && 'legacy-recipe']}>
+      <div class="article-content"><Content /></div>
     </div>
+
+    <section class="recipe-support space-y-5" aria-labelledby="recipe-help-heading">
+      <h2 id="recipe-help-heading" class="text-2xl font-black">Vad vill du justera?</h2>
+      <p class="section-copy">Beskriv den tydligaste smaken i koppen och välj en förändring till nästa bryggning.</p>
+      <a href={`${base}verktyg/bryggfelsokning/?method=${recipe.data.method}`} class="inline-flex min-h-12 items-center border-3 border-black accent-panel bg-[#dff4d7] px-5 py-3 font-black">Felsök den här bryggmetoden</a>
+      {guides.length > 0 && <div class="grid gap-5 md:grid-cols-2">{guides.map(post => <BlogCard title={post.data.title} date={dateFormat.format(post.data.pubDate)} slug={post.id} link={`${base}blogg/${post.id}/`} description={post.data.description} tags={post.data.tags} />)}</div>}
+    </section>
+
+    {plan && <section class="recipe-provenance space-y-4" aria-labelledby="recipe-source-heading">
+      <h2 id="recipe-source-heading" class="text-2xl font-black">Om receptet och källorna</h2>
+      <p class="text-sm text-foreground/80">Kaffekompis basrecept · Receptversion {plan.version} · Granskat {dateFormat.format(new Date(`${plan.reviewedOn}T12:00:00Z`))}</p>
+      <ul class="grid gap-4">{plan.sources.map(source => <li class="space-y-2"><a href={source.url} class="font-bold underline underline-offset-4">{source.title}</a><p class="max-w-3xl leading-7 text-foreground/80">{source.note}</p></li>)}</ul>
+    </section>}
   </article>
 </PageLayout>
+<style>
+  .print-recipe-source { display: none; }
+  @media print {
+    .print-recipe-source { display: block; font-size: 10pt; overflow-wrap: anywhere; }
+    .recipe-page { max-width: none; padding: 0; gap: 1rem; }
+    .recipe-notes:not(.legacy-recipe), .recipe-support, .recipe-provenance { display: none !important; }
+    h1 { font-size: 24pt; }
+  }
+</style>

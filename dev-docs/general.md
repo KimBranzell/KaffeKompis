@@ -15,12 +15,20 @@ Implemented:
 
 The review at `project-review.md` records the original findings; its first-stage defects describe the pre-change baseline.
 
+## Dependency triage
+
+Completed: patched framework and tooling, removed unused dependency chains, and reached zero known registry advisories. See `security-triage.md` for scope, exposure, versions, and the temporary esbuild override.
+
 ## Stage 2 — one excellent recipe
 
-- Complete and structure the pour-over recipe's quantities, equipment requirements, and steps.
-- Build recipe scaling and a shared recipe layout.
-- Add focused brewing sessions to recipe pages.
-- Put recipes first on the homepage and link to relevant knowledge and troubleshooting.
+Implemented:
+
+- Structured pour-over quantities, equipment requirements, preparation, timed steps, provenance, and adjustment advice.
+- Validated dose scaling, cumulative targets, a shared detail layout, and printing of the current quantities.
+- Focused brewing sessions with fixed active parameters, wall-clock timing, and manual confirmation after drainage.
+- Recipes first on the homepage, a featured V60 entry point, related guides, and method-aware troubleshooting links.
+
+See `recipe-authoring.md` for the model, supported scaling range, session behavior, and fallback without JavaScript.
 
 ## Stage 3 — repeat and learn
 

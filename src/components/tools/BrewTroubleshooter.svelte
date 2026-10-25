@@ -173,12 +173,18 @@
     },
   };
 
-  import { onDestroy } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
 
   let selectedMethod = 'pour-over';
   let selectedSymptom = 'sour';
   let selectedRoast = 'medium';
   let selectedFlow = 'normal';
+
+  onMount(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (methods.some(method => method.id === params.get('method'))) selectedMethod = params.get('method');
+    if (Object.hasOwn(symptoms, params.get('symptom'))) selectedSymptom = params.get('symptom');
+  });
 
   let liveAnnouncement = '';
 

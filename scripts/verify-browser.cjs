@@ -119,7 +119,7 @@ async function checkInteractions(browser, origin) {
     }, String(value));
     const valueOf = selector => page.$eval(selector, element => element.value);
     await ready(page, origin + 'recept/klassisk-pour-over/');
-    assert.equal(await page.$eval('.article-content ol', element => getComputedStyle(element).listStyleType), 'decimal');
+    assert.equal(await page.$eval('.recipe-steps', element => getComputedStyle(element).listStyleType), 'decimal');
     await page.click('.menu-toggle');
     await page.waitForFunction(() => document.querySelector('.menu-toggle').getAttribute('aria-expanded') === 'true');
     assert.equal(await page.$eval('#primary-navigation a', element => element.innerText), 'Recept');
@@ -224,15 +224,93 @@ async function checkInteractions(browser, origin) {
     await noScriptPage.setJavaScriptEnabled(false);
     await noScriptPage.goto(origin + 'recept/klassisk-pour-over/', { waitUntil: 'load' });
     const staticRecipe = await noScriptPage.evaluate(() => ({
-      steps: document.querySelectorAll('.article-content ol li').length,
-      numbered: getComputedStyle(document.querySelector('.article-content ol')).listStyleType,
+      steps: document.querySelectorAll('.recipe-steps li').length,
+      numbered: getComputedStyle(document.querySelector('.recipe-steps')).listStyleType,
+      water: document.querySelector('[data-recipe-water]').textContent,
+      controlsDisabled: document.querySelector('#recipe-dose').matches(':disabled'),
       headingBelowHeader: document.querySelector('h1').getBoundingClientRect().top >= document.querySelector('.site-header').getBoundingClientRect().bottom,
       navigationVisible: document.querySelector('#primary-navigation').getBoundingClientRect().width > 0,
     }));
-    assert.deepEqual(staticRecipe, { steps: 4, numbered: 'decimal', headingBelowHeader: true, navigationVisible: true });
+    assert.deepEqual(staticRecipe, { steps: 5, numbered: 'decimal', water: '320', controlsDisabled: true, headingBelowHeader: true, navigationVisible: true });
     await noScriptPage.close();
+    await checkRecipeInteractions(page, origin);
     console.log('Passed navigation, theme, sharing, timer, storage, and calculator interactions.');
   } finally { await context.close(); }
+}
+
+async function checkRecipeInteractions(page, origin) {
+  const setDose = async value => page.$eval('#recipe-dose', (element, next) => {
+    element.value = next; element.dispatchEvent(new Event('input', { bubbles: true }));
+  }, String(value));
+  await page.setViewport({ width: 390, height: 844 });
+  await ready(page, origin);
+  assert.match(await page.$eval('main a', element => element.getAttribute('href')), /recept\//);
+  assert.equal(await page.evaluate(() => !!(document.querySelector('#home-recipes-title').compareDocumentPosition(document.querySelector('#home-tools-title')) & Node.DOCUMENT_POSITION_FOLLOWING)), true);
+  await ready(page, origin + 'recept/klassisk-pour-over/');
+  assert.equal(await page.$eval('#recipe-dose', element => element.value), '20');
+  assert.equal(await page.$eval('[data-recipe-water]', element => element.textContent), '320');
+  await setDose(40);
+  assert.equal(await page.$eval('[data-recipe-water]', element => element.textContent), '640');
+  assert.deepEqual(await page.$$eval('.recipe-steps [data-target]', elements => elements.map(element => element.textContent)), ['100 g', '280 g', '460 g', '640 g']);
+  assert.deepEqual(await page.$$eval('.recipe-steps .step-time', elements => elements.map(element => element.textContent)), ['0:00', '0:30', '1:15', '2:00', '2:35']);
+  await setDose(41);
+  assert.equal(await page.$eval('[data-start-recipe]', element => element.disabled), true);
+  assert.equal(await page.$eval('#recipe-dose', element => element.getAttribute('aria-invalid')), 'true');
+  await setDose(20.55);
+  assert.equal(await page.$eval('.print-recipe', element => element.disabled), true);
+  await setDose(20.5);
+  assert.equal(await page.$eval('[data-recipe-water]', element => element.textContent), '328');
+  await setDose(40);
+  await page.evaluate(() => window.print = () => window.recipePrinted = true);
+  await page.click('.print-recipe');
+  assert.equal(await page.evaluate(() => window.recipePrinted), true);
+  await page.click('[data-start-recipe]');
+  await page.waitForSelector('.active-brew');
+  assert.equal(await page.$eval('#recipe-dose', element => element.matches(':disabled')), true);
+  assert.equal(await page.$eval('[data-active-target]', element => element.textContent), '100 g');
+  assert.equal(await page.evaluate(() => document.activeElement.id), 'active-step-heading');
+  await page.evaluate(() => window.advanceBrewClock(80000));
+  await page.waitForFunction(() => document.querySelector('[data-active-target]').textContent === '460 g');
+  assert.match(await page.$eval('#active-step-heading', element => element.textContent), /Tredje/);
+  await page.$eval('.skip-link', element => element.click());
+  assert.equal(await page.$eval('#recipe-dose', element => element.value), '40');
+  await page.evaluate(axe.source);
+  const activeAudit = await page.evaluate(async () => (await axe.run(document)).violations.map(violation => violation.id));
+  assert.deepEqual(activeAudit, [], 'Active brewing accessibility');
+  await page.emulateMediaType('print');
+  const printView = await page.evaluate(() => ({
+    scheduleVisible: getComputedStyle(document.querySelector('.full-schedule')).display !== 'none',
+    controlsHidden: getComputedStyle(document.querySelector('.print-recipe')).display === 'none',
+    coffee: document.querySelector('.print-dose dd').textContent,
+    water: document.querySelector('[data-recipe-water]').textContent,
+    finalTarget: [...document.querySelectorAll('.recipe-steps [data-target]')].at(-1).textContent,
+  }));
+  assert.deepEqual(printView, { scheduleVisible: true, controlsHidden: true, coffee: '40 g', water: '640', finalTarget: '640 g' });
+  await page.pdf({ path: 'reports/pour-over-40g.pdf', format: 'A4', printBackground: true, margin: { top: '12mm', bottom: '12mm', left: '12mm', right: '12mm' } });
+  await page.emulateMediaType('screen');
+  await page.evaluate(() => window.advanceBrewClock(200000));
+  await page.waitForSelector('[data-complete-recipe]');
+  assert.equal(await page.$eval('#recipe-dose', element => element.matches(':disabled')), true);
+  await page.click('[data-complete-recipe]');
+  await page.waitForFunction(() => document.querySelector('.session-result h3').textContent.includes('Dags att smaka'));
+  assert.equal(await page.evaluate(() => document.activeElement.matches('.session-result h3')), true);
+  assert.equal(await page.$eval('#recipe-dose', element => element.matches(':disabled')), false);
+  await setDose(30);
+  assert.equal(await page.$eval('[data-recipe-water]', element => element.textContent), '480');
+  await page.click('[data-start-recipe]');
+  await page.click('[data-stop-recipe]');
+  await page.waitForFunction(() => document.activeElement.matches('.session-result h3'));
+  assert.equal(await page.$eval('#recipe-dose', element => element.matches(':disabled')), false);
+  await page.click('[data-reset-recipe]');
+  await page.waitForFunction(() => document.activeElement.matches('[data-start-recipe]'));
+  assert.equal(await page.$('.session-result'), null);
+  await page.setViewport({ width: 320, height: 844 });
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  await ready(page, origin + 'recept/french-press-morgon/');
+  await Promise.all([page.waitForNavigation({ waitUntil: 'load' }), page.click('a[href*="bryggfelsokning/?method=french-press"]')]);
+  await page.waitForFunction(() => !document.querySelector('astro-island[client="load"]').hasAttribute('ssr'));
+  assert.equal(await page.$eval('[aria-label="Välj metod"] button[aria-pressed="true"]', element => element.textContent.trim()), 'French press');
+  console.log('Passed recipe scaling, active brewing, completion, print, no-script, and troubleshooting checks.');
 }
 
 module.exports = { runBrowserChecks };

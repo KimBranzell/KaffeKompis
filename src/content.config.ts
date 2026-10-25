@@ -1,6 +1,7 @@
 import { defineCollection } from 'astro:content';
 import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
+import { brewPlanSchema } from './lib/recipes/schema.js';
 
 const blog = defineCollection({
   loader: glob({ base: './src/content/blog', pattern: '**/*.md' }),
@@ -34,9 +35,10 @@ const recipes = defineCollection({
     description: z.string(),
     method: z.enum(['pour-over', 'aeropress', 'french-press']),
     difficulty: z.enum(['Enkel', 'Medel', 'Avancerad']),
-    brewTime: z.string(),
+    brewTime: z.string().optional(),
+    brew: brewPlanSchema.optional(),
     featured: z.boolean().default(false),
-  }),
+  }).refine(data => !!data.brew || !!data.brewTime, { message: 'Receptet behöver ett bryggschema eller en bryggtid.' }),
 });
 
 export const collections = { blog, tools, recipes };

@@ -5,124 +5,36 @@ import Hero from '../components/Hero/Hero.astro';
 import ToolCard from '../components/Cards/ToolCard.astro';
 import BlogCard from '../components/Cards/BlogCard.astro';
 import RecipeCard from '../components/Cards/RecipeCard.astro';
+import { recipeTimeLabel } from '../lib/recipes/brewing.js';
 
 const base = import.meta.env.BASE_URL;
-const dateFormatter = new Intl.DateTimeFormat('sv-SE', {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-});
-
-const tools = (await getCollection('tools')).sort((a, b) => {
-  if (a.data.featured !== b.data.featured) {
-    return Number(b.data.featured) - Number(a.data.featured);
-  }
-
-  if (a.data.status !== b.data.status) {
-    return a.data.status === 'live' ? -1 : 1;
-  }
-
-  return a.data.title.localeCompare(b.data.title, 'sv');
-});
-
-const posts = (await getCollection('blog')).sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-);
-
-const recipes = (await getCollection('recipes')).sort((a, b) => {
-  if (a.data.featured !== b.data.featured) {
-    return Number(b.data.featured) - Number(a.data.featured);
-  }
-
-  return a.data.title.localeCompare(b.data.title, 'sv');
-});
-
-const featuredTool = tools.find((tool) => tool.data.featured)?.data.title;
+const dateFormat = new Intl.DateTimeFormat('sv-SE', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Stockholm' });
+const recipes = (await getCollection('recipes')).sort((a, b) => Number(b.data.featured) - Number(a.data.featured) || a.data.title.localeCompare(b.data.title, 'sv'));
+const tools = (await getCollection('tools')).sort((a, b) => Number(b.data.featured) - Number(a.data.featured) || a.data.title.localeCompare(b.data.title, 'sv'));
+const posts = (await getCollection('blog')).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const firstRecipe = recipes.find(recipe => recipe.data.brew);
+const featuredRecipe = firstRecipe ? {
+  title: firstRecipe.data.title, description: firstRecipe.data.description,
+  href: `${base}recept/${firstRecipe.id}/`, time: recipeTimeLabel(firstRecipe.data),
+  dose: firstRecipe.data.brew!.coffeeGrams,
+  water: firstRecipe.data.brew!.coffeeGrams * firstRecipe.data.brew!.ratio,
+} : undefined;
 ---
-
-<PageLayout
-  title="Hem"
-  description="Kaffekompis samlar smarta kaffeverktyg, tydliga recept och korta guider för handbryggning hemma."
->
-  <Hero
-    toolCount={tools.length}
-    recipeCount={recipes.length}
-    postCount={posts.length}
-    featuredToolTitle={featuredTool}
-  />
-
-  <section class="mx-auto flex w-full max-w-7xl flex-col gap-18 px-4 py-14 md:py-18">
-    <section class="grid gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:items-end">
-      <div class="space-y-4">
-        <p class="section-kicker">Verktyg</p>
-        <h2 class="section-title">Byggt för verklig bryggning, inte bara inspiration.</h2>
-        <p class="section-copy">
-          Starta med de verktyg som redan finns live. De är gjorda för att minska friktion när du faktiskt står med kvarn,
-          filter och vattenkokare framför dig.
-        </p>
-      </div>
-      <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {tools.map((tool) => (
-          <ToolCard
-            title={tool.data.title}
-            description={tool.data.description}
-            icon={tool.data.icon}
-            link={tool.data.href ? `${base}${tool.data.href.replace(/^\//, '')}` : undefined}
-            status={tool.data.status}
-            badge={tool.data.badge}
-          />
-        ))}
-      </div>
+<PageLayout title="Hem" description="Bryggrecept, guidat bryggläge och kaffekunskap för en god kopp hemma. Börja med din bryggmetod och anpassa mängden.">
+  <Hero {featuredRecipe} />
+  <div class="mx-auto flex w-full max-w-7xl flex-col gap-16 px-4 py-12 md:py-16">
+    <section aria-labelledby="home-recipes-title" class="space-y-7">
+      <div class="max-w-3xl space-y-3"><p class="section-kicker">Bryggrecept</p><h2 id="home-recipes-title" class="section-title">Vad brygger du med?</h2><p class="section-copy">Hitta ett grundrecept som passar din bryggare. V60-receptet hjälper dig att anpassa dosen och följa hällningarna steg för steg.</p></div>
+      <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">{recipes.map(recipe => <RecipeCard title={recipe.data.title} method={recipe.data.method} difficulty={recipe.data.difficulty} time={recipeTimeLabel(recipe.data)} dose={recipe.data.brew?.coffeeGrams} ratio={recipe.data.brew?.ratio} slug={recipe.id} link={`${base}recept/${recipe.id}/`} description={recipe.data.description} />)}</div>
     </section>
-
-    <section class="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-      <div class="rounded-[1.75rem] border-3 border-black bg-[#111111] p-8 text-[#fff8e8] shadow-[8px_8px_0_#000]">
-        <p class="section-kicker text-[#ffd166]">Nytt på sidan</p>
-        <h2 class="mt-3 text-4xl font-black leading-tight">Korta guider när du vill justera med mindre trial and error.</h2>
-        <p class="mt-4 max-w-2xl text-lg leading-8 text-[#f6ead3]">
-          Bloggen fungerar som ett praktiskt komplement till verktygen: mindre teori för teorins skull, mer konkreta beslut
-          om malning, temperatur och rostning.
-        </p>
-        <a href={`${base}blogg/`} class="mt-6 inline-flex border-3 border-[#ffd166] px-5 py-3 text-sm font-black uppercase tracking-[0.16em] text-[#ffd166] transition-transform hover:-translate-y-1">
-          Se alla inlägg
-        </a>
-      </div>
-      <div class="grid gap-6 md:grid-cols-2">
-        {posts.slice(0, 2).map((post) => (
-          <BlogCard
-            title={post.data.title}
-            date={dateFormatter.format(post.data.pubDate)}
-            slug={post.id}
-            link={`${base}blogg/${post.id}/`}
-            description={post.data.description}
-            tags={post.data.tags}
-          />
-        ))}
-      </div>
+    <section aria-labelledby="home-tools-title" class="space-y-7">
+      <div class="max-w-3xl space-y-3"><p class="section-kicker">Vid sidan av bryggaren</p><h2 id="home-tools-title" class="section-title">Verktyg för nästa justering.</h2><p class="section-copy">Räkna på vattenmängden, prova 4:6-metoden eller felsök en kopp som inte blev som du tänkt.</p></div>
+      <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">{tools.map(tool => <ToolCard title={tool.data.title} description={tool.data.description} icon={tool.data.icon} link={tool.data.href ? `${base}${tool.data.href.replace(/^\//, '')}` : undefined} status={tool.data.status} badge={tool.data.badge} />)}</div>
     </section>
-
-    <section class="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:items-start">
-      <div class="space-y-4">
-        <p class="section-kicker">Recept</p>
-        <h2 class="section-title">Recept du kan brygga direkt utan att tolka runt luckorna.</h2>
-        <p class="section-copy">
-          Varje recept är skrivet för att vara användbart på köksbänken: dos, bryggtid, metod och enkla justeringar om smaken
-          drar iväg.
-        </p>
-      </div>
-      <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {recipes.map((recipe) => (
-          <RecipeCard
-            title={recipe.data.title}
-            method={recipe.data.method}
-            difficulty={recipe.data.difficulty}
-            time={recipe.data.brewTime}
-            slug={recipe.id}
-            link={`${base}recept/${recipe.id}/`}
-            description={recipe.data.description}
-          />
-        ))}
-      </div>
+    <section aria-labelledby="home-guides-title" class="space-y-7">
+      <div class="max-w-3xl space-y-3"><p class="section-kicker">Kaffekunskap</p><h2 id="home-guides-title" class="section-title">Förstå vad som händer i koppen.</h2><p class="section-copy">Läs om rostning, malning och utrustning och använd kunskapen i nästa bryggning.</p></div>
+      <div class="grid gap-6 md:grid-cols-2">{posts.filter(post => post.id !== 'valkommen').slice(0, 2).map(post => <BlogCard title={post.data.title} date={dateFormat.format(post.data.pubDate)} slug={post.id} link={`${base}blogg/${post.id}/`} description={post.data.description} tags={post.data.tags} />)}</div>
+      <a href={`${base}blogg/`} class="inline-flex min-h-12 items-center font-bold underline underline-offset-4">Se alla guider och inlägg</a>
     </section>
-  </section>
+  </div>
 </PageLayout>
