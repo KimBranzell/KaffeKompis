@@ -5,7 +5,7 @@ import Hero from '../components/Hero/Hero.astro';
 import ToolCard from '../components/Cards/ToolCard.astro';
 import BlogCard from '../components/Cards/BlogCard.astro';
 import RecipeCard from '../components/Cards/RecipeCard.astro';
-import { recipeTimeLabel } from '../lib/recipes/brewing.js';
+import { recipeTimeLabel, recipeCardQuantities } from '../lib/recipes/brewing.js';
 
 const base = import.meta.env.BASE_URL;
 const dateFormat = new Intl.DateTimeFormat('sv-SE', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Stockholm' });
@@ -17,15 +17,15 @@ const featuredRecipe = firstRecipe ? {
   title: firstRecipe.data.title, description: firstRecipe.data.description,
   href: `${base}recept/${firstRecipe.id}/`, time: recipeTimeLabel(firstRecipe.data),
   dose: firstRecipe.data.brew!.coffeeGrams,
-  water: firstRecipe.data.brew!.coffeeGrams * firstRecipe.data.brew!.ratio,
+  water: firstRecipe.data.brew!.waterGrams,
 } : undefined;
 ---
 <PageLayout title="Hem" description="Bryggrecept, guidat bryggläge och kaffekunskap för en god kopp hemma. Börja med din bryggmetod och anpassa mängden.">
   <Hero {featuredRecipe} />
   <div class="mx-auto flex w-full max-w-7xl flex-col gap-16 px-4 py-12 md:py-16">
     <section aria-labelledby="home-recipes-title" class="space-y-7">
-      <div class="max-w-3xl space-y-3"><p class="section-kicker">Bryggrecept</p><h2 id="home-recipes-title" class="section-title">Vad brygger du med?</h2><p class="section-copy">Hitta ett grundrecept som passar din bryggare. V60-receptet hjälper dig att anpassa dosen och följa hällningarna steg för steg.</p></div>
-      <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">{recipes.map(recipe => <RecipeCard title={recipe.data.title} method={recipe.data.method} difficulty={recipe.data.difficulty} time={recipeTimeLabel(recipe.data)} dose={recipe.data.brew?.coffeeGrams} ratio={recipe.data.brew?.ratio} slug={recipe.id} link={`${base}recept/${recipe.id}/`} description={recipe.data.description} />)}</div>
+      <div class="max-w-3xl space-y-3"><p class="section-kicker">Bryggrecept</p><h2 id="home-recipes-title" class="section-title">Vad brygger du med?</h2><p class="section-copy">Hitta ett grundrecept som passar din bryggare. Räkna en kanna vardagskaffe i elbryggaren eller följ V60, AeroPress och presskanna med bryggschema och timer.</p></div>
+      <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">{recipes.map(recipe => <RecipeCard title={recipe.data.title} method={recipe.data.method} difficulty={recipe.data.difficulty} time={recipeTimeLabel(recipe.data)} {...recipeCardQuantities(recipe.data)} slug={recipe.id} link={`${base}recept/${recipe.id}/`} description={recipe.data.description} />)}</div>
     </section>
     <section aria-labelledby="home-tools-title" class="space-y-7">
       <div class="max-w-3xl space-y-3"><p class="section-kicker">Vid sidan av bryggaren</p><h2 id="home-tools-title" class="section-title">Verktyg för nästa justering.</h2><p class="section-copy">Räkna på vattenmängden, prova 4:6-metoden eller felsök en kopp som inte blev som du tänkt.</p></div>

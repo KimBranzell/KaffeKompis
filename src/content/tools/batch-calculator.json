@@ -1,0 +1,9 @@
+{
+  "title": "Batchkalkylator för elbryggare",
+  "description": "Räkna kaffevikten från vatten eller koppar, välj dosering och kontrollera batchen mot bryggarens maxvolym.",
+  "icon": "☕",
+  "href": "/recept/vardagskaffe-elbryggare/",
+  "status": "live",
+  "featured": false,
+  "badge": "Recept + kalkylator"
+}

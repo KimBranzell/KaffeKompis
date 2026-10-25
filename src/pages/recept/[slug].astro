@@ -2,17 +2,19 @@
 import { getCollection, render } from 'astro:content';
 import PageLayout from '../../layouts/PageLayout.astro';
 import RecipeWorkbench from '../../components/recipes/RecipeWorkbench.svelte';
+import BatchRecipe from '../../components/recipes/BatchRecipe.svelte';
 import BlogCard from '../../components/Cards/BlogCard.astro';
 import { recipeTimeLabel } from '../../lib/recipes/brewing.js';
+import { METHOD_LABELS } from '../../lib/recipes/methods.js';
 
 export async function getStaticPaths() {
   return (await getCollection('recipes')).map(recipe => ({ params: { slug: recipe.id }, props: { recipe } }));
 }
 const { recipe } = Astro.props;
 const { Content } = await render(recipe);
-const plan = recipe.data.brew;
+const plan = recipe.data.brew ?? recipe.data.batch;
 const base = import.meta.env.BASE_URL;
-const methodLabels = { 'pour-over': 'Pour over', aeropress: 'AeroPress', 'french-press': 'French press' };
+const methodLabels = METHOD_LABELS;
 const posts = await getCollection('blog');
 const guides = (plan?.relatedGuides ?? []).map(id => {
   const post = posts.find(post => post.id === id);
@@ -22,7 +24,7 @@ const guides = (plan?.relatedGuides ?? []).map(id => {
 const dateFormat = new Intl.DateTimeFormat('sv-SE', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Stockholm' });
 ---
 <PageLayout title={recipe.data.title} description={recipe.data.description}>
-  <article class:list={['recipe-page mx-auto flex w-full flex-col gap-10 px-4 py-12 md:py-16', plan ? 'max-w-6xl' : 'max-w-3xl']}>
+  <article class:list={['recipe-page mx-auto flex w-full flex-col gap-10 px-4 py-12 md:py-16', plan ? 'max-w-6xl' : 'max-w-3xl', recipe.data.batch && 'batch-page']}>
     <header class="space-y-4">
       <p class="section-kicker"><a href={`${base}recept/`} class="underline underline-offset-4">Alla recept</a> / {methodLabels[recipe.data.method]}</p>
       <h1 class="text-4xl font-black leading-tight md:text-5xl">{recipe.data.title}</h1>
@@ -30,12 +32,13 @@ const dateFormat = new Intl.DateTimeFormat('sv-SE', { day: 'numeric', month: 'lo
         <span class="border-2 border-black accent-panel bg-[#ffa45b] px-3 py-1">{methodLabels[recipe.data.method]}</span>
         <span class="border-2 border-black paper-surface px-3 py-1">{recipeTimeLabel(recipe.data)}</span>
         <span class="border-2 border-black accent-panel bg-[#dff4d7] px-3 py-1">{recipe.data.difficulty}</span>
-        {plan && <span class="border-2 border-black paper-surface px-3 py-1">Skalbart recept · V60 02</span>}
+        {plan && <span class="border-2 border-black paper-surface px-3 py-1">{recipe.data.batch ? 'Batchkalkylator' : 'Skalbart recept'} · {plan.brewer}</span>}
       </div>
       <p class="max-w-3xl text-lg leading-8 text-foreground/80">{recipe.data.description}</p>
     </header>
 
-    {plan && <RecipeWorkbench plan={plan} client:load />}
+    {recipe.data.brew && <RecipeWorkbench plan={recipe.data.brew} client:load />}
+    {recipe.data.batch && <BatchRecipe plan={recipe.data.batch} client:load />}
     {plan && <p class="print-recipe-source">Kaffekompis · Receptversion {plan.version} · {new URL(`${base}recept/${recipe.id}/`, Astro.site).href}</p>}
 
     <div class:list={['recipe-notes border-3 border-black paper-surface p-6 shadow-[6px_6px_0_#000] md:p-10', !plan && 'legacy-recipe']}>
@@ -63,5 +66,8 @@ const dateFormat = new Intl.DateTimeFormat('sv-SE', { day: 'numeric', month: 'lo
     .recipe-page { max-width: none; padding: 0; gap: 1rem; }
     .recipe-notes:not(.legacy-recipe), .recipe-support, .recipe-provenance { display: none !important; }
     h1 { font-size: 24pt; }
+    .batch-page > header > div { display: none; }
+    .batch-page > header > p { font-size: 10pt; line-height: 1.4; }
+    .batch-page > header > * { margin-block: .35rem; }
   }
 </style>

@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import PageLayout from '../../layouts/PageLayout.astro';
-import { recipeTimeLabel } from '../../lib/recipes/brewing.js';
+import { recipeTimeLabel, recipeCardQuantities } from '../../lib/recipes/brewing.js';
 import RecipeCard from '../../components/Cards/RecipeCard.astro';
 
 const base = import.meta.env.BASE_URL;
@@ -16,7 +16,7 @@ const recipes = (await getCollection('recipes')).sort((a, b) => {
 
 <PageLayout
   title="Recept"
-  description="Handfasta bryggrecept för pour over, AeroPress och presskanna med tydliga steg och justeringar."
+  description="Bryggrecept för elbryggare, pour over, AeroPress och presskanna med kalkylator, tydliga steg och justeringar."
 >
   <section class="mx-auto flex w-full max-w-7xl flex-col gap-10 px-4 py-14 md:py-18">
     <div class="grid gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
@@ -24,7 +24,7 @@ const recipes = (await getCollection('recipes')).sort((a, b) => {
         <p class="section-kicker">Recept</p>
         <h1 class="section-title">Hitta ett recept för din bryggare.</h1>
         <p class="section-copy">
-          Välj en metod och börja med grundreceptet. För V60 kan du ställa in dosen direkt på receptsidan och följa bryggningen med en timer.
+          Välj en metod och börja med grundreceptet. Räkna ut dosen för elbryggaren eller följ hällning, dragtid och pressning med en timer.
         </p>
       </div>
       <div class="rounded-[1.75rem] border-3 border-black accent-panel bg-[#dff4d7] p-8 shadow-[8px_8px_0_#000]">
@@ -43,8 +43,7 @@ const recipes = (await getCollection('recipes')).sort((a, b) => {
           method={recipe.data.method}
           difficulty={recipe.data.difficulty}
           time={recipeTimeLabel(recipe.data)}
-            dose={recipe.data.brew?.coffeeGrams}
-            ratio={recipe.data.brew?.ratio}
+          {...recipeCardQuantities(recipe.data)}
           slug={recipe.id}
           link={`${base}recept/${recipe.id}/`}
           description={recipe.data.description}

@@ -32,7 +32,15 @@ See `recipe-authoring.md` for the model, supported scaling range, session behavi
 
 ## Stage 3 — repeat and learn
 
-- Extend the recipe model to AeroPress and French press.
+Implemented:
+
+- Extended the recipe model to AeroPress and French press, with exact base quantities, method-specific equipment limits and dose presets, stirring, steeping, pressing, and printable instructions.
+- Added confirmation after stirring so a full steep starts when the brewer is ready; delayed callbacks cannot skip physical preparation.
+- Made recipe cards and time labels consistent across all three methods, including total time through pressing and serving.
+- Added an electric filter-brewer recipe and water/cup batch calculator, with explicit cup sizes, adjustable grams per litre, capacity validation, estimated scoops and dl of ground coffee with adjustable conversion factors, current-quantity printing, and machine-specific troubleshooting.
+
+Remaining:
+
 - Add favorites and a local brew journal with export/import.
 - Support repeating and comparing saved brews.
 - Complete PWA registration, offline availability, and a non-disruptive update flow.

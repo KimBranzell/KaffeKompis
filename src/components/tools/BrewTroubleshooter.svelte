@@ -1,9 +1,6 @@
 <script>
-  const methods = [
-    { id: 'pour-over', label: 'Pour over' },
-    { id: 'aeropress', label: 'AeroPress' },
-    { id: 'french-press', label: 'French press' },
-  ];
+  import { METHOD_LABELS } from '../../lib/recipes/methods.js';
+  const methods = Object.entries(METHOD_LABELS).map(([id, label]) => ({ id, label }));
 
   const roasts = [
     { id: 'light', label: 'Ljusrost' },
@@ -105,6 +102,12 @@
   };
 
   const methodAdjustments = {
+    'electric-filter': {
+      sour: { title: 'Prova lite finare filtermalning', change: 'Behåll doseringen och prova ett litet steg finare vid nästa batch.', why: 'Mer kontaktyta kan ge bättre extraktion. Bryggaren styr temperatur och flöde.' },
+      bitter: { title: 'Jämför med en färsk kopp', change: 'Servera direkt eller häll över i termos i stället för att låta kaffet stå länge på värmeplattan.', why: 'Lång varmhållning kan göra kaffet bittert även när doseringen är rätt.' },
+      thin: { title: 'Väg dosen för vattenmängden', change: 'Kontrollera gram per liter i batchkalkylatorn och prova en liten ökning vid samma vattenmängd.', why: 'Koppmarkeringar och kaffemått varierar; vägning gör nästa jämförelse tydligare.' },
+      muddy: { title: 'Kontrollera filtret', change: 'Använd rätt filterstorlek, placera filtret korrekt och rengör filterhållaren.', why: 'Ett felplacerat eller skadat filter kan släppa igenom kaffesump.' },
+    },
     'pour-over': {
       sour: {
         title: 'Låt bloom och hällningar jobba längre',
@@ -293,6 +296,11 @@
   }
 
   function createNextBrewPlan(symptom, method, flow, roast) {
+    if (method === 'electric-filter') return {
+      grind: symptom === 'sour' ? 'Prova ett litet steg finare filtermalning' : 'Utgå från maskinens filtermalning',
+      temperature: 'Bryggaren styr värmen; fyll på kallt vatten',
+      technique: methodAdjustments[method][symptom].change,
+    };
     const plans = {
       sour: {
         grind: flow === 'fast' ? '1 till 2 steg finare' : '1 steg finare',
@@ -320,7 +328,11 @@
   }
 
   $: symptomProfile = symptoms[selectedSymptom];
+  $: watchouts = selectedMethod === 'electric-filter'
+    ? ['Notera vattenmängd, kaffevikt och hur smaken ändras när du provar en justering.', 'Kontrollera rengöring och avkalkning enligt manualen om bryggningen går ovanligt långsamt.']
+    : symptomProfile.watchouts;
   function createRecommendations(method, symptom, flow, roast) {
+    if (method === 'electric-filter') return [methodAdjustments[method][symptom]];
     return [
       ...symptoms[symptom].baseRecommendations,
       methodAdjustments[method][symptom],
@@ -357,7 +369,7 @@
     <div class="space-y-6 rounded-[1.75rem] border-3 border-black accent-panel bg-white p-6 shadow-[8px_8px_0_#000] md:p-8">
       <div>
         <p class="text-sm font-black uppercase tracking-[0.16em] text-black/60">1. Välj metod</p>
-        <div class="mt-3 grid gap-3 sm:grid-cols-3" role="group" aria-label="Välj metod">
+        <div class="mt-3 grid gap-3 sm:grid-cols-2" role="group" aria-label="Välj metod">
           {#each methods as method}
             <button
               type="button"
@@ -390,7 +402,7 @@
         </div>
       </div>
 
-      <div class="grid gap-6 md:grid-cols-2">
+      {#if selectedMethod !== 'electric-filter'}<div class="grid gap-6 md:grid-cols-2">
         <div>
           <p class="text-sm font-black uppercase tracking-[0.16em] text-black/60">3. Rostning</p>
           <div class="mt-3 grid gap-3" role="group" aria-label="Välj rostning">
@@ -424,7 +436,7 @@
             {/each}
           </div>
         </div>
-      </div>
+      </div>{/if}
     </div>
 
     <div class="space-y-6">
@@ -476,7 +488,7 @@
       <article class="rounded-[1.75rem] border-3 border-black accent-panel bg-[#ffef9f] p-6 shadow-[8px_8px_0_#000] md:p-8">
         <p class="text-sm font-black uppercase tracking-[0.16em] text-black/60">Det har ska du observera nästa kopp</p>
         <ul class="mt-4 grid gap-3 text-base leading-7 text-black/80">
-          {#each symptomProfile.watchouts as item}
+          {#each watchouts as item}
             <li class="rounded-2xl border-3 border-black accent-panel bg-white px-4 py-3">{item}</li>
           {/each}
         </ul>

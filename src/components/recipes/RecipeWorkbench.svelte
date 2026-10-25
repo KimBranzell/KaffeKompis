@@ -1,6 +1,6 @@
 <script>
   import { onMount, onDestroy, tick } from 'svelte';
-  import { scaleBrewPlan, validRecipeDose, formatBrewTime, formatGrams } from '../../lib/recipes/brewing.js';
+  import { scaleBrewPlan, validRecipeDose, formatBrewTime, formatGrams, recipeRatioLabel } from '../../lib/recipes/brewing.js';
   import { createRecipeSession } from '../../lib/recipes/session.js';
 
   export let plan;
@@ -12,7 +12,7 @@
   let resultHeading;
   let startButton;
   const session = createRecipeSession();
-  const { status, locked, elapsedSeconds, activeBrew, currentStep } = session;
+  const { status, locked, elapsedSeconds, activeBrew, currentStep, remainingSeconds } = session;
 
   onMount(() => {
     ready = true;
@@ -27,6 +27,7 @@
   $: displayed = $locked ? $activeBrew : scaled;
   $: activeStep = $activeBrew?.steps[$currentStep];
   $: nextStep = $activeBrew?.steps[$currentStep + 1];
+  $: multiplePours = plan.steps.filter(step => step.kind === 'pour').length > 1;
   $: if (dose !== lastDose && !$locked) {
     session.reset();
     lastDose = dose;
@@ -49,6 +50,12 @@
     await tick();
     resultHeading?.focus({ preventScroll: true });
     resultHeading?.closest('.session-result')?.scrollIntoView({ block: 'start', behavior: 'auto' });
+  }
+
+  async function advance() {
+    if (!session.advance()) return;
+    await tick();
+    activeHeading?.focus({ preventScroll: true });
   }
 
   async function reset() {
@@ -75,9 +82,9 @@
             aria-invalid={!validDose ? 'true' : undefined} aria-describedby={!validDose ? 'recipe-dose-error' : 'recipe-dose-hint'} />
           <span>g kaffe</span>
         </div>
-        <p id="recipe-dose-hint" class="hint">{plan.minDoseGrams}–{plan.maxDoseGrams} g för det här receptet och en V60 02.</p>
+        <p id="recipe-dose-hint" class="hint">{plan.minDoseGrams}–{plan.maxDoseGrams} g för det här receptet med {plan.brewer}. Se utrustningen innan du börjar.</p>
         <div class="dose-presets" role="group" aria-label="Välj kaffemängd">
-          {#each [15, 20, 30, 40].filter(value => validRecipeDose(plan, value)) as preset}
+          {#each plan.dosePresets as preset}
             <button type="button" class:selected={dose === preset} aria-pressed={dose === preset} on:click={() => dose = preset}>{preset} g</button>
           {/each}
         </div>
@@ -89,13 +96,13 @@
         <dl class="brew-metrics">
           <div class="print-dose"><dt>Kaffe</dt><dd>{formatGrams(displayed.coffeeGrams)} g</dd></div>
           <div><dt>Bryggvatten</dt><dd><span data-recipe-water>{formatGrams(displayed.waterGrams)}</span> g</dd></div>
-          <div><dt>Förhållande</dt><dd>1:{formatGrams(plan.ratio)}</dd></div>
+          <div><dt>Förhållande</dt><dd>{recipeRatioLabel(plan)}</dd></div>
           <div><dt>Temperatur</dt><dd>{plan.temperatureC}°C</dd></div>
-          <div><dt>Tidsmål vid {plan.coffeeGrams} g</dt><dd>{formatBrewTime(plan.targetTime.minSeconds)}–{formatBrewTime(plan.targetTime.maxSeconds)}</dd></div>
+          <div><dt>Total tid vid {plan.coffeeGrams} g</dt><dd>{formatBrewTime(plan.targetTime.minSeconds)}–{formatBrewTime(plan.targetTime.maxSeconds)}</dd></div>
         </dl>
       {/if}
       <p class="grind-note"><strong>Malning:</strong> {plan.grind}</p>
-      <p class="hint">Vattenmängderna skalas med dosen. Tider och temperatur behålls som riktmärken; en större bryggning kan ta längre tid.</p>
+      <p class="hint">Vattenmängderna skalas med dosen. Tider, malning och temperatur är riktmärken; en större bryggning kan ta längre tid. Totaltiden räknas från första vattnet till färdig bryggning.</p>
       <div class="brew-actions">
         <button type="button" class="button primary" data-start-recipe bind:this={startButton} disabled={!ready || !validDose || $locked} on:click={start}>
           {$status === 'completed' || $status === 'stopped' ? 'Brygg igen' : 'Starta bryggning'}
@@ -124,12 +131,17 @@
       {#if activeStep.kind === 'pour'}
         <p class="active-pour">Häll <strong>{formatGrams(activeStep.waterGrams)} g</strong></p>
         <p class="scale-target accent-panel">Vågen ska visa <strong data-active-target>{formatGrams(activeStep.targetGrams)} g</strong></p>
-      {:else}<p class="active-pour">Låt kaffet rinna färdigt.</p>{/if}
+      {/if}
       <p class="active-instruction">{activeStep.instruction}</p>
       {#if nextStep}
-        <p class="next-step">Nästa steg vid {formatBrewTime(nextStep.atSeconds)}: {nextStep.title.toLowerCase()}{nextStep.kind === 'pour' ? `, ${formatGrams(nextStep.waterGrams)} g vatten` : ''}.</p>
+        {#if activeStep.kind === 'stir'}
+          <p class="next-step">Gör klart momentet innan du fortsätter. Dragtiden börjar när du bekräftar.</p>
+          <button type="button" class="button primary" data-advance-recipe on:click={advance}>Klart – starta dragtiden</button>
+        {:else}
+          <p class="next-step">Nästa steg om {formatBrewTime(Math.ceil($remainingSeconds))}: {nextStep.title.toLowerCase()}{nextStep.kind === 'pour' ? `, ${formatGrams(nextStep.waterGrams)} g vatten` : ''}.</p>
+        {/if}
       {:else}
-        <p class="next-step">Timern fortsätter tills du bekräftar att kaffet har runnit igenom.</p>
+        <p class="next-step">Timern fortsätter tills du bekräftar att bryggningen är färdig.</p>
         <button type="button" class="button primary" data-complete-recipe on:click={() => finishBrew(session.complete)}>Bryggningen är klar</button>
       {/if}
       <button type="button" class="button secondary" data-stop-recipe on:click={() => finishBrew(session.stop)}>Stoppa timer</button>
@@ -145,8 +157,10 @@
   {/if}
 
   <section class="full-schedule" class:collapsed={$locked && !showSchedule} aria-labelledby="schedule-title">
-    <h3 id="schedule-title">Hällningsschema</h3>
-    <p class="hint">Vågens totalvikt är kumulativ. Nollställ inte vågen mellan hällningarna.</p>
+    <h3 id="schedule-title">Bryggschema</h3>
+    <p class="hint">Starta timern när det första vattnet träffar kaffet. Tiderna är riktmärken; följ instruktionerna även om ett moment tar längre tid.</p>
+    {#if plan.steps.some(step => step.kind === 'stir')}<p class="hint">I bryggläget bekräftar du när omrörningen är klar. Då börjar hela dragtiden, även om det tog längre tid än schemat.</p>{/if}
+    {#if multiplePours}<p class="hint">Vågens totalvikt är kumulativ. Nollställ inte vågen mellan hällningarna.</p>{/if}
     {#if displayed}
       <ol id="recipe-steps" class="recipe-steps">
         {#each displayed.steps as step, index}
@@ -176,7 +190,7 @@
   .dose-input-row { display: flex; align-items: center; gap: .75rem; }
   input { width: 145px; min-width: 0; border: 3px solid #111; background: white; color: #111; font-size: 2rem; font-weight: 900; padding: .4rem .75rem; }
   .hint { font-size: .875rem; line-height: 1.65; margin-top: .75rem; }
-  .dose-presets { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .5rem; margin-top: 1rem; }
+  .dose-presets { display: grid; grid-template-columns: repeat(auto-fit, minmax(44px, 1fr)); gap: .5rem; margin-top: 1rem; }
   .dose-presets button { min-height: 44px; padding: .3rem; border: 2px solid #111; background: white; color: #111; font-weight: 800; }
   .dose-presets button.selected { background: #111; color: white; }
   .brew-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin: 1.5rem 0; }

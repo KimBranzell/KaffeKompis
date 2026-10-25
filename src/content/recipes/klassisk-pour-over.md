@@ -7,7 +7,9 @@ featured: true
 brew:
   version: 1
   coffeeGrams: 20
-  ratio: 16
+  waterGrams: 320
+  brewer: "V60 02"
+  dosePresets: [15, 20, 30, 40]
   temperatureC: 94
   grind: "Medelfin malning för filterkaffe. Börja här och justera efter flöde och smak."
   minDoseGrams: 15

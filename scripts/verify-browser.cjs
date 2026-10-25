@@ -79,7 +79,7 @@ async function runBrowserChecks({ interactions = true } = {}) {
           if (audit.violations.length) failures.push(`${label}: ${audit.violations.map(v => v.id).join(', ')}`);
           if (pageErrors.length) failures.push(`${label}: ${pageErrors.join('; ')}`);
           reports.push({ width, theme, route, ...audit, pageErrors });
-          if (screenshotDir && ['', 'recept/klassisk-pour-over/', 'verktyg/4-6-metoden/', 'verktyg/kaffe-till-vatten-kalkylator/'].includes(route)) {
+          if (screenshotDir && ['', 'recept/klassisk-pour-over/', 'recept/stark-aeropress/', 'recept/french-press-morgon/', 'recept/vardagskaffe-elbryggare/', 'verktyg/4-6-metoden/', 'verktyg/kaffe-till-vatten-kalkylator/'].includes(route)) {
             await page.screenshot({ path: path.join(screenshotDir, `${width}-${theme}-${route.replaceAll('/', '-') || 'home'}.png`) });
           }
           page.off('pageerror', errorListener);
@@ -222,16 +222,24 @@ async function checkInteractions(browser, origin) {
     const noScriptPage = await context.newPage();
     await noScriptPage.setViewport({ width: 390, height: 844 });
     await noScriptPage.setJavaScriptEnabled(false);
-    await noScriptPage.goto(origin + 'recept/klassisk-pour-over/', { waitUntil: 'load' });
-    const staticRecipe = await noScriptPage.evaluate(() => ({
-      steps: document.querySelectorAll('.recipe-steps li').length,
-      numbered: getComputedStyle(document.querySelector('.recipe-steps')).listStyleType,
-      water: document.querySelector('[data-recipe-water]').textContent,
-      controlsDisabled: document.querySelector('#recipe-dose').matches(':disabled'),
-      headingBelowHeader: document.querySelector('h1').getBoundingClientRect().top >= document.querySelector('.site-header').getBoundingClientRect().bottom,
-      navigationVisible: document.querySelector('#primary-navigation').getBoundingClientRect().width > 0,
-    }));
-    assert.deepEqual(staticRecipe, { steps: 5, numbered: 'decimal', water: '320', controlsDisabled: true, headingBelowHeader: true, navigationVisible: true });
+    for (const [slug, steps, water] of [['klassisk-pour-over', 5, '320'], ['stark-aeropress', 4, '200'], ['french-press-morgon', 4, '500']]) {
+      await noScriptPage.goto(origin + `recept/${slug}/`, { waitUntil: 'load' });
+      const staticRecipe = await noScriptPage.evaluate(() => ({
+        steps: document.querySelectorAll('.recipe-steps li').length,
+        numbered: getComputedStyle(document.querySelector('.recipe-steps')).listStyleType,
+        water: document.querySelector('[data-recipe-water]').textContent,
+        controlsDisabled: document.querySelector('#recipe-dose').matches(':disabled'),
+        headingBelowHeader: document.querySelector('h1').getBoundingClientRect().top >= document.querySelector('.site-header').getBoundingClientRect().bottom,
+        navigationVisible: document.querySelector('#primary-navigation').getBoundingClientRect().width > 0,
+      }));
+      assert.deepEqual(staticRecipe, { steps, numbered: 'decimal', water, controlsDisabled: true, headingBelowHeader: true, navigationVisible: true }, `${slug} without JavaScript`);
+    }
+    await noScriptPage.goto(origin + 'recept/vardagskaffe-elbryggare/', { waitUntil: 'load' });
+    assert.equal(await noScriptPage.$eval('[data-batch-coffee]', element => element.textContent), '60');
+    assert.equal(await noScriptPage.$eval('[data-batch-scoops]', element => element.textContent), '10');
+    assert.equal(await noScriptPage.$eval('[data-batch-coffee-dl]', element => element.textContent), '1,5');
+    assert.equal(await noScriptPage.$$eval('.batch-steps li', elements => elements.length), 3);
+    assert.equal(await noScriptPage.$eval('#batch-water', element => element.matches(':disabled')), true);
     await noScriptPage.close();
     await checkRecipeInteractions(page, origin);
     console.log('Passed navigation, theme, sharing, timer, storage, and calculator interactions.');
@@ -306,11 +314,149 @@ async function checkRecipeInteractions(page, origin) {
   assert.equal(await page.$('.session-result'), null);
   await page.setViewport({ width: 320, height: 844 });
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
-  await ready(page, origin + 'recept/french-press-morgon/');
-  await Promise.all([page.waitForNavigation({ waitUntil: 'load' }), page.click('a[href*="bryggfelsokning/?method=french-press"]')]);
-  await page.waitForFunction(() => !document.querySelector('astro-island[client="load"]').hasAttribute('ssr'));
-  assert.equal(await page.$eval('[aria-label="Välj metod"] button[aria-pressed="true"]', element => element.textContent.trim()), 'French press');
+  await checkImmersionInteractions(page, origin);
+  await checkBatchInteractions(page, origin);
   console.log('Passed recipe scaling, active brewing, completion, print, no-script, and troubleshooting checks.');
+}
+
+async function checkBatchInteractions(page, origin) {
+  const set = async (selector, value) => page.$eval(selector, (element, next) => {
+    element.value = String(next); element.dispatchEvent(new Event('input', { bubbles: true }));
+  }, value);
+  const number = async selector => page.$eval(selector, element => element.textContent.replace(/\s/g, ''));
+  await page.setViewport({ width: 390, height: 844 });
+  await ready(page, origin + 'recept/vardagskaffe-elbryggare/');
+  assert.equal(await number('[data-batch-coffee]'), '60');
+  assert.equal(await number('[data-batch-water]'), '1000');
+  assert.equal(await number('[data-batch-scoops]'), '10');
+  assert.equal(await number('[data-batch-coffee-dl]'), '1,5');
+  assert.equal(await number('[data-batch-water-dl]'), '10');
+  await page.click('.measure-settings summary');
+  await set('#batch-scoop-grams', 10);
+  await set('#batch-dl-grams', 50);
+  assert.equal(await number('[data-batch-scoops]'), '6');
+  assert.equal(await number('[data-batch-coffee-dl]'), '1,2');
+  assert.equal(await number('[data-batch-coffee]'), '60');
+  await set('#batch-scoop-grams', 0);
+  assert.equal(await page.$('[data-batch-scoops]'), null);
+  assert.equal(await number('[data-batch-coffee]'), '60');
+  assert.equal(await page.$eval('#batch-scoop-grams', element => element.getAttribute('aria-invalid')), 'true');
+  await set('#batch-scoop-grams', 6);
+  await set('#batch-dl-grams', 40);
+  await set('#batch-water', 500);
+  assert.equal(await number('[data-batch-coffee]'), '30');
+  await set('#batch-water', 1250);
+  assert.equal(await number('[data-batch-coffee]'), '75');
+  await set('#batch-capacity', 750);
+  assert.equal(await page.$('.batch-result'), null);
+  assert.equal(await page.$eval('.print-batch', element => element.disabled), true);
+  assert.match(await page.$eval('#batch-amount-error', element => element.textContent), /maxvolym/);
+  await set('#batch-capacity', 2000);
+  await page.click('input[name="batch-mode"][value="cups"]');
+  await page.select('#batch-cup-size', '125');
+  assert.equal(await number('[data-batch-water]'), '500');
+  assert.equal(await number('[data-batch-coffee]'), '30');
+  await page.select('#batch-cup-size', '250');
+  assert.equal(await number('[data-batch-coffee]'), '60');
+  await set('#batch-cups', 6);
+  assert.equal(await number('[data-batch-water]'), '1500');
+  assert.equal(await number('[data-batch-coffee]'), '90');
+  await set('#batch-cups', 2.5);
+  assert.equal(await page.$('.batch-result'), null);
+  await set('#batch-cups', 4);
+  await page.evaluate(axe.source);
+  assert.deepEqual(await page.evaluate(async () => (await axe.run(document)).violations.map(v => v.id)), [], 'Batch cup-mode accessibility');
+  await page.click('input[name="batch-mode"][value="water"]');
+  await set('#batch-strength', 0);
+  assert.equal(await page.$('.batch-result'), null);
+  await set('#batch-strength', 65);
+  await set('#batch-water', 1250);
+  await set('#batch-capacity', 1250);
+  assert.equal(await number('[data-batch-coffee]'), '81,3');
+  await set('#batch-scoop-grams', 7.5);
+  await set('#batch-dl-grams', 45);
+  assert.equal(await number('[data-batch-scoops]'), '10,8');
+  assert.equal(await number('[data-batch-coffee-dl]'), '1,81');
+  await page.evaluate(() => window.print = () => window.batchPrinted = true);
+  await page.click('.print-batch');
+  assert.equal(await page.evaluate(() => window.batchPrinted), true);
+  await page.emulateMediaType('print');
+  assert.equal(await page.$eval('.batch-panel', element => getComputedStyle(element).display), 'none');
+  assert.equal(await number('[data-batch-coffee]'), '81,3');
+  assert.equal(await number('[data-batch-water]'), '1250');
+  assert.equal(await page.$eval('[data-batch-strength]', element => element.textContent), '65 g/l');
+  assert.equal(await number('[data-batch-scoops]'), '10,8');
+  assert.equal(await number('[data-batch-coffee-dl]'), '1,81');
+  assert.equal(await number('[data-batch-water-dl]'), '12,5');
+  assert.match(await page.$eval('[data-measure-assumptions]', element => element.textContent), /7,5 g\/mått och 45 g\/dl/);
+  await page.pdf({ path: 'reports/electric-filter-1250ml.pdf', format: 'A4', printBackground: true, margin: { top: '12mm', bottom: '12mm', left: '12mm', right: '12mm' } });
+  await page.emulateMediaType('screen');
+  await page.setViewport({ width: 320, height: 844 });
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'Electric recipe at 320px');
+  await Promise.all([page.waitForNavigation({ waitUntil: 'load' }), page.click('a[href*="bryggfelsokning/?method=electric-filter"]')]);
+  await page.waitForFunction(() => document.querySelector('[aria-label="Välj metod"] button[aria-pressed="true"]').textContent.trim() === 'Elbryggare');
+  assert.equal(await page.$('[aria-label="Välj bryggflöde"]'), null);
+  assert.match(await page.$eval('main', element => element.textContent), /Bryggaren styr värmen/);
+  console.log('Passed electric brewer volume/cup calculations, capacity validation, dosage, printing, no-script, and troubleshooting.');
+}
+
+async function checkImmersionInteractions(page, origin) {
+  for (const spec of [
+    { slug: 'stark-aeropress', method: 'aeropress', label: 'AeroPress', base: '18', baseWater: '200', dose: '15', water: '166,7', min: '12', max: '18', brewer: 'AeroPress Original', steep: 60, times: ['0:00', '0:15', '0:30', '1:30'], pdf: 'aeropress-15g' },
+    { slug: 'french-press-morgon', method: 'french-press', label: 'French press', base: '30', baseWater: '500', dose: '45', water: '750', min: '15', max: '45', brewer: 'presskanna på minst 1 liter', steep: 240, times: ['0:00', '0:30', '0:45', '4:45'], pdf: 'french-press-45g' },
+  ]) {
+    await page.setViewport({ width: 390, height: 844 });
+    await ready(page, origin + `recept/${spec.slug}/`);
+    assert.equal(await page.$eval('#recipe-dose', element => element.value), spec.base);
+    assert.equal(await page.$eval('[data-recipe-water]', element => element.textContent), spec.baseWater);
+    assert.equal(await page.$eval('#recipe-dose', element => element.min), spec.min);
+    assert.equal(await page.$eval('#recipe-dose', element => element.max), spec.max);
+    assert.ok((await page.$eval('#recipe-dose-hint', element => element.textContent)).includes(spec.brewer));
+    assert.equal(await page.$eval('.dose-presets [aria-pressed="true"]', element => element.textContent), `${spec.base} g`);
+    await page.$eval('#recipe-dose', (element, max) => { element.value = String(Number(max) + .1); element.dispatchEvent(new Event('input', { bubbles: true })); }, spec.max);
+    assert.equal(await page.$eval('[data-start-recipe]', element => element.disabled), true);
+    await page.$eval('#recipe-dose', (element, dose) => { element.value = dose; element.dispatchEvent(new Event('input', { bubbles: true })); }, spec.dose);
+    assert.equal(await page.$eval('[data-recipe-water]', element => element.textContent), spec.water);
+    await page.click('[data-start-recipe]');
+    assert.equal(await page.$eval('[data-active-target]', element => element.textContent), `${spec.water} g`);
+    assert.equal(await page.$eval('#recipe-dose', element => element.matches(':disabled')), true);
+    await page.evaluate(() => window.advanceBrewClock(600000));
+    await page.waitForSelector('[data-advance-recipe]');
+    assert.match(await page.$eval('#active-step-heading', element => element.textContent), /Rör om/);
+    assert.equal(await page.$('[data-complete-recipe]'), null);
+    assert.equal(await page.$('[data-active-target]'), null);
+    await page.evaluate(axe.source);
+    assert.deepEqual(await page.evaluate(async () => (await axe.run(document)).violations.map(v => v.id)), [], `${spec.label} stirring accessibility`);
+    await page.click('[data-advance-recipe]');
+    await page.waitForFunction(() => document.querySelector('#active-step-heading').textContent === 'Låt kaffet dra');
+    assert.equal(await page.evaluate(() => document.activeElement.id), 'active-step-heading');
+    await page.evaluate(seconds => window.advanceBrewClock(seconds * 1000), spec.steep / 2);
+    assert.equal(await page.$eval('#active-step-heading', element => element.textContent), 'Låt kaffet dra');
+    assert.equal(await page.$('[data-complete-recipe]'), null);
+    await page.evaluate(seconds => window.advanceBrewClock(seconds * 1000), spec.steep / 2 + 1);
+    await page.waitForSelector('[data-complete-recipe]');
+    assert.match(await page.$eval('#active-step-heading', element => element.textContent), /Pressa/);
+    await page.evaluate(() => window.advanceBrewClock(300000));
+    assert.equal(await page.$eval('#recipe-dose', element => element.matches(':disabled')), true);
+    await page.emulateMediaType('print');
+    assert.equal(await page.$eval('.full-schedule', element => getComputedStyle(element).display !== 'none'), true);
+    assert.equal(await page.$eval('.active-brew', element => getComputedStyle(element).display), 'none');
+    assert.equal(await page.$eval('.print-dose dd', element => element.textContent), `${spec.dose} g`);
+    assert.equal(await page.$eval('.recipe-steps [data-target]', element => element.textContent), `${spec.water} g`);
+    assert.deepEqual(await page.$$eval('.recipe-steps .step-time', elements => elements.map(element => element.textContent)), spec.times);
+    assert.equal(await page.$$eval('.recipe-steps li', elements => elements.length), 4);
+    await page.pdf({ path: `reports/${spec.pdf}.pdf`, format: 'A4', printBackground: true, margin: { top: '12mm', bottom: '12mm', left: '12mm', right: '12mm' } });
+    await page.emulateMediaType('screen');
+    await page.click('[data-complete-recipe]');
+    await page.waitForFunction(() => document.activeElement.matches('.session-result h3'));
+    assert.equal(await page.$eval('#recipe-dose', element => element.matches(':disabled')), false);
+    await page.setViewport({ width: 320, height: 844 });
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${spec.label} at 320px`);
+    await Promise.all([page.waitForNavigation({ waitUntil: 'load' }), page.click(`a[href*="bryggfelsokning/?method=${spec.method}"]`)]);
+    await page.waitForFunction(() => !document.querySelector('astro-island[client="load"]').hasAttribute('ssr'));
+    assert.equal(await page.$eval('[aria-label="Välj metod"] button[aria-pressed="true"]', element => element.textContent.trim()), spec.label);
+  }
+  console.log('Passed AeroPress and French press scaling, manual stirring, full steep timers, pressing, printing, and method links.');
 }
 
 module.exports = { runBrowserChecks };
